@@ -34,9 +34,8 @@ betaMF=10
 betaFM=1
 betaFF=1
 sigma=0.5
-gamma=0.5
-dt=1
-Tmax=300
+dt=0.05
+Tmax=100
 NF=90000
 NM=100000
 u=0.01
@@ -44,16 +43,16 @@ u=0.01
 # on défini les conditions initiales
 IF0=0
 SF0=NF-10
-EF0=4
+EF0=20
 
 IM0=0
 SM0=NM-10
-EM0=6
+EM0=10
 
 # on créé les vecteurs à partir des différentes valeurs
 Time=seq(from=0,to=Tmax,by=dt)
 Init.cond=c(SF=SF0,IF=IF0,EF=EF0,SM=SM0,IM=IM0,EM=EM0) 
-param=c(beta=beta,gamma=gamma,sigma=sigma,u=u)
+param=c(beta=beta,sigma=sigma,u=u)
 
 # on utilise la fonction lsoda, avec as.data.frame() autour pour un output plus pratique
 result <- as.data.frame(lsoda(Init.cond, Time, SEI_h_model, param))
