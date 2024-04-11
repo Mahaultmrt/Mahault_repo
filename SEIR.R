@@ -35,7 +35,7 @@ u0=0.01
 u1=0.01
 
 # on défini les conditions initiales
-I0=1
+I0=0
 S0=N-10
 R0=0
 E0=1
