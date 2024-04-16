@@ -13,16 +13,16 @@ Resistance_model <- function(t, pop, param) {
     N=Sa+CRa+CSa+IRa+ISa+S+CR+CS+IR+IS
     
     dSa <- -Sa*((beta*(1-c)*(CRa+IRa)/N)+(beta*c*(CR+IR)/N)+beta*(CSa+ISa+CS+IS)/N)+sigma*IRa+sigma*ISa-omega*Sa+teta*S+gamma*CRa+(gamma+alpha)*CSa
-    dCRa <- Sa*((beta*(1-c)*(CRa+IRa)/N)+beta*c*(CR+IR)/N)-gamma*CRa-rhoRa*CRa
-    dCSa <- Sa*(beta*(CSa+ISa+CS+IS)/N)-(gamma+alpha)*CSa-rhoSa*CSa
-    dIRa <- rhoRa*CRa-sigma*IRa
-    dISa <- rhoSa*CSa-sigma*ISa
+    dCRa <- Sa*((beta*(1-c)*(CRa+IRa)/N)+beta*c*(CR+IR)/N)-gamma*CRa-rhoRa*CRa-omega*CRa+teta*CR
+    dCSa <- Sa*(beta*(CSa+ISa+CS+IS)/N)-(gamma+alpha)*CSa-rhoSa*CSa-omega*CSa+teta*CS
+    dIRa <- rhoRa*CRa-sigma*IRa-omega*IRa+teta*IR
+    dISa <- rhoSa*CSa-sigma*ISa-omega*ISa+teta*IS
     
     dS <- -S*((beta*(1-c)*(CRa+IRa)/N)+(beta*c*(CR+IR)/N)+beta*(CSa+ISa+CS+IS)/N)+sigma*IR+sigma*IS+omega*Sa-teta*S+gamma*CR+gamma*CS
-    dCR <- S*((beta*(1-c)*(CRa+IRa)/N)+beta*c*(CR+IR)/N)-gamma*CR-rho*CR
-    dCS <- S*(beta*(CSa+ISa+CS+IS)/N)-gamma*CS-rho*CS
-    dIR <- rho*CR-sigma*IR
-    dIS <- rho*CS-sigma*IS
+    dCR <- S*((beta*(1-c)*(CRa+IRa)/N)+beta*c*(CR+IR)/N)-gamma*CR-rho*CR+omega*CRa-teta*CR
+    dCS <- S*(beta*(CSa+ISa+CS+IS)/N)-gamma*CS-rho*CS+omega*CSa-teta*CS
+    dIR <- rho*CR-sigma*IR+omega*IRa-teta*IR
+    dIS <- rho*CS-sigma*IS+omega*ISa-teta*IS
     
     res<-c(dSa,dCRa,dCSa,dIRa,dISa,dS,dCR,dCS,dIR,dIS)
     
@@ -34,11 +34,11 @@ Resistance_model <- function(t, pop, param) {
 
 # on défini les paramètres
 beta=1
-c=0.2
+c=0.1
 sigma=0.14
 gamma=0.03
-rho=0.5
-rhoRa=0.35
+rho=0.35
+rhoRa=0.3
 rhoSa=0
 teta=0.022
 omega=0.1
@@ -48,13 +48,13 @@ Tmax=25
 
 
 # on défini les conditions initiales
-Sa0=50
+Sa0=70
 CRa0=1
 CSa0=1
 IRa0=0
 ISa0=0
 
-S0=25
+S0=65
 CR0=1
 CS0=1
 IR0=0
@@ -67,6 +67,7 @@ param=c(beta=beta,c=c,sigma=sigma,gamma=gamma,rho=rho,rhoRa=rhoRa,rhoSa=rhoSa,te
 
 # on utilise la fonction lsoda, avec as.data.frame() autour pour un output plus pratique
 result <- as.data.frame(lsoda(Init.cond, Time, Resistance_model, param))
+
 
 # méthode ggplot + reshape + joli
 result %>%
@@ -81,3 +82,31 @@ result %>%
 
 # fonction pour enregistrer le plot (enregistre par défaut le dernier plot affiché)
 # ggsave("nom_du_plot.png")
+
+
+# creating a matrix with 0 rows 
+# and columns 
+# mat = matrix(ncol = 2, nrow = 4)
+# colnames(mat)=c("rho","res")
+
+# converting the matrix to data 
+# frame
+# df=data.frame(mat)
+# df["rho"]<-c("rho=1","rho=2","rho=3","rho=4")
+# 
+# df[1,2]<-result[251,"ISa"]
+# df[2,2]<-result[251,"ISa"]
+# df[3,2]<-result[251,"ISa"]
+# df[4,2]<-result[251,"ISa"]
+# ggplot(data=df, aes(x=rho, y=res)) +
+#   geom_bar(stat="identity", fill="steelblue")+
+#   theme_minimal()
+
+# ggplot(result, aes(x=time)) + 
+#   geom_line(aes(y = ISa), color = "red", linetype=3) + 
+#   geom_line(aes(y = IS), color="blue", linetype=3) 
+
+# voir l'evolution du nombre de cas infectés souche suceptible avec antibiotique lorsque rhoSA varie
+p<-ggplot(result, aes(x=time)) + geom_line(aes(y = ISa, color="rhoSa1"), linetype=3)
+p<- p+geom_line(data=result, aes(y = ISa, color="rhoSa2"),color="red", linetype=3)  + labs(color="rhoSa")
+
