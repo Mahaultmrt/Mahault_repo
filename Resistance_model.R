@@ -39,12 +39,12 @@ sigma=0.14
 gamma=0.03
 rho=0.35
 rhoRa=0.3
-rhoSa=0
+rhoSa=0.15
 teta=0.022
 omega=0.1
-alpha=0.5
-dt=0.1
-Tmax=25
+alpha=0.72
+dt=1
+Tmax=50
 
 
 # on défini les conditions initiales
@@ -110,3 +110,36 @@ result %>%
 p<-ggplot(result, aes(x=time)) + geom_line(aes(y = ISa, color="rhoSa1"), linetype=3)
 p<- p+geom_line(data=result, aes(y = ISa, color="rhoSa2"),color="red", linetype=3)  + labs(color="rhoSa")
 
+
+rhoSA1=result #rhoSA=0
+rhoSA2= result #rhoSA=0.5
+rhoSA3=result # rhoSA=0.15
+
+# Barplot variation de rhoSA
+ggplot() + 
+  geom_bar(data=rhoSA2, aes(x=time,y=ISa), stat = "identity", fill="blue",position=position_dodge(width=0.8),width=0.35)+
+  geom_bar(data=rhoSA3, aes(x=time,y=ISa), stat = "identity", fill="green",position=position_dodge(width=0.8),width=0.35)+
+  geom_bar(data=rhoSA1, aes(x=time,y=ISa),stat = "identity", fill="red",position=position_dodge(width=0.8),width=0.35)
+  
+  
+# barplot variation du nombre de personnes colonisées par la souche resistante en fonction du cout de resistance
+
+c1=result #c=0
+c2=result #c=0.15
+c3=result #c=0.45
+
+ggplot() + 
+  geom_bar(data=c3, aes(x=time,y=CRa+CR), stat = "identity", fill="blue",position=position_dodge(width=0.8),width=0.35)+
+  geom_bar(data=c2, aes(x=time,y=CRa+CR), stat = "identity", fill="green",position=position_dodge(width=0.8),width=0.35)+
+  geom_bar(data=c1, aes(x=time,y=CRa+CR),stat = "identity", fill="red",position=position_dodge(width=0.8),width=0.35)
+
+# barplot de variation du nombre de personnes colonisées (CSa) en fonction de l'efficacité de l'antibiotique
+
+alpha1= result #alpha=0.12
+alpha2=result #alpha=0.5
+alpha3=result #alpha=0.72
+
+ggplot() + 
+  geom_bar(data=alpha1, aes(x=time,y=CSa), stat = "identity", fill="blue",position=position_dodge(width=0.8),width=0.35)+
+  geom_bar(data=alpha2, aes(x=time,y=CSa), stat = "identity", fill="green",position=position_dodge(width=0.8),width=0.35)+
+  geom_bar(data=alpha3, aes(x=time,y=CSa),stat = "identity", fill="red",position=position_dodge(width=0.8),width=0.35)
