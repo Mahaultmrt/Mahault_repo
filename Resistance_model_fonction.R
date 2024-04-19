@@ -6,7 +6,8 @@ library(reshape2)
 library(dplyr)
 library(gridExtra)
 
-Res_1 <- function(beta,ct,sigma, gamma,rho,rhoRa,rhoSa,teta,omega,alpha,Sa0,CRa0,CSa0,IRa0,ISa0,S0,CR0, CS0,IR0,IS0,Time) {
+
+Res_1 <- function(results_df,beta,ct,sigma, gamma,rho,rhoRa,rhoSa,teta,omega,alpha,Sa0,CRa0,CSa0,IRa0,ISa0,S0,CR0, CS0,IR0,IS0,Time) {
   require(deSolve) 
   
   Resistance_model_func <- function(t, pop, parameters) {
@@ -37,35 +38,47 @@ Res_1 <- function(beta,ct,sigma, gamma,rho,rhoRa,rhoSa,teta,omega,alpha,Sa0,CRa0
   initial_values <- c(Sa=Sa0,CRa=CRa0,CSa=CSa0,IRa=IRa0,ISa=ISa0,S=S0,CR=CR0,CS=CS0,IR=IR0,IS=IS0)
   
   out <- lsoda(initial_values, Time, Resistance_model_func, parameters_values)
+  #as.data.frame(out)
   
-  as.data.frame(out)
+  df_out <- as.data.frame(out)
+  
+  last_CSa <- tail(df_out$CSa, n = 1)
+  
+  new_row <- data.frame(Alpha = alpha, Last_CSa = last_CSa)
+  results_df <- rbind(results_df, new_row)
+  
+  return(list(results=df_out,Result_DF=results_df))
+
 }
 
-{
-test<-Res_1(beta=1,
-         ct=0.1,
-         sigma=0.14,
-         gamma=0.03,
-         rho=0.35,
-         rhoRa=0.3,
-         rhoSa=0,
-         teta=0.1,
-         omega=0.1,
-         alpha=0.72,
-         Sa0=100,
-         CRa0=0,
-         CSa0=0,
-         IRa0=0,
-         ISa0=0,
-         S0=100,
-         CR0=0,
-         CS0=0,
-         IR0=0,
-         IS0=0,
-         Time=seq(from=0,to=150,by=1)
-)
+results_df <- data.frame(Alpha = numeric(), Last_CSa = numeric())
 
-r<-Res_1(beta=1,
+{
+
+  test<-Res_1(results_df,beta=1,
+              ct=0.1,
+              sigma=0.14,
+              gamma=0.03,
+              rho=0.35,
+              rhoRa=0.3,
+              rhoSa=0,
+              teta=0.1,
+              omega=0.1,
+              alpha=0.72,
+              Sa0=100,
+              CRa0=0,
+              CSa0=0,
+              IRa0=0,
+              ISa0=0,
+              S0=100,
+              CR0=0,
+              CS0=0,
+              IR0=0,
+              IS0=0,
+              Time=seq(from=0,to=150,by=1)
+  )
+  
+r<-Res_1(results_df,beta=1,
          ct=0.1,
          sigma=0.14,
          gamma=0.03,
@@ -89,7 +102,7 @@ r<-Res_1(beta=1,
 )
 
 
-r2<-Res_1(beta=1,
+r2<-Res_1(results_df,beta=1,
           ct=0.1,
           sigma=0.14,
           gamma=0.03,
@@ -112,7 +125,7 @@ r2<-Res_1(beta=1,
           Time=seq(from=0,to=150,by=1)
 )
 
-r3<-Res_1(beta=1,
+r3<-Res_1(results_df,beta=1,
          ct=0.1,
          sigma=0.14,
          gamma=0.03,
@@ -170,15 +183,15 @@ graph<- function(data,filter_values){
   return(p)
 }
 
-g1<-graph(r,NULL)
-g2<-graph(r2,c("ISa","IS"))
-g3<-graph(r3, NULL)
-gtest<-graph(test,NULL)
+g1<-graph(r$results,NULL)
+g2<-graph(r2$results,c("ISa","IS"))
+g3<-graph(r3$results, NULL)
+gtest<-graph(test$results,NULL)
 
 grid.arrange(g1,g2,g3,gtest,ncol=2)
 {
 #On teste avec différents alpha
-alpha1<-Res_1(beta=1,
+alpha1<-Res_1(results_df,beta=1,
           ct=0.1,
           sigma=0.14,
           gamma=0.03,
@@ -200,7 +213,7 @@ alpha1<-Res_1(beta=1,
           IS0=0,
           Time=seq(from=0,to=150,by=1)
 )
-alpha2<-Res_1(beta=1,
+alpha2<-Res_1(results_df,beta=1,
           ct=0.1,
           sigma=0.14,
           gamma=0.03,
@@ -222,7 +235,7 @@ alpha2<-Res_1(beta=1,
           IS0=0,
           Time=seq(from=0,to=150,by=1)
 )
-alpha3<-Res_1(beta=1,
+alpha3<-Res_1(results_df,beta=1,
           ct=0.1,
           sigma=0.14,
           gamma=0.03,
@@ -244,7 +257,7 @@ alpha3<-Res_1(beta=1,
           IS0=0,
           Time=seq(from=0,to=150,by=1)
 )
-alpha4<-Res_1(beta=1,
+alpha4<-Res_1(results_df,beta=1,
               ct=0.1,
               sigma=0.14,
               gamma=0.03,
@@ -266,7 +279,7 @@ alpha4<-Res_1(beta=1,
               IS0=0,
               Time=seq(from=0,to=150,by=1)
 )
-alpha5<-Res_1(beta=1,
+alpha5<-Res_1(results_df,beta=1,
               ct=0.1,
               sigma=0.14,
               gamma=0.03,
@@ -289,7 +302,7 @@ alpha5<-Res_1(beta=1,
               Time=seq(from=0,to=150,by=1)
 )
 
-alpha6<-Res_1(beta=1,
+alpha6<-Res_1(results_df,beta=1,
               ct=0.1,
               sigma=0.14,
               gamma=0.03,
@@ -311,7 +324,7 @@ alpha6<-Res_1(beta=1,
               IS0=0,
               Time=seq(from=0,to=150,by=1)
 )
-alpha7<-Res_1(beta=1,
+alpha7<-Res_1(results_df,beta=1,
               ct=0.1,
               sigma=0.14,
               gamma=0.03,
@@ -333,7 +346,7 @@ alpha7<-Res_1(beta=1,
               IS0=0,
               Time=seq(from=0,to=150,by=1)
 )
-alpha8<-Res_1(beta=1,
+alpha8<-Res_1(results_df,beta=1,
               ct=0.1,
               sigma=0.14,
               gamma=0.03,
@@ -355,7 +368,7 @@ alpha8<-Res_1(beta=1,
               IS0=0,
               Time=seq(from=0,to=150,by=1)
 )
-alpha9<-Res_1(beta=1,
+alpha9<-Res_1(results_df,beta=1,
               ct=0.1,
               sigma=0.14,
               gamma=0.03,
@@ -381,25 +394,25 @@ alpha9<-Res_1(beta=1,
 
 
 # on s'interesse aux individus colonisés par une souche résistante avec présence d'antibiotiques et sans
-gCR<-graph(r,c("CRa","CR"))
+gCR<-graph(r$results,c("CRa","CR"))
 
 # on s'interesse aux individus colonisés par la souche sensible en présence et absence d'antibiotiques
-gCR<-graph(r,c("CSa","CS"))
+gCS<-graph(r$results,c("CSa","CS"))
 
 
 
 #On teste avec différents alpha
 
 graph_alpha<-ggplot() + 
-  geom_line(data=alpha1, aes(x=time,y=CSa), stat = "identity", colour="blue")+
-  geom_line(data=alpha2, aes(x=time,y=CSa), stat = "identity", colour="green")+
-  geom_line(data=alpha3, aes(x=time,y=CSa),stat = "identity", colour="red")+
+  geom_line(data=alpha1$results, aes(x=time,y=CSa), stat = "identity", colour="blue")+
+  geom_line(data=alpha2$results, aes(x=time,y=CSa), stat = "identity", colour="green")+
+  geom_line(data=alpha3$results, aes(x=time,y=CSa),stat = "identity", colour="red")+
   theme_bw()
 
 
 #On teste avec différents beta
 {
-beta1<-Res_1(beta=1,
+beta1<-Res_1(results_df,beta=1,
               ct=0.1,
               sigma=0.14,
               gamma=0.03,
@@ -422,7 +435,7 @@ beta1<-Res_1(beta=1,
               Time=seq(from=0,to=150,by=1)
 )
 
-beta2<-Res_1(beta=3,
+beta2<-Res_1(results_df,beta=3,
               ct=0.1,
               sigma=0.14,
               gamma=0.03,
@@ -444,7 +457,7 @@ beta2<-Res_1(beta=3,
               IS0=0,
               Time=seq(from=0,to=150,by=1)
 )
-beta3<-Res_1(beta=6,
+beta3<-Res_1(results_df,beta=6,
               ct=0.1,
               sigma=0.14,
               gamma=0.03,
@@ -468,19 +481,16 @@ beta3<-Res_1(beta=6,
 )
 }
 graph_beta<-ggplot() + 
-  geom_line(data=beta1, aes(x=time,y=CRa+CSa+CR+CS),color="blue", stat = "identity")+
-  geom_line(data=beta2, aes(x=time,y=CRa+CSa+CR+CS), color="red", stat = "identity")+
-  geom_line(data=beta3, aes(x=time,y=CRa+CSa+CR+CS),color="green",stat = "identity")+
+  geom_line(data=beta1$results, aes(x=time,y=CRa+CSa+CR+CS),color="blue", stat = "identity")+
+  geom_line(data=beta2$results, aes(x=time,y=CRa+CSa+CR+CS), color="red", stat = "identity")+
+  geom_line(data=beta3$results, aes(x=time,y=CRa+CSa+CR+CS),color="green",stat = "identity")+
   theme_bw()
 
 
 grid.arrange(graph_alpha,graph_beta,ncol=2)
 
-val<-c(alpha1[nrow(alpha1),"CSa"],alpha2[nrow(alpha2),"CSa"],alpha3[nrow(alpha3),"CSa"],
-       alpha4[nrow(alpha4),"CSa"],alpha5[nrow(alpha5),"CSa"],alpha6[nrow(alpha6),"CSa"],
-       alpha7[nrow(alpha7),"CSa"],alpha8[nrow(alpha8),"CSa"],alpha9[nrow(alpha9),"CSa"])
-a<-c(0.15,0.5,0.85,0.2,0.32,0.65,0.98,0.71,0.56)
-data_point<-data.frame(a,val)
+data_point<-rbind(alpha1$Result_DF, alpha2$Result_DF,alpha3$Result_DF,alpha4$Result_DF,
+                  alpha5$Result_DF,alpha6$Result_DF,alpha7$Result_DF,alpha8$Result_DF,alpha9$Result_DF)
 
 #Permet de voir comment va varier le nombre d'individus colonisés susceptibles sous ATB en fonction de alpha
 ggplot(data   = data_point,              
