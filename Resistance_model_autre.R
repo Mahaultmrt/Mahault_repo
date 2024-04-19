@@ -32,7 +32,7 @@ Res_model <- function(t, pop, param) {
   
 }
 
-create_params<-function(beta=1,ct=0.1,sigma=0.14,gamma=0.03,rho=0.35,rhoRa=0.3,rhoSa=0,teta=0.022,omega=0.1,alpha=0.5)
+create_params<-function(beta=1,ct=0.8,sigma=0.14,gamma=0.03,rho=0.1,rhoRa=0.08,rhoSa=0,teta=0.022,omega=0.07,alpha=0.5)
 {
   list(beta=beta,ct=ct,sigma=sigma,gamma=gamma,rho=rho,rhoRa=rhoRa,rhoSa=rhoSa,teta=teta,omega=omega,alpha=alpha)
 }
@@ -41,7 +41,7 @@ create_initial_cond<-function(Sa0=100,CRa0=1,CSa0=1,IRa0=0,ISa0=0,S0=120,CR0=1,C
   c(Sa=Sa0,CRa=CRa0,CSa=CSa0,IRa=IRa0,ISa=ISa0,S=S0,CR=CR0,CS=CS0,IR=IR0,IS=IS0)
 }
 
-run<-function(Init.cond,param,Tmax=75,dt=1){
+run<-function(Init.cond,param,Tmax=500,dt=1){
   Time=seq(from=0,to=Tmax,by=dt)
   result = as.data.frame(lsoda(Init.cond, Time, Res_model, param))
   return(result)
@@ -56,7 +56,7 @@ run_test<-run(Init.cond,param)
 
 
 Init.cond<-create_initial_cond()
-param<-create_params(rhoSa=0.15)
+param<-create_params(rhoSa=0.08)
 run1<-run(Init.cond,param)
 
 param<-create_params()
@@ -101,7 +101,7 @@ graph<- function(data,filter_values){
 }
 
 run1_g<-graph(run1,NULL)
-run2_g<-graph(run2,c("ISa","IS"))
+run2_g<-graph(run2,NULL)
 run3_g<-graph(run3, NULL)
 runtest_g<-graph(run_test,NULL)
 grid.arrange(run1_g,run2_g,run3_g,runtest_g,ncol=2)
@@ -149,20 +149,30 @@ results_df <- bind_rows(results_df, new_row)
 
 param<-create_params(alpha=0.68)
 alpha7<-run(Init.cond,param)
-new_row=data.frame(Alpha=param$alpha, Last_CSa=tail(alpha6$CSa, n = 1))
+new_row=data.frame(Alpha=param$alpha, Last_CSa=tail(alpha7$CSa, n = 1))
 results_df <- bind_rows(results_df, new_row)
 
 param<-create_params(alpha=0.98)
 alpha8<-run(Init.cond,param)
-new_row=data.frame(Alpha=param$alpha, Last_CSa=tail(alpha6$CSa, n = 1))
+new_row=data.frame(Alpha=param$alpha, Last_CSa=tail(alpha8$CSa, n = 1))
+results_df <- bind_rows(results_df, new_row)
+
+param<-create_params(alpha=0)
+alpha9<-run(Init.cond,param)
+new_row=data.frame(Alpha=param$alpha, Last_CSa=tail(alpha9$CSa, n = 1))
 results_df <- bind_rows(results_df, new_row)
 
 ggplot(data   = results_df,              
        mapping = aes(x = Alpha,    
                      y = Last_CSa)) +   
-  geom_point()                   
+  geom_point(color="blue")+
+  geom_line(color="purple")+
+  theme_bw()+
+  labs(title="Number of people in CSa according to the rate of antiobiotics (alpha)")
+
 
 graph_alpha<-ggplot() + 
+  geom_line(data=alpha9, aes(x=time,y=CSa), stat = "identity", colour="yellow")+
   geom_line(data=alpha4, aes(x=time,y=CSa), stat = "identity", colour="blue")+
   geom_line(data=alpha6, aes(x=time,y=CSa), stat = "identity", colour="green")+
   geom_line(data=alpha8, aes(x=time,y=CSa),stat = "identity", colour="red")+
