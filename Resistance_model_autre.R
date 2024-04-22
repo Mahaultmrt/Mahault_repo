@@ -12,17 +12,17 @@ Res_model <- function(t, pop, param) {
     N=Sa+CRa+CSa+IRa+ISa+S+CR+CS+IR+IS
     
     
-    dSa <- -Sa*((beta*ct*(CRa+IRa)/N)+(beta*ct*(CR+IR)/N)+beta*(CSa+ISa+CS+IS)/N)+sigma*IRa+sigma*ISa-omega*Sa+teta*S+gamma*CRa+(gamma+alpha)*CSa
+    dSa <- -Sa*((beta*ct*(CRa+IRa)/N)+(beta*ct*(CR+IR)/N)+beta*(CSa+ISa+CS+IS)/N)+delta*IRa+delta*ISa-omega*Sa+teta*S+gamma*CRa+(gamma+alpha)*CSa
     dCRa <- Sa*((beta*ct*(CRa+IRa)/N)+beta*ct*(CR+IR)/N)-gamma*CRa-rhoRa*CRa-omega*CRa+teta*CR
     dCSa <- Sa*(beta*(CSa+ISa+CS+IS)/N)-(gamma+alpha)*CSa-rhoSa*CSa-omega*CSa+teta*CS
-    dIRa <- rhoRa*CRa-sigma*IRa-omega*IRa+teta*IR
-    dISa <- rhoSa*CSa-sigma*ISa-omega*ISa+teta*IS
+    dIRa <- rhoRa*CRa-delta*IRa-omega*IRa+teta*IR
+    dISa <- rhoSa*CSa-delta*ISa-omega*ISa+teta*IS
     
-    dS <- -S*((beta*ct*(CRa+IRa)/N)+(beta*ct*(CR+IR)/N)+beta*(CSa+ISa+CS+IS)/N)+sigma*IR+sigma*IS+omega*Sa-teta*S+gamma*CR+gamma*CS
+    dS <- -S*((beta*ct*(CRa+IRa)/N)+(beta*ct*(CR+IR)/N)+beta*(CSa+ISa+CS+IS)/N)+delta*IR+delta*IS+omega*Sa-teta*S+gamma*CR+gamma*CS
     dCR <- S*((beta*ct*(CRa+IRa)/N)+beta*ct*(CR+IR)/N)-gamma*CR-rho*CR+omega*CRa-teta*CR
     dCS <- S*(beta*(CSa+ISa+CS+IS)/N)-gamma*CS-rho*CS+omega*CSa-teta*CS
-    dIR <- rho*CR-sigma*IR+omega*IRa-teta*IR
-    dIS <- rho*CS-sigma*IS+omega*ISa-teta*IS
+    dIR <- rho*CR-delta*IR+omega*IRa-teta*IR
+    dIS <- rho*CS-delta*IS+omega*ISa-teta*IS
     
     res<-c(dSa,dCRa,dCSa,dIRa,dISa,dS,dCR,dCS,dIR,dIS)
     
@@ -32,9 +32,9 @@ Res_model <- function(t, pop, param) {
   
 }
 
-create_params<-function(beta=1,ct=0.8,sigma=0.14,gamma=0.03,rho=0.1,rhoRa=0.08,rhoSa=0,teta=0.022,omega=0.07,alpha=0.5)
+create_params<-function(beta=1,ct=0.8,delta=0.14,gamma=0.03,rho=0.1,rhoRa=0.08,rhoSa=0,teta=0.022,omega=0.07,alpha=0.5)
 {
-  list(beta=beta,ct=ct,sigma=sigma,gamma=gamma,rho=rho,rhoRa=rhoRa,rhoSa=rhoSa,teta=teta,omega=omega,alpha=alpha)
+  list(beta=beta,ct=ct,delta=delta,gamma=gamma,rho=rho,rhoRa=rhoRa,rhoSa=rhoSa,teta=teta,omega=omega,alpha=alpha)
 }
 
 create_initial_cond<-function(Sa0=100,CRa0=1,CSa0=1,IRa0=0,ISa0=0,S0=120,CR0=1,CS0=1,IR0=0,IS0=0){
