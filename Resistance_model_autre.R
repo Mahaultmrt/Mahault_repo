@@ -172,7 +172,7 @@ ggplot(data   = results_df,
 
 
 graph_alpha<-ggplot() + 
-  geom_line(data=alpha9, aes(x=time,y=CSa), stat = "identity", colour="yellow")+
+  geom_line(data=alpha9, aes(x=time,y=CSa), stat = "identity", colour="orange")+
   geom_line(data=alpha4, aes(x=time,y=CSa), stat = "identity", colour="blue")+
   geom_line(data=alpha6, aes(x=time,y=CSa), stat = "identity", colour="green")+
   geom_line(data=alpha8, aes(x=time,y=CSa),stat = "identity", colour="red")+
