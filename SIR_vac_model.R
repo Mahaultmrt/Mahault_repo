@@ -5,7 +5,11 @@ library(dplyr)
 library(gridExtra)
 
 
-SIR_model_vacc <- function(t, pop, param) {
+vecgrippe = approxfun(c(1:1000), sin(c(1:1000)))
+
+vecgrippe(5.234)
+
+SIR_model_vacc <- function(t, pop, param, vecgrippe) {
   
   with(as.list(c(pop, param)), {
     
