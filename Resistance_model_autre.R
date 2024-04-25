@@ -11,6 +11,7 @@ Res_model <- function(t, pop, param) {
     
     N=Sa+CRa+CSa+IRa+ISa+S+CR+CS+IR+IS
     
+  
     
     dSa <- -Sa*((beta*ct*(CRa+IRa)/N)+(beta*ct*(CR+IR)/N)+beta*(CSa+ISa+CS+IS)/N)+delta*IRa+delta*ISa-omega*Sa+teta*S+gamma*CRa+(gamma+alpha)*CSa
     dCRa <- Sa*((beta*ct*(CRa+IRa)/N)+beta*ct*(CR+IR)/N)-gamma*CRa-rhoRa*CRa-omega*CRa+teta*CR
@@ -43,15 +44,14 @@ create_initial_cond<-function(Sa0=100,CRa0=1,CSa0=1,IRa0=0,ISa0=0,S0=120,CR0=1,C
 
 run<-function(Init.cond,param,Tmax=500,dt=1){
   Time=seq(from=0,to=Tmax,by=dt)
-  result = as.data.frame(lsoda(Init.cond, Time, Res_model, param))
+  result = as.data.frame(lsoda(Init.cond, Time, Res_model))
   return(result)
   
 }
 
-results_df <- data.frame(Alpha = numeric(), Last_CSa = numeric())
 
 param<-create_params()
-Init.cond<-create_initial_cond(CRa0=0,CSa0=0,CR0=0,CS0=0)
+Init.cond<-create_initial_cond()
 run_test<-run(Init.cond,param)
 
 
