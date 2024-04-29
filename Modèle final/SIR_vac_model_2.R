@@ -98,9 +98,21 @@ r4_g<- graph(r4,NULL)
 
 grid.arrange(r1_g,r2_g,r3_g,r4_g,ncol=2)
 
-vec_virus_v = approxfun(r1["Iv"])
-vec_virus_nv=approxfun(r1["Inv"])
-vec_virus_v(5.12)
-vec_virus_nv(5.12)
+# prop_Iv=100*r1$Iv/r1$Sv
+# prop_Inv=100*r1$Inv/r1$Snv
+# 
+# vec_virus_v = approxfun(r1$time,prop_Iv)
+# vec_virus_nv=approxfun(r1$time,prop_Inv)
+# vec_virus_v(5.12)
+# vec_virus_nv(5.12)
+# 
+# vec_virus_v = approxfun(r1$time,r1$Iv)
+# vec_virus_nv=approxfun(r1$time,r1$Inv)
+# 
+# vec_virus_v(15.5)
 
+virus_func <- function(times) {
+  virus <- r1$Iv[times+1]  
+  return(virus)
+}
 
