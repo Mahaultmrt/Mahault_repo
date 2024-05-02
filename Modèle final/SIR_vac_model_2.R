@@ -30,7 +30,7 @@ create_params<-function(beta=1,gamma=0.14,PI=(1-vf),vf=0.8)
   list(beta=beta,gamma=gamma,PI=PI,vf=vf)
 }
 
-create_initial_cond<-function(Sv0=50,Snv0=50,Iv0=1,Inv0=1,Rv0=0,Rnv0=0){
+create_initial_cond<-function(Sv0=100,Snv0=100,Iv0=1,Inv0=1,Rv0=0,Rnv0=0){
   c(Sv=Sv0,Snv=Snv0,Iv=Iv0,Inv=Inv0,Rv=Rv0,Rnv=Rnv0)
 }
 
@@ -98,18 +98,12 @@ r4_g<- graph(r4,NULL)
 
 grid.arrange(r1_g,r2_g,r3_g,r4_g,ncol=2)
 
-prop_Iv=r1$Iv/r1$Sv
-prop_Inv=r1$Inv/r1$Snv
-vec_virus_v = approxfun(r1$time,prop_Iv)
-vec_virus_nv=approxfun(r1$time,prop_Inv)
-
-# vec_virus_v = approxfun(r1$time,r1$Iv)
-# vec_virus_nv=approxfun(r1$time,r1$Inv)
+# prop_Iv=r1$Iv/r1$Sv
+# prop_Inv=r1$Inv/r1$Snv
+# vec_virus_v = approxfun(r1$time,prop_Iv)
+# vec_virus_nv=approxfun(r1$time,prop_Inv)
 
 
-
-# virus_func <- function(times) {
-#   virus <- r1$Iv[times+1]  
-#   return(virus)
-# }
+vec_virus_v <- approxfun(r1$time, r1$Iv)
+vec_virus_nv<- approxfun(r1$time,r1$Inv)
 

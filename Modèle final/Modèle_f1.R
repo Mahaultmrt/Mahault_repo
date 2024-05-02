@@ -14,9 +14,8 @@ Res_model <- function(t, pop, param,vec_virus_v) {
     N=Sa+CRa+CSa+IRa+ISa+S+CR+CS+IR+IS
 
     infection<- vec_virus_v(t)
-
     
-    dSa <- -Sa*((beta*ct*(CRa+IRa+CR+IR)/N)+beta*(CSa+ISa+CS+IS)/N)+delta*IRa+delta*ISa-omega*Sa+teta*S+gamma*CRa+(gamma+alpha)*CSa+infection
+    dSa <- -Sa*((beta*ct*(CRa+IRa+CR+IR)/N)+beta*(CSa+ISa+CS+IS)/N)+delta*IRa+delta*ISa-omega*Sa+teta*S+gamma*CRa+(gamma+alpha)*CSa+infection*atb
     dCRa <- Sa*(beta*ct*(CRa+IRa+CR+IR)/N)-gamma*CRa-rhoRa*CRa-omega*CRa+teta*CR
     dCSa <- Sa*(beta*(CSa+ISa+CS+IS)/N)-(gamma+alpha)*CSa-rhoSa*CSa-omega*CSa+teta*CS
     dIRa <- rhoRa*CRa-delta*IRa-omega*IRa+teta*IR
@@ -33,7 +32,7 @@ Res_model <- function(t, pop, param,vec_virus_v) {
 
 
 
-    list(res)
+    list(res,c(infection))
 
   })
 
@@ -41,12 +40,12 @@ Res_model <- function(t, pop, param,vec_virus_v) {
 
 # On part du principe qu'il n'y a pas de suscpetible non exposé au début (seulement ceux qui ne seront plus exposés aux ATB)
 
-create_params<-function(beta=1,ct=0.8,delta=0.14,gamma=0.03,rho=0.1,rhoRa=0.08,rhoSa=0,teta=0.022,omega=0.07,alpha=0.5)
+create_params<-function(beta=1,ct=0.8,delta=0.14,gamma=0.03,rho=0.1,rhoRa=0.08,rhoSa=0,teta=0.022,omega=0.07,alpha=0.5,atb=0.7)
 {
-  list(beta=beta,ct=ct,delta=delta,gamma=gamma,rho=rho,rhoRa=rhoRa,rhoSa=rhoSa,teta=teta,omega=omega,alpha=alpha)
+  list(beta=beta,ct=ct,delta=delta,gamma=gamma,rho=rho,rhoRa=rhoRa,rhoSa=rhoSa,teta=teta,omega=omega,alpha=alpha,atb=atb)
 }
 
-create_initial_cond<-function(Sa0=0,CRa0=1,CSa0=1,IRa0=0,ISa0=0,S0=0,CR0=1,CS0=1,IR0=0,IS0=0){
+create_initial_cond<-function(Sa0=vec_virus_v(1),CRa0=1,CSa0=1,IRa0=0,ISa0=0,S0=0,CR0=1,CS0=1,IR0=0,IS0=0){
   c(Sa=Sa0,CRa=CRa0,CSa=CSa0,IRa=IRa0,ISa=ISa0,S=S0,CR=CR0,CS=CS0,IR=IR0,IS=IS0)
 }
 
@@ -96,11 +95,3 @@ Init.cond<-create_initial_cond()
 run1<-run(Init.cond,param)
 run1_g<-graph(run1,NULL)
 
-param<-create_params()
-Init.cond<-create_initial_cond(CRa0=0,CSa0=0,CR0=0,CS0=0)
-run_test<-run(Init.cond,param)
-
-
-param<-create_params()
-Init.cond<-create_initial_cond()
-run1<-run(Init.cond,param)
