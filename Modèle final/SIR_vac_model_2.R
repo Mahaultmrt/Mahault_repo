@@ -98,10 +98,11 @@ r4_g<- graph(r4,NULL)
 
 grid.arrange(r1_g,r2_g,r3_g,r4_g,ncol=2)
 
-# prop_Iv=r1$Iv/r1$Sv
+# prop_Iv=r1$Iv/
 # prop_Inv=r1$Inv/r1$Snv
-# vec_virus_v = approxfun(r1$time,prop_Iv)
-# vec_virus_nv=approxfun(r1$time,prop_Inv)
+# 
+# vec_virus_v <- approxfun(r1$time,prop_Iv)
+# vec_virus_nv<-approxfun(r1$time,prop_Inv)
 
 
 vec_virus_v <- approxfun(r1$time, r1$Iv)

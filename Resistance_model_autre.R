@@ -44,7 +44,7 @@ create_initial_cond<-function(Sa0=100,CRa0=1,CSa0=1,IRa0=0,ISa0=0,S0=120,CR0=1,C
 
 run<-function(Init.cond,param,Tmax=500,dt=1){
   Time=seq(from=0,to=Tmax,by=dt)
-  result = as.data.frame(lsoda(Init.cond, Time, Res_model))
+  result = as.data.frame(lsoda(Init.cond, Time, Res_model,param))
   return(result)
   
 }
