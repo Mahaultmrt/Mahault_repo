@@ -18,9 +18,10 @@ Res_model <- function(t, pop, param,vec_virus_v,vec_virus_nv) {
     infection_nv<- vec_virus_nv(t)
     
     
+    
     dSnva <- -Snva*((beta*ct*(CRnva+CRnv+CRva+CRv+IRnva+IRnv+IRva+IRv)/N)+
                       beta*(CSnva+CSnv+CSva+CSv+ISnva+ISnv+ISva+ISv)/N)+
-                      delta*IRnva+delta*ISnva-omega*Snva+teta*Snv+gamma*CRnva+(gamma+alpha)*CSnva+infection_nv*atb #*100
+                      delta*IRnva+delta*ISnva-omega*Snva+teta*Snv+gamma*CRnva+(gamma+alpha)*CSnva+infection_nv*atb
     dCRnva <- Snva*(beta*ct*(CRnva+CRnv+CRva+CRv+IRnva+IRnv+IRva+IRv)/N)-gamma*CRnva-rhoRa*CRnva-omega*CRnva+teta*CRnv
     dCSnva <- Snva*(beta*(CSnva+CSnv+CSva+CSv+ISnva+ISnv+ISva+ISv)/N)-(gamma+alpha)*CSnva-rhoSa*CSnva-omega*CSnva+teta*CSnv
     dIRnva <- rhoRa*CRnva-delta*IRnva-omega*IRnva+teta*IRnv
@@ -36,7 +37,7 @@ Res_model <- function(t, pop, param,vec_virus_v,vec_virus_nv) {
     
     dSva <- -Sva*((beta*ct*(CRnva+CRnv+CRva+CRv+IRnva+IRnv+IRva+IRv)/N)+
                       beta*(CSnva+CSnv+CSva+CSv+ISnva+ISnv+ISva+ISv)/N)+
-      delta*IRva+delta*ISva-omega*Sva+teta*Sv+gamma*CRva+(gamma+alpha)*CSva+infection_v*atb #*100
+      delta*IRva+delta*ISva-omega*Sva+teta*Sv+gamma*CRva+(gamma+alpha)*CSva+infection_v*atb
     dCRva <- Sva*(beta*ct*(CRnva+CRnv+CRva+CRv+IRnva+IRnv+IRva+IRv)/N)-gamma*CRva-rhoRa*CRva-omega*CRva+teta*CRv
     dCSva <- Snva*(beta*(CSnva+CSnv+CSva+CSv+ISnva+ISnv+ISva+ISv)/N)-(gamma+alpha)*CSnva-rhoSa*CSnva-omega*CSnva+teta*CSnv
     dIRva <- rhoRa*CRva-delta*IRva-omega*IRva+teta*IRv
