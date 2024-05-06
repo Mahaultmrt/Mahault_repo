@@ -30,11 +30,11 @@ create_params<-function(beta=1,gamma=0.14,PI=(1-vf),vf=0.8)
   list(beta=beta,gamma=gamma,PI=PI,vf=vf)
 }
 
-create_initial_cond<-function(Sv0=100,Snv0=100,Iv0=1,Inv0=1,Rv0=0,Rnv0=0){
+create_initial_cond<-function(Sv0=1000,Snv0=1000,Iv0=1,Inv0=1,Rv0=0,Rnv0=0){
   c(Sv=Sv0,Snv=Snv0,Iv=Iv0,Inv=Inv0,Rv=Rv0,Rnv=Rnv0)
 }
 
-run<-function(Init.cond,param,Tmax=200,dt=1){
+run<-function(Init.cond,param,Tmax=400,dt=1){
   Time=seq(from=0,to=Tmax,by=dt)
   result = as.data.frame(lsoda(Init.cond, Time, SIR_model_vacc_2, param))
   return(result)
@@ -81,30 +81,12 @@ Init.cond<-create_initial_cond()
 r1<-run(Init.cond,param)
 r1_g<- graph(r1,NULL)
 
-param<-create_params()
-Init.cond<-create_initial_cond(Iv=50,Inv=50)
-r2<-run(Init.cond,param)
-r2_g<- graph(r2,NULL)
-
-param<-create_params(vf=0.9)
-Init.cond<-create_initial_cond()
-r3<-run(Init.cond,param)
-r3_g<- graph(r3,NULL)
-
-param<-create_params()
-Init.cond<-create_initial_cond(Sv=100,Snv=50)
-r4<-run(Init.cond,param)
-r4_g<- graph(r4,NULL)
-
-grid.arrange(r1_g,r2_g,r3_g,r4_g,ncol=2)
-
-# prop_Iv=r1$Iv/
-# prop_Inv=r1$Inv/r1$Snv
-# 
-# vec_virus_v <- approxfun(r1$time,prop_Iv)
-# vec_virus_nv<-approxfun(r1$time,prop_Inv)
 
 
-vec_virus_v <- approxfun(r1$time, r1$Iv)
-vec_virus_nv<- approxfun(r1$time,r1$Inv)
+# vec_virus_v <- approxfun(r1$time, r1$Iv)
+# vec_virus_nv<- approxfun(r1$time,r1$Inv)
 
+vec_virus_v<-approxfun(r1$time,r1%>%
+  mutate(propIv=Iv/(Sv+Iv+Rv))%>%
+  select(propIv)%>%
+pull)
