@@ -25,6 +25,7 @@ Res_model <- function(t, pop, param) {
     dIR <- rho*CR-delta*IR+omega*IRa-teta*IR
     dIS <- rho*CS-delta*IS+omega*ISa-teta*IS
     
+    
     res<-c(dSa,dCRa,dCSa,dIRa,dISa,dS,dCR,dCS,dIR,dIS)
     
     list(res)
@@ -33,12 +34,12 @@ Res_model <- function(t, pop, param) {
   
 }
 
-create_params<-function(beta=1,ct=0.8,delta=0.14,gamma=0.03,rho=0.1,rhoRa=0.08,rhoSa=0,teta=0.022,omega=0.07,alpha=0.5)
+create_params<-function(beta=1,ct=0.8,delta=0.14,gamma=0.03,rho=0.5,rhoRa=0.5,rhoSa=0.5,teta=0.0014,omega=0.14,alpha=0.5)
 {
   list(beta=beta,ct=ct,delta=delta,gamma=gamma,rho=rho,rhoRa=rhoRa,rhoSa=rhoSa,teta=teta,omega=omega,alpha=alpha)
 }
 
-create_initial_cond<-function(Sa0=100,CRa0=1,CSa0=1,IRa0=0,ISa0=0,S0=120,CR0=1,CS0=1,IR0=0,IS0=0){
+create_initial_cond<-function(Sa0=100,CRa0=1,CSa0=1,IRa0=0,ISa0=0,S0=100,CR0=1,CS0=1,IR0=0,IS0=0){
   c(Sa=Sa0,CRa=CRa0,CSa=CSa0,IRa=IRa0,ISa=ISa0,S=S0,CR=CR0,CS=CS0,IR=IR0,IS=IS0)
 }
 
@@ -48,23 +49,6 @@ run<-function(Init.cond,param,Tmax=500,dt=1){
   return(result)
   
 }
-
-
-param<-create_params()
-Init.cond<-create_initial_cond()
-run_test<-run(Init.cond,param)
-
-
-Init.cond<-create_initial_cond()
-param<-create_params(rhoSa=0.08)
-run1<-run(Init.cond,param)
-
-param<-create_params()
-run2<-run(Init.cond,param)
-
-Init.cond<-create_initial_cond(CRa0=50,CSa0=50,CR0=50,CS0=50)
-param<-create_params()
-run3<-run(Init.cond,param)
 
 graph<- function(data,filter_values){
   data_name<-as.character(substitute(data))
@@ -80,7 +64,7 @@ graph<- function(data,filter_values){
             axis.title = element_text(size = 8, face = "bold"),
             legend.text = element_text(size = 8)) +
       labs(title=data_name,x = "Time", y = "Value", colour = "Population:")
-     
+    
     
   }
   else{
@@ -93,17 +77,40 @@ graph<- function(data,filter_values){
             axis.title = element_text(size = 8, face = "bold"),
             legend.text = element_text(size = 8)) +
       labs(title=data_name,x = "Time", y = "Value", colour = "Population:")
-      
+    
     
   }
   
   return(p)
 }
 
-run1_g<-graph(run1,NULL)
-run2_g<-graph(run2,NULL)
-run3_g<-graph(run3, NULL)
+
+param<-create_params()
+Init.cond<-create_initial_cond(CRa0=0,CSa0=0,CR0=0,CS0=0)
+run_test<-run(Init.cond,param)
 runtest_g<-graph(run_test,NULL)
+
+
+Init.cond<-create_initial_cond()
+param<-create_params(rhoSa=0.08)
+run1<-run(Init.cond,param)
+run1_g<-graph(run1,NULL)
+
+Init.cond<-create_initial_cond()
+param<-create_params()
+run2<-run(Init.cond,param)
+run2_g<-graph(run2,NULL)
+graph(run2,c("IRa","ISa","IR","IS"))
+graph(run2,c("CRa","CSa","CR","CS"))
+
+Init.cond<-create_initial_cond(CRa0=50,CSa0=50,CR0=50,CS0=50)
+param<-create_params()
+run3<-run(Init.cond,param)
+run3_g<-graph(run3, NULL)
+
+
+
+
 grid.arrange(run1_g,run2_g,run3_g,runtest_g,ncol=2)
 
 # on s'interesse aux individus colonisés par une souche résistante avec présence d'antibiotiques et sans
@@ -162,6 +169,11 @@ alpha9<-run(Init.cond,param)
 new_row=data.frame(Alpha=param$alpha, Last_CSa=tail(alpha9$CSa, n = 1))
 results_df <- bind_rows(results_df, new_row)
 
+param<-create_params(alpha=1)
+alpha10<-run(Init.cond,param)
+new_row=data.frame(Alpha=param$alpha, Last_CSa=tail(alpha10$CSa, n = 1))
+results_df <- bind_rows(results_df, new_row)
+
 ggplot(data   = results_df,              
        mapping = aes(x = Alpha,    
                      y = Last_CSa)) +   
@@ -180,3 +192,7 @@ graph_alpha<-ggplot() +
 
 }
 
+run2%>%
+  mutate(prop_tot=Sa+CRa+CSa+IRa+ISa+S+CR+CS+IR+IS)%>%
+  select(prop_tot)%>%
+pull
