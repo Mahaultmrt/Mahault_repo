@@ -87,6 +87,6 @@ r1_g<- graph(r1,NULL)
 # vec_virus_nv<- approxfun(r1$time,r1$Inv)
 
 vec_virus_v<-approxfun(r1$time,r1%>%
-  mutate(propIv=Iv/(Sv+Iv+Rv))%>%
+  mutate(propIv=Iv/(Sv+Iv+Rv+Snv+Inv+Rnv))%>%
   select(propIv)%>%
 pull)
