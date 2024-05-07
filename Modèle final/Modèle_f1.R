@@ -6,15 +6,16 @@ library(gridExtra)
 
 #code du modèle page 2
 
-Res_model <- function(t, pop, param,vec_virus) {
+Res_model <- function(t, pop, param,vec_virus_v) {
 
   with(as.list(c(pop, param)), {
 
 
     N=Sa+CRa+CSa+IRa+ISa+S+CR+CS+IR+IS
-
-    infection<- vec_virus(t)
-    new_teta<-teta*vec_virus(t)
+ 
+   new_teta<-teta*vec_virus_v(t) 
+   
+   #new_teta<-vec_virus_(t)
     
     dSa <- -Sa*((beta*ct*(CRa+IRa+CR+IR)/N)+beta*(CSa+ISa+CS+IS)/N)+delta*IRa+delta*ISa-omega*Sa+new_teta*S+gamma*CRa+(gamma+alpha)*CSa
     dCRa <- Sa*(beta*ct*(CRa+IRa+CR+IR)/N)-gamma*CRa-rhoRa*CRa-omega*CRa+new_teta*CR
@@ -51,7 +52,7 @@ create_initial_cond<-function(Sa0=100,CRa0=1,CSa0=1,IRa0=0,ISa0=0,S0=100,CR0=1,C
 
 run<-function(Init.cond,param,Tmax=400,dt=1){
   Time=seq(from=0,to=Tmax,by=dt)
-  result = as.data.frame(lsoda(Init.cond, Time, Res_model, param,vec_virus=vec_virus))
+  result = as.data.frame(lsoda(Init.cond, Time, Res_model, param,vec_virus_v=vec_virus_v))
   return(result)
   
 }
@@ -90,19 +91,20 @@ graph<- function(data,filter_values){
   return(p)
 }
 
-#vec_virus<-
+
 param<-create_params()
 Init.cond<-create_initial_cond()
 run1<-run(Init.cond,param)
 run1_g<-graph(run1,NULL)
 
-vec_virus=vec_virus_v
 param<-create_params()
 Init.cond<-create_initial_cond(Sa0=tail(run1$Sa, n = 1),CRa0=tail(run1$CRa, n = 1),CSa0=tail(run1$CSa, n = 1),
                                IRa0=tail(run1$IRa, n = 1),ISa0=tail(run1$ISa, n = 1),S0=tail(run1$S, n = 1),
                                CR0=tail(run1$CR, n = 1),CS0=tail(run1$CS, n = 1),IR0=tail(run1$IR, n = 1),IS0=tail(run1$IS, n = 1))
 run2<-run(Init.cond,param)
 run2_g<-graph(run2,NULL)
+graph(run2,c("IRa","ISa","IR","IS"))
+graph(run2,c("CRa","CSa","CR","CS"))
 
 merge_run<-function(data1,data2){
   new_run <- merge(data1, data2, by = "time", suffixes = c(".vaccine", ".non_vaccine"))
@@ -111,4 +113,6 @@ merge_run<-function(data1,data2){
 }
 graph(merge_run(run1,run2),c("CR.vaccine","CR.non_vaccine","CRa.vaccine","CRa.non_vaccine"))
 
-grid.arrange(run1_g,run2_g,ncol=1)
+grid.arrange(run1_g,run2_g,ncol=2)
+grid.arrange(graph(run1,c("IRa","ISa","IR","IS")),graph(run2,c("IRa","ISa","IR","IS")),ncol=2)
+
