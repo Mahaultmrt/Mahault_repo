@@ -25,12 +25,12 @@ SIR_model_vacc_2 <- function(t, pop, param) {
   
 }
 
-create_params<-function(beta=1,gamma=0.14,PI=(1-vf),vf=0.8)
+create_params<-function(beta=0.4,gamma=0.14,PI=(1-vf),vf=0.8)
 {
   list(beta=beta,gamma=gamma,PI=PI,vf=vf)
 }
 
-create_initial_cond<-function(Sv0=1000,Snv0=1000,Iv0=1,Inv0=1,Rv0=0,Rnv0=0){
+create_initial_cond<-function(Sv0=100,Snv0=100,Iv0=1,Inv0=1,Rv0=0,Rnv0=0){
   c(Sv=Sv0,Snv=Snv0,Iv=Iv0,Inv=Inv0,Rv=Rv0,Rnv=Rnv0)
 }
 
@@ -90,3 +90,8 @@ vec_virus_v<-approxfun(r1$time,r1%>%
   mutate(propIv=Iv/(Sv+Iv+Rv+Snv+Inv+Rnv))%>%
   select(propIv)%>%
 pull)
+
+vec_virus_nv<-approxfun(r1$time,r1%>%
+                         mutate(propInv=Inv/(Sv+Iv+Rv+Snv+Inv+Rnv))%>%
+                         select(propInv)%>%
+                         pull)
