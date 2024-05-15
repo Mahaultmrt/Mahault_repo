@@ -30,13 +30,16 @@ Res_model <- function(t, pop, param) {
     exp<-(Sa+CRa+CSa+IRa+ISa)*100/N
     non_exp<-(S+CR+CS+IR+IS)*100/N
     
-    list(res,exp=exp,non_exp=non_exp)
+    col_res<-(CR+CRa)*100/N
+    col_s<-(CS+CSa)*100/N
+    
+    list(res,exp=exp,non_exp=non_exp,col_res=col_res,col_s=col_s)
     
   })
   
 }
 
-create_params<-function(beta=1,ct=0.8,delta=0.14,gamma=0.03,rho=0.03,rhoRa=0.03,rhoSa=0.03,teta=0.0014,omega=0.14,alpha=0.5)
+  create_params<-function(beta=0.065,ct=0.95,delta=0.14,gamma=0.03,rho=0.03,rhoRa=0.03,rhoSa=0.03,teta=0.0014,omega=0.14,alpha=0.5)
 {
   list(beta=beta,ct=ct,delta=delta,gamma=gamma,rho=rho,rhoRa=rhoRa,rhoSa=rhoSa,teta=teta,omega=omega,alpha=alpha)
 }
@@ -45,7 +48,7 @@ create_initial_cond<-function(Sa0=100,CRa0=1,CSa0=1,IRa0=0,ISa0=0,S0=100,CR0=1,C
   c(Sa=Sa0,CRa=CRa0,CSa=CSa0,IRa=IRa0,ISa=ISa0,S=S0,CR=CR0,CS=CS0,IR=IR0,IS=IS0)
 }
 
-run<-function(Init.cond,param,Tmax=500,dt=1){
+run<-function(Init.cond,param,Tmax=400,dt=1){
   Time=seq(from=0,to=Tmax,by=dt)
   result = as.data.frame(lsoda(Init.cond, Time, Res_model,param))
   return(result)

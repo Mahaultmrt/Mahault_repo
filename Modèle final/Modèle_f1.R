@@ -13,15 +13,10 @@ Res_model <- function(t, pop, param,vec_virus) {
 
     N=Sa+CRa+CSa+IRa+ISa+S+CR+CS+IR+IS
     
-    if(is.null(vec_virus))
-    {
-      new_teta<-teta
-    }
-    else
-    {
-      new_teta<-teta*vec_virus(t)
+    
+    new_teta<-teta+vec_virus(t)
    
-    }
+    
   
     dSa <- -Sa*((beta*ct*(CRa+IRa+CR+IR)/N)+beta*(CSa+ISa+CS+IS)/N)+delta*IRa+delta*ISa-omega*Sa+new_teta*S+gamma*CRa+(gamma+alpha)*CSa
     dCRa <- Sa*(beta*ct*(CRa+IRa+CR+IR)/N)-gamma*CRa-rhoRa*CRa-omega*CRa+new_teta*CR
@@ -42,14 +37,14 @@ Res_model <- function(t, pop, param,vec_virus) {
     exp<-(Sa+CRa+CSa+IRa+ISa)*100/N
     non_exp<-(S+CR+CS+IR+IS)*100/N
     
-    list(res,exp=exp,non_exp=non_exp,new_teta=new_teta)
+    list(res,new_teta=new_teta)
 
   })
 
 }
 
 
-create_params<-function(beta=1,ct=0.8,delta=0.14,gamma=0.03,rho=0.03,rhoRa=0.03,rhoSa=0.03,teta=0.0014,omega=0.14,alpha=0.5)
+create_params<-function(beta=0.065,ct=0.8,delta=0.14,gamma=0.03,rho=0.03,rhoRa=0.03,rhoSa=0.03,teta=0.0014,omega=0.14,alpha=0.5)
 {
   list(beta=beta,ct=ct,delta=delta,gamma=gamma,rho=rho,rhoRa=rhoRa,rhoSa=rhoSa,teta=teta,omega=omega,alpha=alpha)
 }
@@ -99,7 +94,7 @@ graph<- function(data,filter_values){
   return(p)
 }
 
-vec_virus=NULL
+vec_virus=vec_virus_0
 param<-create_params()
 Init.cond<-create_initial_cond()
 run1<-run(Init.cond,param)
