@@ -11,9 +11,9 @@ SIR_model_vacc_2 <- function(t, pop, param) {
     
     N=Sv+Snv+Iv+Inv+Rv+Rnv
     
-    dSv<- -Sv*beta*PI*((Iv+Inv)/N)
+    dSv<- -Sv*beta*(1-vf)*((Iv+Inv)/N)
     dSnv<- -Snv*beta*((Iv+Inv)/N)
-    dIv<- Sv*beta*PI*((Iv+Inv)/N) -gamma*Iv
+    dIv<- Sv*beta*(1-vf)*((Iv+Inv)/N) -gamma*Iv
     dInv<-Snv*beta*((Iv+Inv)/N)-gamma*Inv
     dRv<-gamma*Iv
     dRnv<-gamma*Inv
@@ -25,9 +25,9 @@ SIR_model_vacc_2 <- function(t, pop, param) {
   
 }
 
-create_params<-function(beta=0.4,gamma=0.14,PI=(1-vf),vf=0.8)
+create_params<-function(beta=0.4,gamma=0.14,vf=0.8)
 {
-  list(beta=beta,gamma=gamma,PI=PI,vf=vf)
+  list(beta=beta,gamma=gamma,vf=vf)
 }
 
 create_initial_cond<-function(Sv0=100,Snv0=100,Iv0=0,Inv0=1,Rv0=0,Rnv0=0){
