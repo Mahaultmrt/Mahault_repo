@@ -99,34 +99,46 @@ run1_g<-graph(run1,NULL)
 graph(run1,c("CRa","CSa","CR","CS"))
 graph(run1,c("IRa","ISa"))
 
-# vec_virus=vec_virus_v
-# param<-create_params()
-# Init.cond<-create_initial_cond(Sa0=tail(run1$Sa, n = 1),CRa0=tail(run1$CRa, n = 1),CSa0=tail(run1$CSa, n = 1),
-#                                IRa0=tail(run1$IRa, n = 1),ISa0=tail(run1$ISa, n = 1),S0=tail(run1$S, n = 1),
-#                                CR0=tail(run1$CR, n = 1),CS0=tail(run1$CS, n = 1),IR0=tail(run1$IR, n = 1),IS0=tail(run1$IS, n = 1))
-# run2<-run(Init.cond,param)
-# run2_g<-graph(run2,NULL)
-# graph(run2,c("IRa","ISa","IR","IS"))
-# graph(run2,c("CRa","CSa","CR","CS"))
-# 
-# 
-# vec_virus=vec_virus_nv
-# param<-create_params()
-# Init.cond<-create_initial_cond(Sa0=tail(run1$Sa, n = 1),CRa0=tail(run1$CRa, n = 1),CSa0=tail(run1$CSa, n = 1),
-#                                IRa0=tail(run1$IRa, n = 1),ISa0=tail(run1$ISa, n = 1),S0=tail(run1$S, n = 1),
-#                                CR0=tail(run1$CR, n = 1),CS0=tail(run1$CS, n = 1),IR0=tail(run1$IR, n = 1),IS0=tail(run1$IS, n = 1))
-# run3<-run(Init.cond,param)
-# run3_g<-graph(run3,NULL)
-# graph(run3,c("IRa","ISa","IR","IS"))
-# graph(run3,c("CRa","CSa","CR","CS"))
-# 
-# merge_run<-function(data1,data2){
-#   new_run <- merge(data1, data2,by = "time", suffixes = c(".vaccine", ".non_vaccine"))
-#   return(new_run)
-#   
-# }
-# graph(merge_run(run2,run3),c("new_teta.vaccine","new_teta.non_vaccine"))
-# 
-# grid.arrange(run1_g,run2_g,ncol=2)
-# grid.arrange(graph(run1,c("IRa","ISa","IR","IS")),graph(run2,c("IRa","ISa","IR","IS")),ncol=2,graph(run3,c("IRa","ISa","IR","IS")))
-# 
+vec_virus=vec_virus_v
+param<-create_params()
+Init.cond<-create_initial_cond(Sa0=tail(run1$Sa, n = 1),CRa0=tail(run1$CRa, n = 1),CSa0=tail(run1$CSa, n = 1),
+                               IRa0=tail(run1$IRa, n = 1),ISa0=tail(run1$ISa, n = 1),S0=tail(run1$S, n = 1),
+                               CR0=tail(run1$CR, n = 1),CS0=tail(run1$CS, n = 1))
+run2<-run(Init.cond,param)
+run2_g<-graph(run2,NULL)
+graph(run2,c("IRa","ISa","IR","IS"))
+graph(run2,c("CRa","CSa","CR","CS"))
+
+
+vec_virus=vec_virus_nv
+param<-create_params()
+Init.cond<-create_initial_cond(Sa0=tail(run1$Sa, n = 1),CRa0=tail(run1$CRa, n = 1),CSa0=tail(run1$CSa, n = 1),
+                               IRa0=tail(run1$IRa, n = 1),ISa0=tail(run1$ISa, n = 1),S0=tail(run1$S, n = 1),
+                               CR0=tail(run1$CR, n = 1),CS0=tail(run1$CS, n = 1))
+run3<-run(Init.cond,param)
+run3_g<-graph(run3,NULL)
+graph(run3,c("IRa","ISa","IR","IS"))
+graph(run3,c("CRa","CSa","CR","CS"))
+
+grid.arrange(graph(run2,c("IRa","ISa","IR","IS")),graph(run3,c("IRa","ISa","IR","IS")),ncol=1)
+
+merge_run<-function(data1,data2){
+  new_run <- merge(data1, data2,by = "time", suffixes = c(".vaccine", ".non_vaccine"))
+  return(new_run)
+
+}
+graph(merge_run(run2,run3),c("new_teta.vaccine","new_teta.non_vaccine"))
+graph(merge_run(run2,run3),c("IRa.vaccine","IRa.non_vaccine","ISa.vaccine","ISa.non_vaccine"))
+
+
+
+grid.arrange(run1_g,run2_g,ncol=2)
+
+
+runI <- run2
+for (col_name in colnames(run2)) {
+  if (col_name %in% colnames(run3)) {
+    runI[[col_name]] <- run2[[col_name]] + run3[[col_name]]
+  }
+}
+runI_g<-graph(runI,c("ISa","IRa"))
