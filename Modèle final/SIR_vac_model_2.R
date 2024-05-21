@@ -11,6 +11,8 @@ SIR_model_vacc_2 <- function(t, pop, param) {
     
     N=Sv+Snv+Iv+Inv+Rv+Rnv
     
+    beta<-1.3764*cos(((2*pi/43)*0.102*(t-139.2729)+1))
+    
     dSv<- -Sv*beta*(1-vf)*((Iv+Inv)/N)
     dSnv<- -Snv*beta*((Iv+Inv)/N)
     dIv<- Sv*beta*(1-vf)*((Iv+Inv)/N) -gamma*Iv
@@ -25,7 +27,7 @@ SIR_model_vacc_2 <- function(t, pop, param) {
   
 }
 
-create_params<-function(beta=0.4,gamma=0.14,vf=0.8)
+create_params<-function(gamma=0.33,vf=0.8)
 {
   list(beta=beta,gamma=gamma,vf=vf)
 }
@@ -34,7 +36,7 @@ create_initial_cond<-function(Sv0=100,Snv0=100,Iv0=0,Inv0=1,Rv0=0,Rnv0=0){
   c(Sv=Sv0,Snv=Snv0,Iv=Iv0,Inv=Inv0,Rv=Rv0,Rnv=Rnv0)
 }
 
-run<-function(Init.cond,param,Tmax=400,dt=1){
+run<-function(Init.cond,param,Tmax=365,dt=1){
   Time=seq(from=0,to=Tmax,by=dt)
   result = as.data.frame(lsoda(Init.cond, Time, SIR_model_vacc_2, param))
   return(result)
