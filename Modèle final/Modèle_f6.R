@@ -17,13 +17,13 @@ Res_model <- function(t, pop, param,vec_virus) {
     new_teta<-teta+vec_virus(t)
 
     
-    dSa <- -Sa*((beta*ct*(CRa+IRa+CR)/N)+beta*(CSa+ISa+CS)/N)+delta*IRa+deltaSa*ISa-omega*Sa+new_teta*S+gamma*CRa+(gamma+alpha)*CSa
+    dSa <- -Sa*((beta*ct*(CRa+IRa+CR)/N)+beta*(CSa+ISa+CS)/N)-omega*Sa+new_teta*S+gamma*CRa+(gamma+alpha)*CSa
     dCRa <- Sa*(beta*ct*(CRa+IRa+CR)/N)-gamma*CRa-rhoRa*CRa-omega*CRa+new_teta*CR
     dCSa <- Sa*(beta*(CSa+ISa+CS)/N)-(gamma+alpha)*CSa-rhoSa*CSa-omega*CSa+new_teta*CS
     dIRa <- rhoRa*CRa-delta*IRa+rho*CR
     dISa <- rhoSa*CSa-deltaSa*ISa+rho*CS
     
-    dS <- -S*((beta*ct*(CRa+IRa+CR)/N)+beta*(CSa+ISa+CS)/N)+omega*Sa-new_teta*S+gamma*CR+gamma*CS
+    dS <- -S*((beta*ct*(CRa+IRa+CR)/N)+beta*(CSa+ISa+CS)/N)+omega*Sa-new_teta*S+gamma*CR+gamma*CS+delta*IRa+deltaSa*ISa
     dCR <- S*(beta*ct*(CRa+IRa+CR)/N)-gamma*CR-rho*CR
     dCS <- S*(beta*(CSa+ISa+CS)/N)-gamma*CS-rho*CS
     
