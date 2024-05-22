@@ -41,7 +41,7 @@ Res_model <- function(t, pop, param,vec_virus) {
 }
 
 
-create_params<-function(beta=0.065,ct=0.95,delta=0.14,deltaSa=0.33,gamma=0.03,rho=0.03,rhoRa=0.03,rhoSa=0.03,teta=0.0014,omega=0.14,tetaI=1, alpha=0.5)
+create_params<-function(beta=0.056,ct=0.9652,delta=0.14,deltaSa=0.33,gamma=0.05,rho=3*10^-6,rhoRa=3*10^-6,rhoSa=3*10^-6,teta=0.0014,omega=0.08, alpha=0.33)
 {
   list(beta=beta,ct=ct,delta=delta,deltaSa=deltaSa,gamma=gamma,rho=rho,rhoRa=rhoRa,rhoSa=rhoSa,teta=teta,omega=omega,alpha=alpha)
 }
@@ -99,6 +99,7 @@ run1_g<-graph(run1,NULL)
 graph(run1,c("CRa","CSa","CR","CS"))
 graph(run1,c("IRa","ISa"))
 
+
 vec_virus=vec_virus_v
 param<-create_params()
 Init.cond<-create_initial_cond(Sa0=tail(run1$Sa, n = 1),CRa0=tail(run1$CRa, n = 1),CSa0=tail(run1$CSa, n = 1),
@@ -106,7 +107,7 @@ Init.cond<-create_initial_cond(Sa0=tail(run1$Sa, n = 1),CRa0=tail(run1$CRa, n = 
                                CR0=tail(run1$CR, n = 1),CS0=tail(run1$CS, n = 1))
 run2<-run(Init.cond,param)
 run2_g<-graph(run2,NULL)
-graph(run2,c("IRa","ISa","IR","IS"))
+graph(run2,c("IRa","ISa"))
 graph(run2,c("CRa","CSa","CR","CS"))
 
 
@@ -117,10 +118,14 @@ Init.cond<-create_initial_cond(Sa0=tail(run1$Sa, n = 1),CRa0=tail(run1$CRa, n = 
                                CR0=tail(run1$CR, n = 1),CS0=tail(run1$CS, n = 1))
 run3<-run(Init.cond,param)
 run3_g<-graph(run3,NULL)
-graph(run3,c("IRa","ISa","IR","IS"))
+graph(run3,c("IRa","ISa"))
 graph(run3,c("CRa","CSa","CR","CS"))
 
-grid.arrange(graph(run2,c("IRa","ISa","IR","IS")),graph(run3,c("IRa","ISa","IR","IS")),ncol=1)
+grid.arrange(graph(run2,c("IRa","ISa")),graph(run3,c("IRa","ISa")),ncol=1)
+grid.arrange(graph(run2,c("CRa","CR")),graph(run3,c("CRa","CR")),ncol=1)
+
+
+
 
 merge_run<-function(data1,data2){
   new_run <- merge(data1, data2,by = "time", suffixes = c(".vaccine", ".non_vaccine"))
