@@ -20,10 +20,10 @@ Res_model <- function(t, pop, param,vec_virus) {
     dSa <- -Sa*((beta*ct*(CRa+IRa+CR)/N)+beta*(CSa+ISa+CS)/N)-omega*Sa+new_teta*S+gamma*CRa+(gamma+alpha)*CSa
     dCRa <- Sa*(beta*ct*(CRa+IRa+CR)/N)-gamma*CRa-rhoRa*CRa-omega*CRa+new_teta*CR
     dCSa <- Sa*(beta*(CSa+ISa+CS)/N)-(gamma+alpha)*CSa-rhoSa*CSa-omega*CSa+new_teta*CS
-    dIRa <- rhoRa*CRa-delta*IRa+rho*CR
+    dIRa <- rhoRa*CRa-deltaRa*IRa+rho*CR
     dISa <- rhoSa*CSa-deltaSa*ISa+rho*CS
     
-    dS <- -S*((beta*ct*(CRa+IRa+CR)/N)+beta*(CSa+ISa+CS)/N)+omega*Sa-new_teta*S+gamma*CR+gamma*CS+delta*IRa+deltaSa*ISa
+    dS <- -S*((beta*ct*(CRa+IRa+CR)/N)+beta*(CSa+ISa+CS)/N)+omega*Sa-new_teta*S+gamma*CR+gamma*CS+deltaRa*IRa+deltaSa*ISa
     dCR <- S*(beta*ct*(CRa+IRa+CR)/N)-gamma*CR-rho*CR
     dCS <- S*(beta*(CSa+ISa+CS)/N)-gamma*CS-rho*CS
     
@@ -41,9 +41,9 @@ Res_model <- function(t, pop, param,vec_virus) {
 }
 
 
-create_params<-function(beta=0.056,ct=0.9652,delta=0.14,deltaSa=0.33,gamma=0.05,rho=3*10^-6,rhoRa=3*10^-6,rhoSa=3*10^-6,teta=0.0014,omega=0.08, alpha=0.33)
+create_params<-function(beta=0.056,ct=0.9652,deltaRa=0.14,deltaSa=0.33,gamma=0.05,rho=3*10^-6,rhoRa=3*10^-6,rhoSa=3*10^-6,teta=0.0014,omega=0.08, alpha=0.33)
 {
-  list(beta=beta,ct=ct,delta=delta,deltaSa=deltaSa,gamma=gamma,rho=rho,rhoRa=rhoRa,rhoSa=rhoSa,teta=teta,omega=omega,alpha=alpha)
+  list(beta=beta,ct=ct,deltaRa=deltaRa,deltaSa=deltaSa,gamma=gamma,rho=rho,rhoRa=rhoRa,rhoSa=rhoSa,teta=teta,omega=omega,alpha=alpha)
 }
 
 create_initial_cond<-function(Sa0=100,CRa0=1,CSa0=1,IRa0=0,ISa0=0,S0=100,CR0=1,CS0=1){
