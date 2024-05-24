@@ -34,7 +34,7 @@ Res_model <- function(t, pop, param,vec_virus) {
     exp<-(Sa+CRa+CSa+IRa+ISa)*100/N
     non_exp<-(S+CR+CS)*100/N
     
-    list(res,new_teta=new_teta)
+    list(res)
     
   })
   
