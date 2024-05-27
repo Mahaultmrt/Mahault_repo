@@ -26,7 +26,7 @@ SIR_model_vacc_2 <- function(t, pop, param) {
   
 }
 
-create_params<-function(beta=0.4,gamma=0.14,vf=0.6)
+create_params<-function(beta=0.28,gamma=0.14,vf=0.6)
 {
   list(beta=beta,gamma=gamma,vf=vf)
 }
@@ -35,7 +35,7 @@ create_initial_cond<-function(Sv0=100,Snv0=100,Iv0=0,Inv0=1,Rv0=0,Rnv0=0){
   c(Sv=Sv0,Snv=Snv0,Iv=Iv0,Inv=Inv0,Rv=Rv0,Rnv=Rnv0)
 }
 
-run<-function(Init.cond,param,Tmax=365,dt=1){
+run<-function(Init.cond,param,Tmax=400,dt=1){
   Time=seq(from=0,to=Tmax,by=dt)
   result = as.data.frame(lsoda(Init.cond, Time, SIR_model_vacc_2, param))
   return(result)
@@ -83,6 +83,7 @@ r1<-run(Init.cond,param)
 r1$Iv_Inv<-r1$Iv+r1$Inv
 r1_g<- graph(r1,NULL)
 graph(r1,"Iv_Inv")
+graph(r1,c("Iv","Inv"))
 grid.arrange(graph(r1,c("Iv","Inv")),graph(r1,"Iv_Inv"),ncol=1)
 
 
