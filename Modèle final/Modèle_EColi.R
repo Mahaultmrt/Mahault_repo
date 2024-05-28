@@ -15,7 +15,7 @@ Res_model <- function(t, pop, param,vec_virus) {
     
     
     new_teta<-teta+vec_virus(t)
-
+    
     
     dSa <- -Sa*((beta*ct*(CRa+IRa+CR)/N)+beta*(CSa+ISa+CS)/N)-omega*Sa+new_teta*S+(gamma+alpha*(1-sigmaR))*CRa+(gamma+alpha*(1-sigmaS))*CSa
     dCRa <- Sa*(beta*ct*(CRa+IRa+CR)/N)-(gamma+alpha*(1-sigmaR))*CRa-rhoRa*CRa-omega*CRa+new_teta*CR
@@ -126,14 +126,14 @@ graph(run3,c("CRa","CSa","CR","CS"))
 
 grid.arrange(graph(run2,c("IRa","ISa")),graph(run3,c("IRa","ISa")),ncol=1)
 grid.arrange(graph(run2,c("CRa","CR")),graph(run3,c("CRa","CR")),ncol=1)
-
+grid.arrange(run1_g,run2_g,run3_g,ncol=2)
 
 
 
 merge_run<-function(data1,data2){
   new_run <- merge(data1, data2,by = "time", suffixes = c(".vaccine", ".non_vaccine"))
   return(new_run)
-
+  
 }
 graph(merge_run(run2,run3),c("new_teta.vaccine","new_teta.non_vaccine"))
 graph(merge_run(run2,run3),c("IRa.vaccine","IRa.non_vaccine","ISa.vaccine","ISa.non_vaccine"))

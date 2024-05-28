@@ -19,7 +19,7 @@ SIR_model_vacc_2 <- function(t, pop, param) {
     dRv<-gamma*Iv
     dRnv<-gamma*Inv
     res <-c(dSv,dSnv,dIv,dInv,dRv,dRnv)
-    list(res)
+    list(res,N=N)
 
     
   })
