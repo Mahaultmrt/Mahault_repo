@@ -25,6 +25,7 @@ SIR_model_vacc_2 <- function(t, pop, param) {
   })
   
 }
+# test
 
 create_params<-function(beta=0.28,gamma=0.14,vf=0.6,Ps=0.75)
 {
