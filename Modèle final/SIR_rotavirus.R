@@ -12,12 +12,12 @@ SIR_model_vacc_2 <- function(t, pop, param) {
     N=Sv+Snv+Iv+Inv+Rv+Rnv
     
     
-    dSv<- -Sv*beta*(1-vf)*((Iv+Inv)/N)+gamma*Ps
-    dSnv<- -Snv*beta*((Iv+Inv)/N)+gamma*Ps
-    dIv<- Sv*beta*(1-vf)*((Iv+Inv)/N) -gamma*Iv
-    dInv<-Snv*beta*((Iv+Inv)/N)-gamma*Inv
-    dRv<-gamma*Iv
-    dRnv<-gamma*Inv
+    dSv<- -Sv*beta*(1-vf)*((Iv+Inv)/N)+gamma*Ps*Iv
+    dSnv<- -Snv*beta*((Iv+Inv)/N)+gamma*Ps*Inv
+    dIv<- Sv*beta*(1-vf)*((Iv+Inv)/N) -gamma*(1-Ps)*Iv-gamma*Ps*Iv
+    dInv<-Snv*beta*((Iv+Inv)/N)-gamma*(1-Ps)*Inv-gamma*Ps*Inv
+    dRv<-gamma*Iv*(1-Ps)
+    dRnv<-gamma*Inv*(1-Ps)
     res <-c(dSv,dSnv,dIv,dInv,dRv,dRnv)
     list(res)
     
@@ -25,18 +25,18 @@ SIR_model_vacc_2 <- function(t, pop, param) {
   })
   
 }
-# test
 
-create_params<-function(beta=0.28,gamma=0.14,vf=0.6,Ps=0.75)
+
+create_params<-function(beta=2.5,gamma=0.2,vf=0.643,Ps=0.75)
 {
-  list(beta=beta,gamma=gamma,vf=vf)
+  list(beta=beta,gamma=gamma,vf=vf,Ps=Ps)
 }
 
 create_initial_cond<-function(Sv0=100,Snv0=100,Iv0=0,Inv0=1,Rv0=0,Rnv0=0){
   c(Sv=Sv0,Snv=Snv0,Iv=Iv0,Inv=Inv0,Rv=Rv0,Rnv=Rnv0)
 }
 
-run<-function(Init.cond,param,Tmax=400,dt=1){
+run<-function(Init.cond,param,Tmax=300,dt=1){
   Time=seq(from=0,to=Tmax,by=dt)
   result = as.data.frame(lsoda(Init.cond, Time, SIR_model_vacc_2, param))
   return(result)
