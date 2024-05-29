@@ -24,8 +24,8 @@ Res_model <- function(t, pop, param,vec_virus) {
     dISa <- rhoSa*CSa-deltaSa*ISa+rho*CS
     
     dS <- -S*((beta*ct*(CRa+IRa+CR)/N)+beta*(CSa+ISa+CS)/N)+omega*Sa-new_teta*S+gamma*CR+gamma*CS+deltaRa*IRa+deltaSa*ISa
-    dCR <- S*(beta*ct*(CRa+IRa+CR)/N)-gamma*CR-rho*CR
-    dCS <- S*(beta*(CSa+ISa+CS)/N)-gamma*CS-rho*CS
+    dCR <- S*(beta*ct*(CRa+IRa+CR)/N)-gamma*CR-rho*CR+omega*CRa-teta*CR
+    dCS <- S*(beta*(CSa+ISa+CS)/N)-gamma*CS-rho*CS+omega*CSa-teta*CS
     
     
     res<-c(dSa,dCRa,dCSa,dIRa,dISa,dS,dCR,dCS)
