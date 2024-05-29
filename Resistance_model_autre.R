@@ -33,7 +33,7 @@ Res_model <- function(t, pop, param) {
     col_res<-(CR+CRa)*100/N
     col_s<-(CS+CSa)*100/N
     
-    list(res,exp=exp,non_exp=non_exp,col_res=col_res,col_s=col_s)
+    list(res,exp=exp,non_exp=non_exp,col_res=col_res,col_s=col_s,N=N)
     
   })
   
