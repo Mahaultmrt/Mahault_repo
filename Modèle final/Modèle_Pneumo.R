@@ -69,7 +69,7 @@ graph<- function(data,filter_values){
       theme_bw() +
       theme(axis.text = element_text(size = 8),
             axis.title = element_text(size = 8, face = "bold"),
-            legend.text = element_text(size = 8)) +
+            legend.text = element_text(size = 6)) +
       labs(title=data_name,x = "Time", y = "Value", colour = "Population:")
     
     
@@ -82,7 +82,7 @@ graph<- function(data,filter_values){
       theme_bw() +
       theme(axis.text = element_text(size = 8),
             axis.title = element_text(size = 8, face = "bold"),
-            legend.text = element_text(size = 8)) +
+            legend.text = element_text(size = 6)) +
       labs(title=data_name,x = "Time", y = "Value", colour = "Population:")
     
     
@@ -136,11 +136,9 @@ merge_run<-function(data1,data2){
 
 }
 graph(merge_run(run2,run3),c("new_teta.vaccine","new_teta.non_vaccine"))
-graph(merge_run(run2,run3),c("IRa.vaccine","IRa.non_vaccine","ISa.vaccine","ISa.non_vaccine"))
+graph_Iv_Inv<-graph(merge_run(run2,run3),c("IRa.vaccine","IRa.non_vaccine","ISa.vaccine","ISa.non_vaccine"))
 
-
-
-grid.arrange(run1_g,run2_g,ncol=2)
+grid.arrange(run1_g,run2_g,run3_g,graph_Iv_Inv,ncol=2)
 
 
 runI <- run2
@@ -150,3 +148,10 @@ for (col_name in colnames(run2)) {
   }
 }
 runI_g<-graph(runI,c("ISa","IRa"))
+
+runtest <- run3
+for (col_name in colnames(run3)) {
+  if (col_name %in% colnames(run2)) {
+    runtest[[col_name]] <- run3[[col_name]] - run2[[col_name]]
+  }
+}
