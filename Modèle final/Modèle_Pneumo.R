@@ -34,7 +34,7 @@ Res_model <- function(t, pop, param,vec_virus) {
     exp<-(Sa+CRa+CSa+IRa+ISa)*100/N
     non_exp<-(S+CR+CS)*100/N
     
-    list(res)
+    list(res,new_teta=new_teta)
     
   })
   
@@ -46,11 +46,11 @@ create_params<-function(beta=0.056,ct=0.9652,deltaRa=0,deltaSa=0,gamma=0.05,rho=
   list(beta=beta,ct=ct,deltaRa=deltaRa,deltaSa=deltaSa,gamma=gamma,rho=rho,rhoRa=rhoRa,rhoSa=rhoSa,teta=teta,omega=omega,alpha=alpha,sigmaR=sigmaR,sigmaS=sigmaS)
 }
 
-create_initial_cond<-function(Sa0=100,CRa0=1,CSa0=1,IRa0=0,ISa0=0,S0=100,CR0=1,CS0=1){
+create_initial_cond<-function(Sa0=1000,CRa0=1,CSa0=1,IRa0=0,ISa0=0,S0=1000,CR0=1,CS0=1){
   c(Sa=Sa0,CRa=CRa0,CSa=CSa0,IRa=IRa0,ISa=ISa0,S=S0,CR=CR0,CS=CS0)
 }
 
-run<-function(Init.cond,param,Tmax=365,dt=1){
+run<-function(Init.cond,param,Tmax=400,dt=1){
   Time=seq(from=0,to=Tmax,by=dt)
   result = as.data.frame(lsoda(Init.cond, Time, Res_model, param,vec_virus=vec_virus))
   return(result)
@@ -99,11 +99,13 @@ run1_g<-graph(run1,NULL)
 graph(run1,c("CRa","CSa","CR","CS"))
 graph(run1,c("IRa","ISa"))
 
+
+# Epidémie de grippe mais pas de vaccination
 param<-create_params(rho=0,rhoRa=0,rhoSa=0)
 Init.cond<-create_initial_cond()
 run0<-run(Init.cond,param)
 
-vec_virus=vec_virus_v
+vec_virus=I_vac_0
 param<-create_params()
 Init.cond<-create_initial_cond(Sa0=tail(run0$Sa, n = 1),CRa0=tail(run0$CRa, n = 1),CSa0=tail(run0$CSa, n = 1),
                                IRa0=tail(run0$IRa, n = 1),ISa0=tail(run0$ISa, n = 1),S0=tail(run0$S, n = 1),
@@ -113,8 +115,8 @@ run2_g<-graph(run2,NULL)
 graph(run2,c("IRa","ISa"))
 graph(run2,c("CRa","CSa","CR","CS"))
 
-
-vec_virus=vec_virus_nv
+# Epidémie de grippe mais vaccination 50%
+vec_virus=I_vac_50
 param<-create_params()
 Init.cond<-create_initial_cond(Sa0=tail(run0$Sa, n = 1),CRa0=tail(run0$CRa, n = 1),CSa0=tail(run0$CSa, n = 1),
                                IRa0=tail(run0$IRa, n = 1),ISa0=tail(run0$ISa, n = 1),S0=tail(run0$S, n = 1),
@@ -124,34 +126,43 @@ run3_g<-graph(run3,NULL)
 graph(run3,c("IRa","ISa"))
 graph(run3,c("CRa","CSa","CR","CS"))
 
-grid.arrange(graph(run2,c("IRa","ISa")),graph(run3,c("IRa","ISa")),ncol=1)
-grid.arrange(graph(run2,c("CRa","CR")),graph(run3,c("CRa","CR")),ncol=1)
-grid.arrange(run1_g,run2_g,run3_g,ncol=2)
 
+# Epidémie de grippe mais vaccination 80%
+vec_virus=I_vac_80
+param<-create_params()
+Init.cond<-create_initial_cond(Sa0=tail(run0$Sa, n = 1),CRa0=tail(run0$CRa, n = 1),CSa0=tail(run0$CSa, n = 1),
+                               IRa0=tail(run0$IRa, n = 1),ISa0=tail(run0$ISa, n = 1),S0=tail(run0$S, n = 1),
+                               CR0=tail(run0$CR, n = 1),CS0=tail(run0$CS, n = 1))
+run4<-run(Init.cond,param)
+run4_g<-graph(run4,NULL)
+graph(run4,c("IRa","ISa"))
+graph(run4,c("CRa","CSa","CR","CS"))
 
+all_res <- data.frame(
+  time = run2$time,
+  IR_no_vaccination = run2$IRa,
+  IR_50_vaccination = run3$IRa,
+  IR_80_vaccination = run4$IRa
+)
+IR_g<-graph(all_res,NULL)
 
-merge_run<-function(data1,data2){
-  new_run <- merge(data1, data2,by = "time", suffixes = c(".vaccine", ".non_vaccine"))
-  return(new_run)
+grid.arrange(run1_g,run2_g,run3_g,IR_g,ncol=2)
+
+res <- data.frame(time = r1$time)
+for (i in seq(1,19,by=1)){
+  
+  vec_virus=I_vac[[i]]
+  param<-create_params()
+  Init.cond<-create_initial_cond(Sa0=tail(run0$Sa, n = 1),CRa0=tail(run0$CRa, n = 1),CSa0=tail(run0$CSa, n = 1),
+                                 IRa0=tail(run0$IRa, n = 1),ISa0=tail(run0$ISa, n = 1),S0=tail(run0$S, n = 1),
+                                 CR0=tail(run0$CR, n = 1),CS0=tail(run0$CS, n = 1))
+  runt<-run(Init.cond,param)
+  
+  col<-paste("vaccination",results_df[i,1])
+ 
+  res[[col]]<- runt$IRa
 
 }
-graph(merge_run(run2,run3),c("new_teta.vaccine","new_teta.non_vaccine"))
-graph_Iv_Inv<-graph(merge_run(run2,run3),c("IRa.vaccine","IRa.non_vaccine","ISa.vaccine","ISa.non_vaccine"))
 
-grid.arrange(run1_g,run2_g,run3_g,graph_Iv_Inv,ncol=2)
-
-
-runI <- run2
-for (col_name in colnames(run2)) {
-  if (col_name %in% colnames(run3)) {
-    runI[[col_name]] <- run2[[col_name]] + run3[[col_name]]
-  }
-}
-runI_g<-graph(runI,c("ISa","IRa"))
-
-runtest <- run3
-for (col_name in colnames(run3)) {
-  if (col_name %in% colnames(run2)) {
-    runtest[[col_name]] <- run3[[col_name]] - run2[[col_name]]
-  }
-}
+graph(res,NULL)
+graph(res,c("vaccination 0.1","vaccination 0.95"))

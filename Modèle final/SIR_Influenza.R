@@ -31,7 +31,7 @@ create_params<-function(beta=0.28,gamma=0.14,vf=0.6)
   list(beta=beta,gamma=gamma,vf=vf)
 }
 
-create_initial_cond<-function(Sv0=100,Snv0=100,Iv0=0,Inv0=1,Rv0=0,Rnv0=0){
+create_initial_cond<-function(Sv0=0,Snv0=1000,Iv0=0,Inv0=1,Rv0=0,Rnv0=0){
   c(Sv=Sv0,Snv=Snv0,Iv=Iv0,Inv=Inv0,Rv=Rv0,Rnv=Rnv0)
 }
 
@@ -87,19 +87,69 @@ graph(r1,c("Iv","Inv"))
 grid.arrange(graph(r1,c("Iv","Inv")),graph(r1,"Iv_Inv"),ncol=1)
 
 
-# vec_virus_v <- approxfun(r1$time, r1$Iv)
-# vec_virus_nv<- approxfun(r1$time,r1$Inv)
 
-vec_virus_v<-approxfun(r1$time,r1%>%
-  mutate(propIv=Iv/(Sv+Iv+Rv+Snv+Inv+Rnv))%>%
-  select(propIv)%>%
-pull)
+I_vac_0<-approxfun(r1$time,r1%>%
+                        mutate(propI=Iv_Inv/(Sv+Iv+Rv+Snv+Inv+Rnv))%>%
+                        select(propI)%>%
+                        pull)
+param<-create_params()
+Init.cond<-create_initial_cond(Sv0=500,Snv0=500)
+r2<-run(Init.cond,param)
+r2$Iv_Inv<-r2$Iv+r2$Inv
+r2_g<- graph(r2,NULL)
+graph(r2,"Iv_Inv")
+graph(r2,c("Iv","Inv"))
+grid.arrange(graph(r2,c("Iv","Inv")),graph(r2,"Iv_Inv"),ncol=1)
 
-vec_virus_nv<-approxfun(r1$time,r1%>%
-                         mutate(propInv=Inv/(Sv+Iv+Rv+Snv+Inv+Rnv))%>%
-                         select(propInv)%>%
-                         pull)
+
+I_vac_50<-approxfun(r2$time,r2%>%
+                     mutate(propI=Iv_Inv/(Sv+Iv+Rv+Snv+Inv+Rnv))%>%
+                     select(propI)%>%
+                     pull)
+
+param<-create_params()
+Init.cond<-create_initial_cond(Sv0=800,Snv0=200)
+r3<-run(Init.cond,param)
+r3$Iv_Inv<-r3$Iv+r3$Inv
+r3_g<- graph(r3,NULL)
+graph(r3,"Iv_Inv")
+graph(r3,c("Iv","Inv"))
+grid.arrange(graph(r3,c("Iv","Inv")),graph(r3,"Iv_Inv"),ncol=1)
+
+I_vac_80<-approxfun(r3$time,r3%>%
+                      mutate(propI=Iv_Inv/(Sv+Iv+Rv+Snv+Inv+Rnv))%>%
+                      select(propI)%>%
+                      pull)
 
 vec_virus_0<-function(time){
   return(0)
 }
+
+grid.arrange(graph(r1,"Iv_Inv"),graph(r2,"Iv_Inv"),graph(r3,"Iv_Inv"),ncol=2)
+
+results_df <- data.frame(vacc = numeric(), Max_I = numeric())
+I_vac<-list()
+for (i in seq(0.1,1,by=0.05)){
+  param<-create_params()
+  Init.cond<-create_initial_cond(Sv0=1000*i,Snv0=1000*(1-i))
+  r<-run(Init.cond,param)
+  r$Iv_Inv<-r$Iv+r$Inv
+  Max_I=max(r$Iv_Inv,na.rm=TRUE)
+  new_row=data.frame(vacc=i, Max_I, n = 1)
+  results_df <- bind_rows(results_df, new_row)
+  virus<-approxfun(r$time,r%>%
+                     mutate(propI=Iv_Inv/(Sv+Iv+Rv+Snv+Inv+Rnv))%>%
+                     select(propI)%>%
+                     pull)
+  I_vac<-append(I_vac,virus)
+ 
+
+}
+
+ggplot(data   = results_df,              
+       mapping = aes(x = vacc,    
+                     y = Max_I)) +   
+  geom_point(color="blue")+
+  geom_line(color="purple")+
+  theme_bw()+
+  labs(title="Epidemic spike according to vaccination ")
