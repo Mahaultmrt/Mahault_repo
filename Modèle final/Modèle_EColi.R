@@ -16,36 +16,34 @@ Res_model <- function(t, pop, param,vec_virus) {
     
     new_teta<-teta-log(1-vec_virus(t)*ATB)
     
-    
-    dCRa <- -CRa*(betaS*(CSa+ISa+CS)/N)+CSa*(betaR*ct*(CR+IRa+CRa)/N)-CRa*(gamma+alpha*(1-sigmaR))+CSa*(gamma+alpha*(1-sigmaS))-omega*CRa+new_teta*CR-rho*CRa
-    dCSa <- -CSa*(betaR*ct*(CR+IRa+CRa)/N)+CRa*(betaS*(CSa+ISa+CS)/N)-CSa*(gamma+alpha*(1-sigmaS))+CRa*(gamma+alpha*(1-sigmaR))-omega*CSa+new_teta*CS-rho*CSa
-    dIRa <- rho*CRa+rho*CR
-    dISa <- rho*CSa+rho*CS
-    
-    dCR <- -CR*(betaS*(CSa+ISa+CS)/N)+CS*(betaR*ct*(CR+IRa+CRa)/N)-new_teta*CR+omega*CRa-rho*CR-gamma*CR+gamma*CS
-    dCS <- -CS*(betaR*ct*(CR+IRa+CRa)/N)+CR*(betaS*(CSa+ISa+CS)/N)-new_teta*CS+omega*CSa-rho*CS-gamma*CS+gamma*CR
-    
-    
-    res<-c(dCRa,dCSa,dIRa,dISa,dCR,dCS)
-    
+    dCSa<- - CSa*(beta*ct*(CRa+CR)/N)+(gamma+alpha*(1-sigmaR))*CRa-CSa*omega+new_teta*CS-rhoSa*CSa
+    dCRa<- CSa*(beta*ct*(CRa+CR)/N)-(gamma+alpha*(1-sigmaR))*CRa-CRa*omega+new_teta*CR-rhoRa*CRa
+    dCS<- -CS*(beta*ct*(CRa+CR)/N)+gamma*CR+CSa*omega-new_teta*CS-rho*CS
+    dCR<- CS*(beta*ct*(CRa+CR)/N)-gamma*CR+CRa*omega-new_teta*CR-rho*CR
+    dIRa<- rhoRa*CRa+rho*CR
+    dISa<-rhoSa*CSa+rho*CS
+   
+    res<-c(dCSa,dCRa,dCS,dCR,dIRa,dISa)
     
     exp<-(CRa+CSa+IRa+ISa)*100/N
     non_exp<-(CR+CS)*100/N
     
-    list(res,new_teta=new_teta,N=N)
+    prop<-c(propCSa=CSa/N,propCRa=CRa/N,propCS=CS/N,propCR=CR/N,
+            propIRa=IRa/N,propISa=ISa/N)
+    list(res,new_teta=new_teta,teta=teta,prop,N=N)
     
   })
   
 }
 
 
-create_params<-function(betaS=0.012,betaR=0.015,ct=1,deltaRa=0,deltaSa=0,gamma=1/120,rho=1/5,teta=0.0014,omega=0.08, alpha=0.33, sigmaR=1,sigmaS=0, ATB=0.3)
+create_params<-function(beta=0.3,ct=0.9,deltaRa=0,deltaSa=0,gamma=0.04,rho=1.8*10^-6,rhoRa=1.8*10^-6,rhoSa=1.8*10^-6,teta=0.0014,omega=0.08, alpha=0.33, sigmaR=1,sigmaS=0, ATB=0.3)
 {
-  list(betaS=betaS,betaR=betaR,ct=ct,deltaRa=deltaRa,deltaSa=deltaSa,gamma=gamma,rho=rho,teta=teta,omega=omega,alpha=alpha,sigmaR=sigmaR,sigmaS=sigmaS,ATB=ATB)
+  list(beta=beta,ct=ct,deltaRa=deltaRa,deltaSa=deltaSa,gamma=gamma,rho=rho,rhoRa=rhoRa,rhoSa=rhoSa,teta=teta,omega=omega,alpha=alpha,sigmaR=sigmaR,sigmaS=sigmaS,ATB=ATB)
 }
 
-create_initial_cond<-function(CRa0=1000,CSa0=100,IRa0=0,ISa0=0,CR0=100,CS0=1000){
-  c(CRa=CRa0,CSa=CSa0,IRa=IRa0,ISa=ISa0,CR=CR0,CS=CS0)
+create_initial_cond<-function(CSa0=800,CRa0=200,CS0=800,CR0=200,IRa0=0,ISa0=0){
+  c(CSa=CSa0,CRa=CRa0,CS=CS0,CR=CR0,IRa=IRa0,ISa=ISa0)
 }
 
 run<-function(Init.cond,param,Tmax=300,dt=1){
@@ -70,7 +68,8 @@ graph<- function(data,filter_values,title){
       theme_bw() +
       theme(axis.text = element_text(size = 8),
             axis.title = element_text(size = 8, face = "bold"),
-            legend.text = element_text(size = 6)) +
+            legend.text = element_text(size = 6),
+            plot.title = element_text(size = 8, face = "bold",hjust = 0.5)) +
       labs(title=title,x = "Time", y = "Value", colour = "Population:")
     
     
@@ -83,7 +82,8 @@ graph<- function(data,filter_values,title){
       theme_bw() +
       theme(axis.text = element_text(size = 8),
             axis.title = element_text(size = 8, face = "bold"),
-            legend.text = element_text(size = 6)) +
+            legend.text = element_text(size = 6),
+            plot.title = element_text(size = 8, face = "bold",hjust = 0.5)) +
       labs(title=title,x = "Time", y = "Value", colour = "Population:")
     
     
@@ -100,6 +100,8 @@ run1<-run(Init.cond,param)
 run1_g<-graph(run1,NULL,title="E.Coli colonization without a virus epidemic")
 graph(run1,c("CRa","CSa","CR","CS"),title=NULL)
 graph(run1,c("IRa","ISa"),title=NULL)
+prop1<-graph(run1,c("propCSa","propCRa","propCS","propCR","propIRa","propISa"),
+             "E.Coli colonization without a virus epidemic")
 
 # Epidémie de rotavirus mais pas de vaccination
 param<-create_params(rho=0)
@@ -115,6 +117,9 @@ run2<-run(Init.cond,param)
 run2_g<-graph(run2,NULL,title="E.Coli colonization with rotavirus epidemic, no vaccination")
 graph(run2,c("IRa","ISa"), title=NULL)
 graph(run2,c("CRa","CSa","CR","CS"),title=NULL)
+prop2<-graph(run2,c("propCSa","propCRa","propCS","propCR","propIRa","propISa"),
+             "E.Coli colonization with influenza epidemic, no vaccination")
+
 
 # Epidémie de rotavirus vaccination 50%
 vec_virus=I_vac_50
@@ -126,6 +131,11 @@ run3<-run(Init.cond,param)
 run3_g<-graph(run3,NULL,title="E.Coli colonization with rotavirus epidemic, vaccination 50%")
 graph(run3,c("IRa","ISa"),title=NULL)
 graph(run3,c("CRa","CSa","CR","CS"),title=NULL)
+prop3<-graph(run3,c("propCSa","propCRa","propCS","propCR","propIRa","propISa"),
+             "E.Coli colonization with influenza epidemic, vaccination 50%")
+tetas<-graph(run3,c("teta","new_teta"),"Parameters teta for E.Coli colonization with 50% of vaccination for rotavirus")
+
+
 
 
 # # Epidémie de rotavirus vaccination 80%
@@ -138,25 +148,27 @@ run4<-run(Init.cond,param)
 run4_g<-graph(run4,NULL,title="E.Coli colonization with rotavirus epidemic, vaccination 80%")
 graph(run4,c("IRa","ISa"),title=NULL)
 graph(run4,c("CRa","CSa","CR","CS"),title=NULL)
+prop4<-graph(run4,c("propCSa","propCRa","propCS","propCR","propIRa","propISa"),
+             "E.Coli colonization with influenza epidemic, vaccination 80%")
 
 all_res <- data.frame(
   time = run2$time,
-  IR_no_vaccination = run2$IRa,
-  IS_no_vaccination = run2$ISa,
-  IR_50_vaccination = run3$IRa,
-  IS_50_vaccination = run3$ISa,
-  IR_80_vaccination = run4$IRa,
-  IS_80_vaccination = run4$ISa,
-  I_no_vaccination= run2$IRa + run2$ISa,
-  I_50_vaccination= run3$IRa + run3$ISa,
-  I_80_vaccination= run4$IRa + run4$ISa
+  IR_no_vaccination = run2$propIRa,
+  IS_no_vaccination = run2$propISa,
+  IR_50_vaccination = run3$propIRa,
+  IS_50_vaccination = run3$propISa,
+  IR_80_vaccination = run4$propIRa,
+  IS_80_vaccination = run4$propISa,
+  I_no_vaccination= run2$propIRa + run2$propISa,
+  I_50_vaccination= run3$propIRa + run3$propISa,
+  I_80_vaccination= run4$propIRa + run4$propISa
 )
-IR_g<-graph(all_res,c("IR_no_vaccination","IR_50_vaccination","IR_80_vaccination"),title=NULL)
-IS_IR_g<-graph(all_res,c("IR_no_vaccination","IR_50_vaccination","IR_80_vaccination","IS_no_vaccination","IS_50_vaccination","IS_80_vaccination"),title=NULL)
+IR_g<-graph(all_res,c("IR_no_vaccination","IR_50_vaccination","IR_80_vaccination"),"Proportion of people infected by a resistant strain")
+IS_IR_g<-graph(all_res,c("IR_no_vaccination","IR_50_vaccination","IR_80_vaccination","IS_no_vaccination","IS_50_vaccination","IS_80_vaccination"),
+               "Proportion of people infected by a resistant strain and sensitive strain")
 I_tot_g<-graph(all_res,c("I_no_vaccination","I_50_vaccination","I_80_vaccination"),title=NULL)
 
-grid.arrange(run1_g,run2_g,run3_g,IR_g,ncol=2)
-
+grid.arrange(prop1,prop2,prop3,IR_g,ncol=2)
 res <- data.frame(time = r1$time)
 for (i in seq(1,19,by=1)){
   
@@ -176,5 +188,8 @@ for (i in seq(1,19,by=1)){
 graph(res,NULL,title=NULL)
 graph(res,c("vaccination 0.1","vaccination 0.95"),title=NULL)
 
-#test
+
+all_res <- all_res[-nrow(all_res), ]
+tail(all_res$IR_no_vaccination, n = 1)-tail(all_res$IR_80_vaccination, n = 1)
+all_res$s<-(all_res$IR_no_vaccination - all_res$IR_80_vaccination)*100
 

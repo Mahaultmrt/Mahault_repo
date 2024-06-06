@@ -194,3 +194,7 @@ for (i in seq(1,19,by=1)){
 
 graph(res,NULL,title=NULL)
 graph(res,c("vaccination 0.1","vaccination 0.95"),title=NULL)
+
+all_res <- all_res[-nrow(all_res), ]
+tail(all_res$IR_no_vaccination, n = 1)-tail(all_res$IR_80_vaccination, n = 1)
+all_res$s<-(all_res$IR_no_vaccination - all_res$IR_80_vaccination)*100
