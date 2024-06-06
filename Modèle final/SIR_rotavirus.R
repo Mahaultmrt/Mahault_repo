@@ -44,8 +44,10 @@ run<-function(Init.cond,param,Tmax=300,dt=1){
 }
 
 
-graph<- function(data,filter_values){
-  data_name<-as.character(substitute(data))
+graph<- function(data,filter_values,title){
+  #data_name<-as.character(substitute(data))
+  
+  
   if(!is.null(filter_values))
   {
     p<-data %>%
@@ -56,8 +58,8 @@ graph<- function(data,filter_values){
       theme_bw() +
       theme(axis.text = element_text(size = 8),
             axis.title = element_text(size = 8, face = "bold"),
-            legend.text = element_text(size = 8)) +
-      labs(title=data_name,x = "Time", y = "Value", colour = "Population:")
+            legend.text = element_text(size = 6)) +
+      labs(title=title,x = "Time", y = "Value", colour = "Population:")
     
     
   }
@@ -69,8 +71,8 @@ graph<- function(data,filter_values){
       theme_bw() +
       theme(axis.text = element_text(size = 8),
             axis.title = element_text(size = 8, face = "bold"),
-            legend.text = element_text(size = 8)) +
-      labs(title=data_name,x = "Time", y = "Value", colour = "Population:")
+            legend.text = element_text(size = 6)) +
+      labs(title=title,x = "Time", y = "Value", colour = "Population:")
     
     
   }
@@ -78,44 +80,46 @@ graph<- function(data,filter_values){
   return(p)
 }
 
+#no vaccincation
 param<-create_params()
 Init.cond<-create_initial_cond()
 r1<-run(Init.cond,param)
 r1$Iv_Inv<-r1$Iv+r1$Inv
-r1_g<- graph(r1,NULL)
-graph(r1,"Iv_Inv")
-graph(r1,c("Iv","Inv"))
-grid.arrange(graph(r1,c("Iv","Inv")),graph(r1,"Iv_Inv"),ncol=1)
+r1_g<- graph(r1,NULL,title="Rotavirus epidemic no vaccination")
+I_g1<-graph(r1,"Iv_Inv", title="Rotavirus epidemic, no vaccination, infected people")
+Iv_Inv_g1<-graph(r1,c("Iv","Inv"),title="Rotavirus epidemic, no vaccination, infected people")
 
-
+grid.arrange(I_g1,Iv_Inv_g1,ncol=1)
 
 I_vac_0<-approxfun(r1$time,r1%>%
                      mutate(propI=Iv_Inv/(Sv+Iv+Rv+Snv+Inv+Rnv))%>%
                      select(propI)%>%
                      pull)
+
+# vaccination 50%
 param<-create_params()
 Init.cond<-create_initial_cond(Sv0=500,Snv0=500)
 r2<-run(Init.cond,param)
 r2$Iv_Inv<-r2$Iv+r2$Inv
-r2_g<- graph(r2,NULL)
-graph(r2,"Iv_Inv")
-graph(r2,c("Iv","Inv"))
-grid.arrange(graph(r2,c("Iv","Inv")),graph(r2,"Iv_Inv"),ncol=1)
-
+r2_g<- graph(r2,NULL,title="Rotavirus epidemic 50% vaccination")
+I_g2<-graph(r2,"Iv_Inv", title="Rotavirus epidemic, 50% vaccination, infected people (Iv+InV)")
+Iv_Inv_g2<-graph(r2,c("Iv","Inv"),title="Rotavirus epidemic, 50% vaccination, infected people")
+grid.arrange(I_g2,Iv_Inv_g2,ncol=1)
 
 I_vac_50<-approxfun(r2$time,r2%>%
                       mutate(propI=Iv_Inv/(Sv+Iv+Rv+Snv+Inv+Rnv))%>%
                       select(propI)%>%
                       pull)
 
+# vaccination 90%
 param<-create_params()
 Init.cond<-create_initial_cond(Sv0=800,Snv0=200)
 r3<-run(Init.cond,param)
 r3$Iv_Inv<-r3$Iv+r3$Inv
-r3_g<- graph(r3,NULL)
-graph(r3,"Iv_Inv")
-graph(r3,c("Iv","Inv"))
-grid.arrange(graph(r3,c("Iv","Inv")),graph(r3,"Iv_Inv"),ncol=1)
+r3_g<- graph(r3,NULL,title="Rotavirus epidemic 80% vaccination")
+I_g3<-graph(r3,"Iv_Inv", title="Rotavirus epidemic, 80% vaccination, infected people (Iv+InV)")
+Iv_Inv_g3<-graph(r3,c("Iv","Inv"),title="Rotavirus epidemic, 80% vaccination, infected people")
+grid.arrange(I_g3,Iv_Inv_g3,ncol=1)
 
 I_vac_80<-approxfun(r3$time,r3%>%
                       mutate(propI=Iv_Inv/(Sv+Iv+Rv+Snv+Inv+Rnv))%>%
@@ -136,22 +140,33 @@ for (i in seq(0.1,1,by=0.05)){
   Init.cond<-create_initial_cond(Sv0=1000*i,Snv0=1000*(1-i))
   r<-run(Init.cond,param)
   r$Iv_Inv<-r$Iv+r$Inv
-  Max_I=max(r$Iv_Inv,na.rm=TRUE)
-  new_row=data.frame(vacc=i, Max_I, n = 1)
+  r$Rv_Rnv<-r$Rv+r$Rnv
+  prop_I=r%>%
+    mutate(propI=Iv_Inv/(Sv+Iv+Rv+Snv+Inv+Rnv))%>%
+    select(propI)%>%
+    pull
+  max_propI=max(prop_I,na.rm=TRUE)
+  prop_R<-r%>%
+    mutate(propR=Rv_Rnv/(Sv+Iv+Rv+Snv+Inv+Rnv))%>%
+    select(propR)%>%
+    pull
+  last_propR=tail(prop_R, n = 1)
+  new_row=data.frame(vacc=i, max_propI,last_propR, n = 1)
   results_df <- bind_rows(results_df, new_row)
-  virus<-approxfun(r$time,r%>%
-                     mutate(propI=Iv_Inv/(Sv+Iv+Rv+Snv+Inv+Rnv))%>%
-                     select(propI)%>%
-                     pull)
+  virus<-approxfun(r$time,prop_I)
   I_vac<-append(I_vac,virus)
   
   
 }
 
-ggplot(data   = results_df,              
-       mapping = aes(x = vacc,    
-                     y = Max_I)) +   
-  geom_point(color="blue")+
-  geom_line(color="purple")+
-  theme_bw()+
-  labs(title="Epidemic spike according to vaccination  ")
+
+ggplot() +   
+  geom_point(data=results_df, aes(x=vacc,y=max_propI,colour="Max prop I"))+
+  geom_line(data=results_df, aes(x=vacc,y=max_propI, colour="Max prop I"))+
+  geom_point(data=results_df, aes(x=vacc,y=last_propR, colour="Last prop R"))+
+  geom_line(data=results_df, aes(x=vacc,y=last_propR, colour="Last prop R"))+
+  labs(title = "Epidemic spike and recovery according to vaccination", y = "Proportion",
+       x = "Vacc") +
+  scale_colour_manual(values = c("purple", "orange"),
+                      labels = c("Max PropI", "Last PropR"))+
+  theme_bw()
