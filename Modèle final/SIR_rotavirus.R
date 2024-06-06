@@ -104,7 +104,14 @@ r2$Iv_Inv<-r2$Iv+r2$Inv
 r2_g<- graph(r2,NULL,title="Rotavirus epidemic 50% vaccination")
 I_g2<-graph(r2,"Iv_Inv", title="Rotavirus epidemic, 50% vaccination, infected people (Iv+InV)")
 Iv_Inv_g2<-graph(r2,c("Iv","Inv"),title="Rotavirus epidemic, 50% vaccination, infected people")
+prop_I2=r2%>%
+  mutate(propI=Iv_Inv/(Sv+Iv+Rv+Snv+Inv+Rnv))%>%
+  select(propI)%>%
+  pull
+r2$propI<-prop_I2
+graph(r2,"propI","proportion of people infect by the rotavirus with 50% vaccination")
 grid.arrange(I_g2,Iv_Inv_g2,ncol=1)
+
 
 I_vac_50<-approxfun(r2$time,r2%>%
                       mutate(propI=Iv_Inv/(Sv+Iv+Rv+Snv+Inv+Rnv))%>%
@@ -170,3 +177,5 @@ ggplot() +
   scale_colour_manual(values = c("purple", "orange"),
                       labels = c("Max PropI", "Last PropR"))+
   theme_bw()
+
+

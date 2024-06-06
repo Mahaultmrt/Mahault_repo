@@ -34,7 +34,9 @@ Res_model <- function(t, pop, param,vec_virus) {
     exp<-(Sa+CRa+CSa+IRa+ISa)*100/N
     non_exp<-(S+CR+CS)*100/N
     
-    list(res,N=N)
+    prop<-c(propSa=Sa/N,propCRa=CRa/N,propCSa=CSa/N,
+            propIRa=IRa/N,propISa=ISa/N,propS=S/N,propCR=CR/N,propCS=CS/N)
+    list(res,new_teta=new_teta,teta=teta,prop)
     
   })
   
@@ -71,7 +73,8 @@ graph<- function(data,filter_values,title){
       theme_bw() +
       theme(axis.text = element_text(size = 8),
             axis.title = element_text(size = 8, face = "bold"),
-            legend.text = element_text(size = 6)) +
+            legend.text = element_text(size = 6),
+            plot.title = element_text(size = 8, face = "bold",hjust = 0.5)) +
       labs(title=title,x = "Time", y = "Value", colour = "Population:")
     
     
@@ -84,7 +87,8 @@ graph<- function(data,filter_values,title){
       theme_bw() +
       theme(axis.text = element_text(size = 8),
             axis.title = element_text(size = 8, face = "bold"),
-            legend.text = element_text(size = 6)) +
+            legend.text = element_text(size = 6),
+            plot.title = element_text(size = 8, face = "bold",hjust = 0.5)) +
       labs(title=title,x = "Time", y = "Value", colour = "Population:")
     
     
@@ -92,6 +96,7 @@ graph<- function(data,filter_values,title){
   
   return(p)
 }
+
 # pas d'épidémie
 vec_virus=vec_virus_0
 param<-create_params()
@@ -100,7 +105,9 @@ run1<-run(Init.cond,param)
 run1_g<-graph(run1,NULL,title="S.Aureus colonization without a virus epidemic")
 graph(run1,c("CRa","CSa","CR","CS"),title=NULL)
 graph(run1,c("IRa","ISa"),title=NULL)
-
+prop1<-graph(run1,c("propSa","propCRa","propCSa",
+                    "propIRa","propISa","propS","propCR","propCS"),
+             "S.Pneumoniae colonization without a virus epidemic")
 
 # Epidémie de grippe mais pas de vaccination
 param<-create_params(rhoR=0,rhoS=0)
@@ -116,6 +123,10 @@ run2<-run(Init.cond,param)
 run2_g<-graph(run2,NULL,title="S.Aureus colonization with influenza epidemic, no vaccination")
 graph(run2,c("IRa","ISa"), title=NULL)
 graph(run2,c("CRa","CSa","CR","CS"),title=NULL)
+prop2<-graph(run2,c("propSa","propCRa","propCSa",
+                    "propIRa","propISa","propS","propCR","propCS"),
+             "S.Pneumoniae colonization with influenza epidemic, no vaccination")
+
 
 # Epidémie de grippe vaccination 50%
 vec_virus=I_vac_50
@@ -127,6 +138,12 @@ run3<-run(Init.cond,param)
 run3_g<-graph(run3,NULL,title="S.Aureus colonization with influenza epidemic, vaccination 50%")
 graph(run3,c("IRa","ISa"),title=NULL)
 graph(run3,c("CRa","CSa","CR","CS"),title=NULL)
+prop3<-graph(run3,c("propSa","propCRa","propCSa",
+                    "propIRa","propISa","propS","propCR","propCS"),
+             "S.Pneumoniae colonization with influenza epidemic, vaccination 50%")
+tetas<-graph(run3,c("teta","new_teta"),"Parameters teta for S.pneumonia colonization with 50% of vaccination for influenza")
+
+
 
 
 # Epidémie de grippe vaccination 80%
@@ -139,24 +156,28 @@ run4<-run(Init.cond,param)
 run4_g<-graph(run4,NULL,title="S.Pneumoniae colonization with influenza epidemic, vaccination 80%")
 graph(run4,c("IRa","ISa"),title=NULL)
 graph(run4,c("CRa","CSa","CR","CS"),title=NULL)
+prop4<-graph(run4,c("propSa","propCRa","propCSa",
+                    "propIRa","propISa","propS","propCR","propCS"),
+             "S.Pneumoniae colonization with influenza epidemic, vaccination 80%")
 
 all_res <- data.frame(
   time = run2$time,
-  IR_no_vaccination = run2$IRa,
-  IS_no_vaccination = run2$ISa,
-  IR_50_vaccination = run3$IRa,
-  IS_50_vaccination = run3$ISa,
-  IR_80_vaccination = run4$IRa,
-  IS_80_vaccination = run4$ISa,
-  I_no_vaccination= run2$IRa + run2$ISa,
-  I_50_vaccination= run3$IRa + run3$ISa,
-  I_80_vaccination= run4$IRa + run4$ISa
+  IR_no_vaccination = run2$propIRa,
+  IS_no_vaccination = run2$propISa,
+  IR_50_vaccination = run3$propIRa,
+  IS_50_vaccination = run3$propISa,
+  IR_80_vaccination = run4$propIRa,
+  IS_80_vaccination = run4$propISa,
+  I_no_vaccination= run2$propIRa + run2$propISa,
+  I_50_vaccination= run3$propIRa + run3$propISa,
+  I_80_vaccination= run4$propIRa + run4$propISa
 )
-IR_g<-graph(all_res,c("IR_no_vaccination","IR_50_vaccination","IR_80_vaccination"),title=NULL)
-IS_IR_g<-graph(all_res,c("IR_no_vaccination","IR_50_vaccination","IR_80_vaccination","IS_no_vaccination","IS_50_vaccination","IS_80_vaccination"),title=NULL)
+IR_g<-graph(all_res,c("IR_no_vaccination","IR_50_vaccination","IR_80_vaccination"),"Proportion of people infected by a resistant strain")
+IS_IR_g<-graph(all_res,c("IR_no_vaccination","IR_50_vaccination","IR_80_vaccination","IS_no_vaccination","IS_50_vaccination","IS_80_vaccination"),
+               "Proportion of people infected by a resistant strain and sensitive strain")
 I_tot_g<-graph(all_res,c("I_no_vaccination","I_50_vaccination","I_80_vaccination"),title=NULL)
 
-grid.arrange(run1_g,run2_g,run3_g,IR_g,ncol=2)
+grid.arrange(prop1,prop2,prop3,IR_g,ncol=2)
 
 res <- data.frame(time = r1$time)
 for (i in seq(1,19,by=1)){
@@ -176,3 +197,7 @@ for (i in seq(1,19,by=1)){
 
 graph(res,NULL,title=NULL)
 graph(res,c("vaccination 0.1","vaccination 0.95"),title=NULL)
+
+all_res <- all_res[-nrow(all_res), ]
+tail(all_res$IR_no_vaccination, n = 1)-tail(all_res$IR_80_vaccination, n = 1)
+all_res$s<-(all_res$IR_no_vaccination - all_res$IR_80_vaccination)*100
