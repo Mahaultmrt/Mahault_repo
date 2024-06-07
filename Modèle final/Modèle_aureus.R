@@ -48,7 +48,7 @@ create_params<-function(betaR=0.0147,betaS=0.01428,ct=0.95,deltaRa=0,deltaSa=0,g
   list(betaR=betaR,betaS=betaS,ct=ct,deltaRa=deltaRa,deltaSa=deltaSa,gammaR=gammaR,gammaS=gammaS,rhoR=rhoR,rhoS=rhoS,teta=teta,omega=omega,alpha=alpha,sigmaR=sigmaR,sigmaS=sigmaS,ATB=ATB)
 }
 
-create_initial_cond<-function(Sa0=1000,CRa0=1,CSa0=1,IRa0=0,ISa0=0,S0=1000,CR0=1,CS0=1){
+create_initial_cond<-function(Sa0=800,CRa0=40,CSa0=160,IRa0=0,ISa0=0,S0=800,CR0=40,CS0=160){
   c(Sa=Sa0,CRa=CRa0,CSa=CSa0,IRa=IRa0,ISa=ISa0,S=S0,CR=CR0,CS=CS0)
 }
 
@@ -178,6 +178,8 @@ IS_IR_g<-graph(all_res,c("IR_no_vaccination","IR_50_vaccination","IR_80_vaccinat
 I_tot_g<-graph(all_res,c("I_no_vaccination","I_50_vaccination","I_80_vaccination"),title=NULL)
 
 grid.arrange(prop1,prop2,prop3,IR_g,ncol=2)
+grid.arrange(IR_g,IS_IR_g,I_tot_g,ncol=2)
+
 
 res <- data.frame(time = r1$time)
 for (i in seq(1,19,by=1)){
@@ -200,4 +202,8 @@ graph(res,c("vaccination 0.1","vaccination 0.95"),title=NULL)
 
 all_res <- all_res[-nrow(all_res), ]
 tail(all_res$IR_no_vaccination, n = 1)-tail(all_res$IR_80_vaccination, n = 1)
-all_res$s<-(all_res$IR_no_vaccination - all_res$IR_80_vaccination)*100
+all_res$s<-all_res$IR_no_vaccination - all_res$IR_80_vaccination
+
+
+diff_IR <- all_res[seq(1, nrow(all_res), by = 50), ]
+diff_IR[c("time","s")]

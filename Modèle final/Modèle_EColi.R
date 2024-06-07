@@ -46,7 +46,7 @@ create_initial_cond<-function(CSa0=800,CRa0=200,CS0=800,CR0=200,IRa0=0,ISa0=0){
   c(CSa=CSa0,CRa=CRa0,CS=CS0,CR=CR0,IRa=IRa0,ISa=ISa0)
 }
 
-run<-function(Init.cond,param,Tmax=300,dt=1){
+run<-function(Init.cond,param,Tmax=400,dt=1){
   Time=seq(from=0,to=Tmax,by=dt)
   result = as.data.frame(lsoda(Init.cond, Time, Res_model, param,vec_virus=vec_virus))
   return(result)
@@ -169,6 +169,9 @@ IS_IR_g<-graph(all_res,c("IR_no_vaccination","IR_50_vaccination","IR_80_vaccinat
 I_tot_g<-graph(all_res,c("I_no_vaccination","I_50_vaccination","I_80_vaccination"),title=NULL)
 
 grid.arrange(prop1,prop2,prop3,IR_g,ncol=2)
+grid.arrange(IR_g,IS_IR_g,I_tot_g,ncol=2)
+
+
 res <- data.frame(time = r1$time)
 for (i in seq(1,19,by=1)){
   
@@ -191,5 +194,7 @@ graph(res,c("vaccination 0.1","vaccination 0.95"),title=NULL)
 
 all_res <- all_res[-nrow(all_res), ]
 tail(all_res$IR_no_vaccination, n = 1)-tail(all_res$IR_80_vaccination, n = 1)
-all_res$s<-(all_res$IR_no_vaccination - all_res$IR_80_vaccination)*100
+all_res$s<-all_res$IR_no_vaccination - all_res$IR_80_vaccination
 
+diff_IR <- all_res[seq(1, nrow(all_res), by = 50), ]
+diff_IR[c("time","s")]
