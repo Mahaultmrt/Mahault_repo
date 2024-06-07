@@ -36,7 +36,7 @@ create_initial_cond<-function(Sv0=0,Snv0=1000,Iv0=0,Inv0=1,Rv0=0,Rnv0=0){
   c(Sv=Sv0,Snv=Snv0,Iv=Iv0,Inv=Inv0,Rv=Rv0,Rnv=Rnv0)
 }
 
-run<-function(Init.cond,param,Tmax=300,dt=1){
+run<-function(Init.cond,param,Tmax=400,dt=1){
   Time=seq(from=0,to=Tmax,by=dt)
   result = as.data.frame(lsoda(Init.cond, Time, SIR_model_vacc_2, param))
   return(result)
