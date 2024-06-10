@@ -167,14 +167,15 @@ for (i in seq(0.1,1,by=0.05)){
 }
 
 ggplot() +   
-  geom_point(data=results_df, aes(x=vacc,y=max_propI,colour="Max prop I"))+
-  geom_line(data=results_df, aes(x=vacc,y=max_propI, colour="Max prop I"))+
-  geom_point(data=results_df, aes(x=vacc,y=last_propR, colour="Last prop R"))+
-  geom_line(data=results_df, aes(x=vacc,y=last_propR, colour="Last prop R"))+
+  geom_point(data=results_df, aes(x=vacc,y=max_propI,colour="Max PropI"))+
+  geom_line(data=results_df, aes(x=vacc,y=max_propI, colour="Max PropI"))+
+  geom_point(data=results_df, aes(x=vacc,y=last_propR, colour="Last PropR"))+
+  geom_line(data=results_df, aes(x=vacc,y=last_propR, colour="Last PropR"))+
   labs(title = "Epidemic spike and recovery according to vaccination", y = "Proportion",
        x = "Vacc") +
-  scale_colour_manual(values = c("purple", "orange"),
-                      labels = c("Max PropI", "Last PropR"))+
+  scale_colour_manual(name = "Legend", values = c("Max PropI" = "purple", "Last PropR" = "orange")) +
   theme_bw()
+
+
 
 

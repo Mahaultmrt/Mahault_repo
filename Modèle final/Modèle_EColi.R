@@ -3,6 +3,8 @@ library(ggplot2)
 library(reshape2)
 library(dplyr)
 library(gridExtra)
+library(grid)
+library(RColorBrewer)
 
 #Code modèle page 12
 
@@ -37,7 +39,7 @@ Res_model <- function(t, pop, param,vec_virus) {
 }
 
 
-create_params<-function(beta=0.3,ct=0.9,deltaRa=0,deltaSa=0,gamma=0.04,rho=1.8*10^-6,rhoRa=1.8*10^-6,rhoSa=1.8*10^-6,teta=0.0014,omega=0.08, alpha=0.33, sigmaR=1,sigmaS=0, ATB=0.3)
+create_params<-function(beta=0.02,ct=0.9,deltaRa=0,deltaSa=0,gamma=0.01,rho=1.8*10^-6,rhoRa=1.8*10^-6,rhoSa=1.8*10^-6,teta=0.0014,omega=0.14, alpha=0.33, sigmaR=1,sigmaS=0, ATB=0.15)
 {
   list(beta=beta,ct=ct,deltaRa=deltaRa,deltaSa=deltaSa,gamma=gamma,rho=rho,rhoRa=rhoRa,rhoSa=rhoSa,teta=teta,omega=omega,alpha=alpha,sigmaR=sigmaR,sigmaS=sigmaS,ATB=ATB)
 }
@@ -102,6 +104,8 @@ graph(run1,c("CRa","CSa","CR","CS"),title=NULL)
 graph(run1,c("IRa","ISa"),title=NULL)
 prop1<-graph(run1,c("propCSa","propCRa","propCS","propCR","propIRa","propISa"),
              "E.Coli colonization without a virus epidemic")
+propC1<-graph(run1,c("propCRa","propCSa","propCR","propCS"),"E.Coli colonized people without a virus epidemic")
+
 
 # Epidémie de rotavirus mais pas de vaccination
 param<-create_params(rho=0)
@@ -118,7 +122,9 @@ run2_g<-graph(run2,NULL,title="E.Coli colonization with rotavirus epidemic, no v
 graph(run2,c("IRa","ISa"), title=NULL)
 graph(run2,c("CRa","CSa","CR","CS"),title=NULL)
 prop2<-graph(run2,c("propCSa","propCRa","propCS","propCR","propIRa","propISa"),
-             "E.Coli colonization with influenza epidemic, no vaccination")
+             "E.Coli colonization with rotavirus epidemic, no vaccination")
+propC2<-graph(run2,c("propCRa","propCSa","propCR","propCS"),"E.Coli colonized people with influenza epidemic, no vaccination")
+
 
 
 # Epidémie de rotavirus vaccination 50%
@@ -132,7 +138,8 @@ run3_g<-graph(run3,NULL,title="E.Coli colonization with rotavirus epidemic, vacc
 graph(run3,c("IRa","ISa"),title=NULL)
 graph(run3,c("CRa","CSa","CR","CS"),title=NULL)
 prop3<-graph(run3,c("propCSa","propCRa","propCS","propCR","propIRa","propISa"),
-             "E.Coli colonization with influenza epidemic, vaccination 50%")
+             "E.Coli colonization with rotavirus epidemic, vaccination 50%")
+propC3<-graph(run3,c("propCRa","propCSa","propCR","propCS"),"E.Coli colonized peoplewith rotavirus epidemic, vaccination 50%")
 tetas<-graph(run3,c("teta","new_teta"),"Parameters teta for E.Coli colonization with 50% of vaccination for rotavirus")
 
 
@@ -149,7 +156,11 @@ run4_g<-graph(run4,NULL,title="E.Coli colonization with rotavirus epidemic, vacc
 graph(run4,c("IRa","ISa"),title=NULL)
 graph(run4,c("CRa","CSa","CR","CS"),title=NULL)
 prop4<-graph(run4,c("propCSa","propCRa","propCS","propCR","propIRa","propISa"),
-             "E.Coli colonization with influenza epidemic, vaccination 80%")
+             "E.Coli colonization with rotavirus epidemic, vaccination 80%")
+propC4<-graph(run4,c("propCRa","propCSa","propCR","propCS"),"E.Coli colonized people with rotavirus epidemic, vaccination 80%")
+
+grid.arrange(propC1,propC2,propC3,propC4)
+
 
 all_res <- data.frame(
   time = run2$time,
@@ -198,3 +209,24 @@ all_res$s<-all_res$IR_no_vaccination - all_res$IR_80_vaccination
 
 diff_IR <- all_res[seq(1, nrow(all_res), by = 50), ]
 diff_IR[c("time","s")]
+
+
+theme <- ttheme_minimal(
+  core = list(
+    fg_params = list(fontface = 3),
+    bg_params = list(fill = brewer.pal(n = 9, name = "Blues")[3:9], col = NA)
+  ),
+  colhead = list(
+    fg_params = list(col = "white", fontface = 4),
+    bg_params = list(fill = "navyblue", col = NA)
+  ),
+  rowhead = list(
+    fg_params = list(col = "white", fontface = 3),
+    bg_params = list(fill = "navyblue", col = NA)
+  )
+)
+
+styled_table <- tableGrob(diff_IR[c("time","s")], theme = theme)
+
+grid.newpage()
+grid.draw(styled_table)
