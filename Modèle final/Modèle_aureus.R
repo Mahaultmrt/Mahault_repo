@@ -17,15 +17,15 @@ Res_model <- function(t, pop, param,vec_virus) {
     new_teta<-teta-log(1-vec_virus(t)*ATB)
     
     
-    dSa <- -Sa*((betaR*ct*(CRa+IRa+CR)/N)+betaS*(CSa+ISa+CS)/N)-omega*Sa+new_teta*S+(gammaR+alpha*(1-sigmaR))*CRa+(gammaS+alpha*(1-sigmaS))*CSa
-    dCRa <- Sa*(betaR*ct*(CRa+IRa+CR)/N)-(gammaR+alpha*(1-sigmaR))*CRa-rhoR*CRa-omega*CRa+new_teta*CR
-    dCSa <- Sa*(betaS*(CSa+ISa+CS)/N)-(gammaS+alpha*(1-sigmaS))*CSa-rhoS*CSa-omega*CSa+new_teta*CS
+    dSa <- -Sa*((beta*ct*(CRa+IRa+CR)/N)+beta*(CSa+ISa+CS)/N)-omega*Sa+new_teta*S+(gamma+alpha*(1-sigmaR))*CRa+(gamma+alpha*(1-sigmaS))*CSa
+    dCRa <- Sa*(beta*ct*(CRa+IRa+CR)/N)-(gamma+alpha*(1-sigmaR))*CRa-rhoR*CRa-omega*CRa+new_teta*CR
+    dCSa <- Sa*(beta*(CSa+ISa+CS)/N)-(gamma+alpha*(1-sigmaS))*CSa-rhoS*CSa-omega*CSa+new_teta*CS
     dIRa <- rhoR*CRa-deltaRa*IRa+rhoR*CR
     dISa <- rhoS*CSa-deltaSa*ISa+rhoS*CS
     
-    dS <- -S*((betaR*ct*(CRa+IRa+CR)/N)+betaS*(CSa+ISa+CS)/N)+omega*Sa-new_teta*S+gammaR*CR+gammaS*CS+deltaRa*IRa+deltaSa*ISa
-    dCR <- S*(betaR*ct*(CRa+IRa+CR)/N)-gammaR*CR-rhoR*CR+omega*CRa-new_teta*CR
-    dCS <- S*(betaS*(CSa+ISa+CS)/N)-gammaS*CS-rhoS*CS+omega*CSa-new_teta*CS
+    dS <- -S*((beta*ct*(CRa+IRa+CR)/N)+beta*(CSa+ISa+CS)/N)+omega*Sa-new_teta*S+gamma*CR+gamma*CS+deltaRa*IRa+deltaSa*ISa
+    dCR <- S*(beta*ct*(CRa+IRa+CR)/N)-gamma*CR-rhoR*CR+omega*CRa-new_teta*CR
+    dCS <- S*(beta*(CSa+ISa+CS)/N)-gamma*CS-rhoS*CS+omega*CSa-new_teta*CS
     
     
     res<-c(dSa,dCRa,dCSa,dIRa,dISa,dS,dCR,dCS)
@@ -43,9 +43,9 @@ Res_model <- function(t, pop, param,vec_virus) {
 }
 
 
-create_params<-function(betaR=0.0147,betaS=0.01428,ct=0.95,deltaRa=0,deltaSa=0,gammaR=9.80*10^-3,gammaS=1.02*10^-2,rhoR=8.22*10^-6,rhoS=1.20*10^-4,teta=0.0014,omega=0.08, alpha=0.33, sigmaR=1,sigmaS=0, ATB=0.3)
+create_params<-function(beta=1.46*10^-2,ct=0.95,deltaRa=0,deltaSa=0,gamma=1.02*10^-2,rhoR=8.22*10^-6,rhoS=1.20*10^-4,teta=0.0014,omega=0.08, alpha=0.33, sigmaR=1,sigmaS=0, ATB=0.3)
 {
-  list(betaR=betaR,betaS=betaS,ct=ct,deltaRa=deltaRa,deltaSa=deltaSa,gammaR=gammaR,gammaS=gammaS,rhoR=rhoR,rhoS=rhoS,teta=teta,omega=omega,alpha=alpha,sigmaR=sigmaR,sigmaS=sigmaS,ATB=ATB)
+  list(beta=beta,ct=ct,deltaRa=deltaRa,deltaSa=deltaSa,gamma=gamma,rhoR=rhoR,rhoS=rhoS,teta=teta,omega=omega,alpha=alpha,sigmaR=sigmaR,sigmaS=sigmaS,ATB=ATB)
 }
 
 create_initial_cond<-function(Sa0=800,CRa0=40,CSa0=160,IRa0=0,ISa0=0,S0=800,CR0=40,CS0=160){
@@ -107,7 +107,9 @@ graph(run1,c("CRa","CSa","CR","CS"),title=NULL)
 graph(run1,c("IRa","ISa"),title=NULL)
 prop1<-graph(run1,c("propSa","propCRa","propCSa",
                     "propIRa","propISa","propS","propCR","propCS"),
-             "S.Pneumoniae colonization without a virus epidemic")
+             "S.Aureus colonization without a virus epidemic")
+propC1<-graph(run1,c("propCRa","propCSa","propCR","propCS"),"S.Aureus colonized people without a virus epidemic")
+
 
 # Epidémie de grippe mais pas de vaccination
 param<-create_params(rhoR=0,rhoS=0)
@@ -125,7 +127,8 @@ graph(run2,c("IRa","ISa"), title=NULL)
 graph(run2,c("CRa","CSa","CR","CS"),title=NULL)
 prop2<-graph(run2,c("propSa","propCRa","propCSa",
                     "propIRa","propISa","propS","propCR","propCS"),
-             "S.Pneumoniae colonization with influenza epidemic, no vaccination")
+             "S.Aureus colonization with influenza epidemic, no vaccination")
+propC2<-graph(run2,c("propCRa","propCSa","propCR","propCS"),"S.Aureus colonized people with influenza epidemic, no vaccination")
 
 
 # Epidémie de grippe vaccination 50%
@@ -140,8 +143,9 @@ graph(run3,c("IRa","ISa"),title=NULL)
 graph(run3,c("CRa","CSa","CR","CS"),title=NULL)
 prop3<-graph(run3,c("propSa","propCRa","propCSa",
                     "propIRa","propISa","propS","propCR","propCS"),
-             "S.Pneumoniae colonization with influenza epidemic, vaccination 50%")
-tetas<-graph(run3,c("teta","new_teta"),"Parameters teta for S.pneumonia colonization with 50% of vaccination for influenza")
+             "S.Aureus colonization with influenza epidemic, vaccination 50%")
+propC3<-graph(run3,c("propCRa","propCSa","propCR","propCS"),"S.Aureus colonized peoplewith influenza epidemic, vaccination 50%")
+tetas<-graph(run3,c("teta","new_teta"),"Parameters teta for S.Aureus colonization with 50% of vaccination for influenza")
 
 
 
@@ -153,12 +157,16 @@ Init.cond<-create_initial_cond(Sa0=tail(run0$Sa, n = 1),CRa0=tail(run0$CRa, n = 
                                IRa0=tail(run0$IRa, n = 1),ISa0=tail(run0$ISa, n = 1),S0=tail(run0$S, n = 1),
                                CR0=tail(run0$CR, n = 1),CS0=tail(run0$CS, n = 1))
 run4<-run(Init.cond,param)
-run4_g<-graph(run4,NULL,title="S.Pneumoniae colonization with influenza epidemic, vaccination 80%")
+run4_g<-graph(run4,NULL,title="S.Aureus colonization with influenza epidemic, vaccination 80%")
 graph(run4,c("IRa","ISa"),title=NULL)
 graph(run4,c("CRa","CSa","CR","CS"),title=NULL)
 prop4<-graph(run4,c("propSa","propCRa","propCSa",
                     "propIRa","propISa","propS","propCR","propCS"),
-             "S.Pneumoniae colonization with influenza epidemic, vaccination 80%")
+             "S.Aureus colonization with influenza epidemic, vaccination 80%")
+propC4<-graph(run4,c("propCRa","propCSa","propCR","propCS"),"S.Aureus colonized people with influenza epidemic, vaccination 80%")
+
+grid.arrange(propC1,propC2,propC3,propC4)
+
 
 all_res <- data.frame(
   time = run2$time,

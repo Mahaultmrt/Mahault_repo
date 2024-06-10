@@ -3,6 +3,7 @@ library(ggplot2)
 library(reshape2)
 library(dplyr)
 library(gridExtra)
+library(grid)
 
 #Code modèle page8 n°2
 
@@ -33,10 +34,12 @@ Res_model <- function(t, pop, param,vec_virus) {
     
     exp<-(Sa+CRa+CSa+IRa+ISa)*100/N
     non_exp<-(S+CR+CS)*100/N
+    CR_tot<-(CRa+CR)/N
+    CS_tot<-(CSa+CS)/N
     
     prop<-c(propSa=Sa/N,propCRa=CRa/N,propCSa=CSa/N,
             propIRa=IRa/N,propISa=ISa/N,propS=S/N,propCR=CR/N,propCS=CS/N)
-    list(res,new_teta=new_teta,teta=teta,prop)
+    list(res,prop,CR_tot=CR_tot,CS_tot=CS_tot,new_teta=new_teta)
     
   })
   
@@ -102,12 +105,12 @@ param<-create_params()
 Init.cond<-create_initial_cond()
 run1<-run(Init.cond,param)
 run1_g<-graph(run1,NULL,title="S.Pneumoniae colonization without a virus epidemic")
-graph(run1,c("CRa","CSa","CR","CS"),title=NULL)
-graph(run1,c("IRa","ISa"),title=NULL)
 prop1<-graph(run1,c("propSa","propCRa","propCSa",
             "propIRa","propISa","propS","propCR","propCS"),
             "S.Pneumoniae colonization without a virus epidemic")
 graph(run1,c("new_teta"),title=NULL)
+propC1<-graph(run1,c("propCRa","propCSa","propCR","propCS"),"S.Pneumoniae colonized people without a virus epidemic")
+CR_CS1<-graph(run1,c("CR_tot","CS_tot"),"S.Pneumoniae colonized people without a virus epidemic")
 
 
 # Epidémie de grippe mais pas de vaccination
@@ -122,11 +125,12 @@ Init.cond<-create_initial_cond(Sa0=tail(run0$Sa, n = 1),CRa0=tail(run0$CRa, n = 
                                CR0=tail(run0$CR, n = 1),CS0=tail(run0$CS, n = 1))
 run2<-run(Init.cond,param)
 run2_g<-graph(run2,NULL,title="S.Pneumoniae colonization with influenza epidemic, no vaccination")
-graph(run2,c("IRa","ISa"), title=NULL)
-graph(run2,c("CRa","CSa","CR","CS"),title=NULL)
 prop2<-graph(run2,c("propSa","propCRa","propCSa",
              "propIRa","propISa","propS","propCR","propCS"),
              "S.Pneumoniae colonization with influenza epidemic, no vaccination")
+propC2<-graph(run2,c("propCRa","propCSa","propCR","propCS"),"S.Pneumoniae colonized people with influenza epidemic, no vaccination")
+CR_CS2<-graph(run2,c("CR_tot","CS_tot"),"S.Pneumoniae colonized people with influenza epidemic, no vaccination")
+
 
 # Epidémie de grippe mais vaccination 50%
 vec_virus=I_vac_50
@@ -136,11 +140,11 @@ Init.cond<-create_initial_cond(Sa0=tail(run0$Sa, n = 1),CRa0=tail(run0$CRa, n = 
                                CR0=tail(run0$CR, n = 1),CS0=tail(run0$CS, n = 1))
 run3<-run(Init.cond,param)
 run3_g<-graph(run3,NULL,title="S.Pneumoniae colonization with influenza epidemic, vaccination 50%")
-graph(run3,c("IRa","ISa"),title=NULL)
-graph(run3,c("CRa","CSa","CR","CS"),title=NULL)
 prop3<-graph(run3,c("propSa","propCRa","propCSa",
              "propIRa","propISa","propS","propCR","propCS"),
              "S.Pneumoniae colonization with influenza epidemic, vaccination 50%")
+propC3<-graph(run3,c("propCRa","propCSa","propCR","propCS"),"S.Pneumoniae colonized peoplewith influenza epidemic, vaccination 50%")
+CR_CS3<-graph(run3,c("CR_tot","CS_tot"),"S.Pneumoniae colonized peoplewith influenza epidemic, vaccination 50%")
 tetas<-graph(run3,c("teta","new_teta"),"Parameters teta for S.pneumonia colonization with 50% of vaccination for influenza")
 
 
@@ -152,11 +156,16 @@ Init.cond<-create_initial_cond(Sa0=tail(run0$Sa, n = 1),CRa0=tail(run0$CRa, n = 
                                CR0=tail(run0$CR, n = 1),CS0=tail(run0$CS, n = 1))
 run4<-run(Init.cond,param)
 run4_g<-graph(run4,NULL,title="S.Pneumoniae colonization with influenza epidemic, vaccination 80%")
-graph(run4,c("IRa","ISa"),title=NULL)
-graph(run4,c("CRa","CSa","CR","CS"),title=NULL)
 prop4<-graph(run4,c("propSa","propCRa","propCSa",
              "propIRa","propISa","propS","propCR","propCS"),
              "S.Pneumoniae colonization with influenza epidemic, vaccination 80%")
+propC4<-graph(run4,c("propCRa","propCSa","propCR","propCS"),"S.Pneumoniae colonized people with influenza epidemic, vaccination 80%")
+CR_CS4<-graph(run4,c("CR_tot","CS_tot"),"S.Pneumoniae colonized people with influenza epidemic, vaccination 80%")
+
+
+grid.arrange(propC1,propC2,propC3,propC4)
+grid.arrange(CR_CS1,CR_CS2,CR_CS3,CR_CS4)
+
 
 all_res <- data.frame(
   time = run2$time,
@@ -179,6 +188,8 @@ grid.arrange(IR_g,IS_IR_g,I_tot_g,ncol=2)
 
 
 res <- data.frame(time = r1$time)
+IR_final <- data.frame(vacc = numeric(), LastIR = numeric())
+relative<- data.frame(vacc = numeric(), value = numeric())
 for (i in seq(1,19,by=1)){
   
   vec_virus=I_vac[[i]]
@@ -187,7 +198,12 @@ for (i in seq(1,19,by=1)){
                                  IRa0=tail(run0$IRa, n = 1),ISa0=tail(run0$ISa, n = 1),S0=tail(run0$S, n = 1),
                                  CR0=tail(run0$CR, n = 1),CS0=tail(run0$CS, n = 1))
   runt<-run(Init.cond,param)
-  
+  LastIR=runt[["IRa"]][nrow(runt) - 1]
+  new_row=data.frame(vacc=results_df[i,1], LastIR)
+  IR_final <- bind_rows(IR_final, new_row)
+  value<-LastIR/tail(run1$IRa, n = 1)
+  new_row2=data.frame(vacc=results_df[i,1], value)
+  relative <- bind_rows(relative, new_row2)
   col<-paste("vaccination",results_df[i,1])
  
   res[[col]]<- runt$IRa
@@ -203,3 +219,15 @@ all_res$s<-all_res$IR_no_vaccination - all_res$IR_80_vaccination
 
 diff_IR <- all_res[seq(1, nrow(all_res), by = 50), ]
 diff_IR[c("time","s")]
+
+table <- tableGrob(IR_final)
+
+grid.newpage()
+grid.draw(table)
+
+ggplot(IR_final, aes(x = vacc, y = LastIR)) +
+  geom_bar(stat = "identity", fill = "#D8BFD8", color = "black") +
+  labs(title = "Barplot of people infected depending on the vaccin coverage", x = "Vaccin coverage", y = "Infected people at the end of the season") +
+  theme_minimal()
+
+
