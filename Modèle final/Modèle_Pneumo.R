@@ -39,14 +39,14 @@ Res_model <- function(t, pop, param,vec_virus) {
     
     prop<-c(propSa=Sa/N,propCRa=CRa/N,propCSa=CSa/N,
             propIRa=IRa/N,propISa=ISa/N,propS=S/N,propCR=CR/N,propCS=CS/N)
-    list(res,prop,CR_tot=CR_tot,CS_tot=CS_tot,new_teta=new_teta)
+    list(res,prop,CR_tot=CR_tot,CS_tot=CS_tot,new_teta=new_teta,teta=teta)
     
   })
   
 }
 
 
-create_params<-function(beta=0.056,ct=0.9652,deltaRa=0,deltaSa=0,gamma=0.05,rho=3*10^-6,rhoRa=3*10^-6,rhoSa=3*10^-6,teta=0.0014,omega=0.08, alpha=0.33, sigmaR=1,sigmaS=0,ATB=0.3)
+create_params<-function(beta=0.056,ct=0.9652,deltaRa=0,deltaSa=0,gamma=0.05,rho=3*10^-6,rhoRa=3*10^-6,rhoSa=3*10^-6,teta=0.0014,omega=0.08, alpha=0.33, sigmaR=1,sigmaS=0,ATB=0.1)
 {
   list(beta=beta,ct=ct,deltaRa=deltaRa,deltaSa=deltaSa,gamma=gamma,rho=rho,rhoRa=rhoRa,rhoSa=rhoSa,teta=teta,omega=omega,alpha=alpha,sigmaR=sigmaR,sigmaS=sigmaS,ATB=ATB)
 }
@@ -189,7 +189,7 @@ grid.arrange(IR_g,IS_IR_g,I_tot_g,ncol=2)
 
 res <- data.frame(time = r1$time)
 IR_final <- data.frame(vacc = numeric(), LastIR = numeric())
-relative<- data.frame(vacc = numeric(), value = numeric())
+I_relative<- data.frame(vacc = numeric(), value = numeric())
 for (i in seq(1,19,by=1)){
   
   vec_virus=I_vac[[i]]
@@ -203,12 +203,13 @@ for (i in seq(1,19,by=1)){
   IR_final <- bind_rows(IR_final, new_row)
   value<-LastIR/tail(run1$IRa, n = 1)
   new_row2=data.frame(vacc=results_df[i,1], value)
-  relative <- bind_rows(relative, new_row2)
+  I_relative <- bind_rows(I_relative, new_row2)
   col<-paste("vaccination",results_df[i,1])
  
   res[[col]]<- runt$IRa
 
 }
+
 
 graph(res,NULL,title=NULL)
 graph(res,c("vaccination 0.1","vaccination 0.95"),title=NULL)
@@ -220,14 +221,64 @@ all_res$s<-all_res$IR_no_vaccination - all_res$IR_80_vaccination
 diff_IR <- all_res[seq(1, nrow(all_res), by = 50), ]
 diff_IR[c("time","s")]
 
-table <- tableGrob(IR_final)
+IR_final_table <- tableGrob(IR_final)
 
 grid.newpage()
-grid.draw(table)
+grid.draw(IR_final_table)
 
 ggplot(IR_final, aes(x = vacc, y = LastIR)) +
   geom_bar(stat = "identity", fill = "#D8BFD8", color = "black") +
   labs(title = "Barplot of people infected depending on the vaccin coverage", x = "Vaccin coverage", y = "Infected people at the end of the season") +
+  theme_minimal()
+
+
+I_relative_table <- tableGrob(I_relative)
+
+grid.newpage()
+grid.draw(I_relative_table)
+
+#heatmap pour voir le nombre de personnes infectées en fonction de la couverture vaccinale et proportion d'antibiotiques
+corr_vacc_ATB<- data.frame(vacc = numeric(), ATB=numeric(), LastIR = numeric())
+for (i in seq(1,19,by=1)){
+  for(j in seq(0.1,0.5,by=0.1)){
+  
+    vec_virus=I_vac[[i]]
+    param<-create_params(ATB=j)
+    Init.cond<-create_initial_cond(Sa0=tail(run0$Sa, n = 1),CRa0=tail(run0$CRa, n = 1),CSa0=tail(run0$CSa, n = 1),
+                                   IRa0=tail(run0$IRa, n = 1),ISa0=tail(run0$ISa, n = 1),S0=tail(run0$S, n = 1),
+                                   CR0=tail(run0$CR, n = 1),CS0=tail(run0$CS, n = 1))
+    runt<-run(Init.cond,param)
+    LastIR=runt[["IRa"]][nrow(runt) - 1]
+    new_row=data.frame(vacc=results_df[i,1], ATB=j, LastIR)
+    corr_vacc_ATB <- bind_rows(corr_vacc_ATB, new_row)
+    
+    col<-paste("vaccination",results_df[i,1])
+    
+    res[[col]]<- runt$IRa
+    
+  }
+  
+}
+
+ggplot(corr_vacc_ATB, aes(x = vacc, y = ATB, fill = LastIR)) +
+  geom_tile(color = "black") +
+  scale_fill_gradient(low = "#9e9ac8", high = "#fbb4ae") +
+  geom_text(aes(label = round(LastIR,3)), color = "black", size = 3) +
+  labs(title = "Infected people at the end of the season depending on vaccination and antibiotics",
+       x = "Vaccination coverage",
+       y = " antibiotics ",
+       fill = "LastIR")+
+  theme_minimal()
+
+ggplot(all_res[seq(1, nrow(all_res), by = 25), ], aes(x = time)) +
+  geom_bar(aes(y = IR_no_vaccination, fill = "0%"), stat = "identity", position = position_dodge(), width=14) +
+  geom_bar(aes(y = IR_50_vaccination, fill = "50%"), stat = "identity", position = position_dodge(), width = 14) +
+  geom_bar(aes(y = IR_80_vaccination, fill = "80%"), stat = "identity", position = position_dodge(), width = 14) +
+  labs(title = "People infected by a resistant strain depending on vaccin coverage",
+       x = "time",
+       y = "infected people",
+       fill = "vaccin coverage") +
+  scale_fill_manual(values = c("0%" = "#77dd77", "50%" = "#ffcccb", "80%" = "#aec6cf")) + 
   theme_minimal()
 
 
