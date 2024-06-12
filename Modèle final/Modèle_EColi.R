@@ -13,7 +13,7 @@ Res_model <- function(t, pop, param,vec_virus) {
   with(as.list(c(pop, param)), {
     
     
-    N=CRa+CSa+IRa+ISa+CR+CS
+    N=CSa+CRa+CS+CR+IRa+ISa
     
     
     new_teta<-teta-log(1-vec_virus(t)*ATB)
@@ -112,15 +112,14 @@ CR_CS1<-graph(run1,c("CR_tot","CS_tot"),"E.Coli colonized people without a virus
 
 
 # Epidémie de rotavirus mais pas de vaccination
-param<-create_params(rho=0)
+param<-create_params(rho=0,rhoRa=0,rhoSa=0)
 Init.cond<-create_initial_cond()
 run0<-run(Init.cond,param)
 
 vec_virus=I_vac_0
 param<-create_params()
-Init.cond<-create_initial_cond(CRa0=tail(run0$CRa, n = 1),CSa0=tail(run0$CSa, n = 1),
-                               IRa0=tail(run0$IRa, n = 1),ISa0=tail(run0$ISa, n = 1),
-                               CR0=tail(run0$CR, n = 1),CS0=tail(run0$CS, n = 1))
+Init.cond<-create_initial_cond(CSa0=tail(run0$CSa, n = 1),CRa0=tail(run0$CRa, n = 1),CS0=tail(run0$CS, n = 1),
+                               CR0=tail(run0$CR, n = 1),IRa0=tail(run0$IRa, n = 1),ISa0=tail(run0$ISa, n = 1))
 run2<-run(Init.cond,param)
 run2_g<-graph(run2,NULL,title="E.Coli colonization with rotavirus epidemic, no vaccination")
 graph(run2,c("IRa","ISa"), title=NULL)
@@ -135,9 +134,8 @@ CR_CS2<-graph(run2,c("CR_tot","CS_tot"),"E.Coli colonized people with rotavirus 
 # Epidémie de rotavirus vaccination 50%
 vec_virus=I_vac_50
 param<-create_params()
-Init.cond<-create_initial_cond(CRa0=tail(run0$CRa, n = 1),CSa0=tail(run0$CSa, n = 1),
-                               IRa0=tail(run0$IRa, n = 1),ISa0=tail(run0$ISa, n = 1),
-                               CR0=tail(run0$CR, n = 1),CS0=tail(run0$CS, n = 1))
+Init.cond<-create_initial_cond(CSa0=tail(run0$CSa, n = 1),CRa0=tail(run0$CRa, n = 1),CS0=tail(run0$CS, n = 1),
+                               CR0=tail(run0$CR, n = 1),IRa0=tail(run0$IRa, n = 1),ISa0=tail(run0$ISa, n = 1))
 run3<-run(Init.cond,param)
 run3_g<-graph(run3,NULL,title="E.Coli colonization with rotavirus epidemic, vaccination 50%")
 graph(run3,c("IRa","ISa"),title=NULL)
@@ -152,11 +150,10 @@ tetas<-graph(run3,c("teta","new_teta"),"Parameters teta for E.Coli colonization 
 
 
 # # Epidémie de rotavirus vaccination 80%
-vec_virus=I_vac_80
+vec_virus=I_vac_50
 param<-create_params()
-Init.cond<-create_initial_cond(CRa0=tail(run0$CRa, n = 1),CSa0=tail(run0$CSa, n = 1),
-                               IRa0=tail(run0$IRa, n = 1),ISa0=tail(run0$ISa, n = 1),
-                               CR0=tail(run0$CR, n = 1),CS0=tail(run0$CS, n = 1))
+Init.cond<-create_initial_cond(CSa0=tail(run0$CSa, n = 1),CRa0=tail(run0$CRa, n = 1),CS0=tail(run0$CS, n = 1),
+                               CR0=tail(run0$CR, n = 1),IRa0=tail(run0$IRa, n = 1),ISa0=tail(run0$ISa, n = 1))
 run4<-run(Init.cond,param)
 run4_g<-graph(run4,NULL,title="E.Coli colonization with rotavirus epidemic, vaccination 80%")
 graph(run4,c("IRa","ISa"),title=NULL)
@@ -165,6 +162,8 @@ prop4<-graph(run4,c("propCSa","propCRa","propCS","propCR","propIRa","propISa"),
              "E.Coli colonization with rotavirus epidemic, vaccination 80%")
 propC4<-graph(run4,c("propCRa","propCSa","propCR","propCS"),"E.Coli colonized people with rotavirus epidemic, vaccination 80%")
 CR_CS4<-graph(run4,c("CR_tot","CS_tot"),"E.Coli colonized people with rotavirus epidemic, vaccination 80%")
+
+
 
 grid.arrange(propC1,propC2,propC3,propC4)
 grid.arrange(CR_CS1,CR_CS2,CR_CS3,CR_CS4)
@@ -188,19 +187,23 @@ IS_IR_g<-graph(all_res,c("IR_no_vaccination","IR_50_vaccination","IR_80_vaccinat
                "Proportion of people infected by a resistant strain and sensitive strain")
 I_tot_g<-graph(all_res,c("I_no_vaccination","I_50_vaccination","I_80_vaccination"),title=NULL)
 
+grid.arrange(graph(run2,c("IRa","ISa"),NULL),graph(run3,c("IRa","ISa"),NULL),graph(run4,c("IRa","ISa"),NULL),ncol=2)
 grid.arrange(prop1,prop2,prop3,IR_g,ncol=2)
 grid.arrange(IR_g,IS_IR_g,I_tot_g,ncol=2)
+grid.arrange(graph(run1,"new_teta",NULL),graph(run2,"new_teta",NULL),
+             graph(run3,"new_teta",NULL),
+             graph(run4,"new_teta",NULL),ncol=2)
 
 
-res <- data.frame(time = r1$time)
+resultat <- data.frame(time = r1$time)
 IR_final <- data.frame(vacc = numeric(), LastIR = numeric())
 I_relative<- data.frame(vacc = numeric(), value = numeric())
 for (i in seq(1,19,by=1)){
   
   vec_virus=I_vac[[i]]
   param<-create_params()
-  Init.cond<-create_initial_cond(CRa0=tail(run0$CRa, n = 1),CSa0=tail(run0$CSa, n = 1),
-                                 IRa0=tail(run0$IRa, n = 1),ISa0=tail(run0$ISa, n = 1),CR0=tail(run0$CR, n = 1),CS0=tail(run0$CS, n = 1))
+  Init.cond<-create_initial_cond(CSa0=tail(run0$CSa, n = 1),CRa0=tail(run0$CRa, n = 1),CS0=tail(run0$CS, n = 1),
+                                 CR0=tail(run0$CR, n = 1),IRa0=tail(run0$IRa, n = 1),ISa0=tail(run0$ISa, n = 1))
   runt<-run(Init.cond,param)
   LastIR=runt[["IRa"]][nrow(runt) - 1]
   new_row=data.frame(vacc=results_df[i,1], LastIR)
@@ -210,12 +213,12 @@ for (i in seq(1,19,by=1)){
   I_relative <- bind_rows(I_relative, new_row2)
   col<-paste("vaccination",results_df[i,1])
   
-  res[[col]]<- runt$IRa
+  resultat[[col]]<- runt$IRa
   
 }
 
-graph(res,NULL,title=NULL)
-graph(res,c("vaccination 0.1","vaccination 0.95"),title=NULL)
+graph(resultat,NULL,title=NULL)
+graph(resultat,c("vaccination 0.1","vaccination 0.95"),title=NULL)
 
 
 all_res <- all_res[-nrow(all_res), ]
@@ -240,3 +243,4 @@ I_relative_table <- tableGrob(I_relative)
 
 grid.newpage()
 grid.draw(I_relative_table)
+

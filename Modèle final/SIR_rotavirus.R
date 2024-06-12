@@ -118,7 +118,9 @@ I_vac_50<-approxfun(r2$time,r2%>%
                       select(propI)%>%
                       pull)
 
-# vaccination 90%
+
+
+# vaccination 80%
 param<-create_params()
 Init.cond<-create_initial_cond(Sv0=800,Snv0=200)
 r3<-run(Init.cond,param)
@@ -129,6 +131,22 @@ Iv_Inv_g3<-graph(r3,c("Iv","Inv"),title="Rotavirus epidemic, 80% vaccination, in
 grid.arrange(I_g3,Iv_Inv_g3,ncol=1)
 
 I_vac_80<-approxfun(r3$time,r3%>%
+                      mutate(propI=Iv_Inv/(Sv+Iv+Rv+Snv+Inv+Rnv))%>%
+                      select(propI)%>%
+                      pull)
+
+
+# vaccination 100%
+param<-create_params()
+Init.cond<-create_initial_cond(Sv0=1000,Snv0=0)
+r4<-run(Init.cond,param)
+r4$Iv_Inv<-r4$Iv+r3$Inv
+r4_g<- graph(r4,NULL,title="Rotavirus epidemic 80% vaccination")
+I_g4<-graph(r4,"Iv_Inv", title="Rotavirus epidemic, 80% vaccination, infected people (Iv+InV)")
+Iv_Inv_g4<-graph(r4,c("Iv","Inv"),title="Rotavirus epidemic, 80% vaccination, infected people")
+grid.arrange(I_g4,Iv_Inv_g4,ncol=1)
+
+I_vac_100<-approxfun(r4$time,r4%>%
                       mutate(propI=Iv_Inv/(Sv+Iv+Rv+Snv+Inv+Rnv))%>%
                       select(propI)%>%
                       pull)
