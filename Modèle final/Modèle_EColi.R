@@ -126,7 +126,7 @@ graph(run2,c("IRa","ISa"), title=NULL)
 graph(run2,c("CRa","CSa","CR","CS"),title=NULL)
 prop2<-graph(run2,c("propCSa","propCRa","propCS","propCR","propIRa","propISa"),
              "E.Coli colonization with rotavirus epidemic, no vaccination")
-propC2<-graph(run2,c("propCRa","propCSa","propCR","propCS"),"E.Coli colonized people with influenza epidemic, no vaccination")
+propC2<-graph(run2,c("propCRa","propCSa","propCR","propCS"),"E.Coli colonized people with rotavirus epidemic, no vaccination")
 CR_CS2<-graph(run2,c("CR_tot","CS_tot"),"E.Coli colonized people with rotavirus epidemic, no vaccination")
 
 
@@ -150,7 +150,7 @@ tetas<-graph(run3,c("teta","new_teta"),"Parameters teta for E.Coli colonization 
 
 
 # # Epidémie de rotavirus vaccination 80%
-vec_virus=I_vac_50
+vec_virus=I_vac_80
 param<-create_params()
 Init.cond<-create_initial_cond(CSa0=tail(run0$CSa, n = 1),CRa0=tail(run0$CRa, n = 1),CS0=tail(run0$CS, n = 1),
                                CR0=tail(run0$CR, n = 1),IRa0=tail(run0$IRa, n = 1),ISa0=tail(run0$ISa, n = 1))
@@ -168,6 +168,8 @@ CR_CS4<-graph(run4,c("CR_tot","CS_tot"),"E.Coli colonized people with rotavirus 
 grid.arrange(propC1,propC2,propC3,propC4)
 grid.arrange(CR_CS1,CR_CS2,CR_CS3,CR_CS4)
 
+grid.arrange(graph(run1,c("ISa","IRa"),NULL),graph(run2,c("ISa","IRa"),NULL),
+             graph(run3,c("ISa","IRa"),NULL),graph(run4,c("ISa","IRa"),NULL))
 
 
 all_res <- data.frame(
@@ -190,8 +192,7 @@ I_tot_g<-graph(all_res,c("I_no_vaccination","I_50_vaccination","I_80_vaccination
 grid.arrange(graph(run2,c("IRa","ISa"),NULL),graph(run3,c("IRa","ISa"),NULL),graph(run4,c("IRa","ISa"),NULL),ncol=2)
 grid.arrange(prop1,prop2,prop3,IR_g,ncol=2)
 grid.arrange(IR_g,IS_IR_g,I_tot_g,ncol=2)
-grid.arrange(graph(run1,"new_teta",NULL),graph(run2,"new_teta",NULL),
-             graph(run3,"new_teta",NULL),
+grid.arrange(graph(run1,"new_teta",NULL),graph(run2,"new_teta",NULL),graph(run3,"new_teta",NULL),
              graph(run4,"new_teta",NULL),ncol=2)
 
 
@@ -227,6 +228,10 @@ all_res$s<-all_res$IR_no_vaccination - all_res$IR_80_vaccination
 
 diff_IR <- all_res[seq(1, nrow(all_res), by = 50), ]
 diff_IR[c("time","s")]
+
+
+
+
 
 
 IR_final_table <- tableGrob(IR_final)
