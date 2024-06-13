@@ -158,6 +158,7 @@ vec_virus_0<-function(time){
 grid.arrange(r1_g,r2_g,r3_g,ncol=2)
 
 
+
 results_df <- data.frame(vacc = numeric(), Max_I = numeric())
 I_vac<-list()
 for (i in seq(0.1,1,by=0.05)){
