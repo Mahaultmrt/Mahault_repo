@@ -4,6 +4,7 @@ library(reshape2)
 library(dplyr)
 library(gridExtra)
 library(grid)
+library(gt)
 
 #Code modèle page8 n°2
 
@@ -39,7 +40,7 @@ Res_model <- function(t, pop, param,vec_virus) {
     
     prop<-c(propSa=Sa/N,propCRa=CRa/N,propCSa=CSa/N,
             propIRa=IRa/N,propISa=ISa/N,propS=S/N,propCR=CR/N,propCS=CS/N)
-    list(res,prop,CR_tot=CR_tot,CS_tot=CS_tot,new_teta=new_teta,teta=teta)
+    list(res,new_teta=new_teta,CR_tot=CR_tot,CS_tot=CS_tot,teta=teta,prop)
     
   })
   
@@ -99,10 +100,30 @@ graph<- function(data,filter_values,title){
   
   return(p)
 }
+heatmap<-function(data,x_var,y_var,fill_var,title=NULL,low_col="#377eb8",high_col="#e41a1c"){
+  ggplot(data, aes_string(x = x_var, y = y_var, fill = fill_var)) +
+    geom_tile(color = "black") +
+    scale_fill_gradient(low = low_col, high = high_col) +
+    labs(title = title,
+         x = x_var,
+         y = y_var,
+         fill = fill_var)+
+    theme_minimal()
+}
 
+#Pas d'épidémie pas de vaccination et pas d'infection
+vec_virus=vec_virus_0
+param<-create_params(rho=0,rhoRa=0,rhoSa=0)
+Init.cond<-create_initial_cond()
+run0<-run(Init.cond,param)
+
+#Pas d'épidémie pas de vaccination et infection
 vec_virus=vec_virus_0
 param<-create_params()
 Init.cond<-create_initial_cond()
+Init.cond<-create_initial_cond(Sa0=tail(run0$Sa, n = 1),CRa0=tail(run0$CRa, n = 1),CSa0=tail(run0$CSa, n = 1),
+                               IRa0=tail(run0$IRa, n = 1),ISa0=tail(run0$ISa, n = 1),S0=tail(run0$S, n = 1),
+                               CR0=tail(run0$CR, n = 1),CS0=tail(run0$CS, n = 1))
 run1<-run(Init.cond,param)
 run1_g<-graph(run1,NULL,title="S.Pneumoniae colonization without a virus epidemic")
 prop1<-graph(run1,c("propSa","propCRa","propCSa",
@@ -114,9 +135,6 @@ CR_CS1<-graph(run1,c("CR_tot","CS_tot"),"S.Pneumoniae colonized people without a
 
 
 # Epidémie de grippe mais pas de vaccination
-param<-create_params(rho=0,rhoRa=0,rhoSa=0)
-Init.cond<-create_initial_cond()
-run0<-run(Init.cond,param)
 
 vec_virus=I_vac_0
 param<-create_params()
@@ -221,7 +239,8 @@ all_res$s<-all_res$IR_no_vaccination - all_res$IR_80_vaccination
 diff_IR <- all_res[seq(1, nrow(all_res), by = 50), ]
 diff_IR[c("time","s")]
 
-IR_final_table <- tableGrob(IR_final)
+IR_final_table <- IR_final%>%
+                    gt()
 
 grid.newpage()
 grid.draw(IR_final_table)
@@ -234,8 +253,6 @@ ggplot(IR_final, aes(x = vacc, y = LastIR)) +
 
 I_relative_table <- tableGrob(I_relative)
 
-grid.newpage()
-grid.draw(I_relative_table)
 
 #heatmap pour voir le nombre de personnes infectées en fonction de la couverture vaccinale et proportion d'antibiotiques
 corr_vacc_ATB<- data.frame(vacc = numeric(), ATB=numeric(), LastIR = numeric())
@@ -252,23 +269,11 @@ for (i in seq(1,19,by=1)){
     new_row=data.frame(vacc=results_df[i,1], ATB=j, LastIR)
     corr_vacc_ATB <- bind_rows(corr_vacc_ATB, new_row)
     
-    col<-paste("vaccination",results_df[i,1])
-    
-    res[[col]]<- runt$IRa
     
   }
   
 }
-
-ggplot(corr_vacc_ATB, aes(x = vacc, y = ATB, fill = LastIR)) +
-  geom_tile(color = "black") +
-  scale_fill_gradient(low = "#9e9ac8", high = "#fbb4ae") +
-  geom_text(aes(label = round(LastIR,3)), color = "black", size = 3) +
-  labs(title = "Infected people at the end of the season depending on vaccination and antibiotics",
-       x = "Vaccination coverage",
-       y = " antibiotics ",
-       fill = "LastIR")+
-  theme_minimal()
+heatmap(corr_vacc_ATB,"vacc","ATB","LastIR",NULL)
 
 ggplot(all_res[seq(1, nrow(all_res), by = 25), ], aes(x = time)) +
   geom_bar(aes(y = IR_no_vaccination, fill = "0%"), stat = "identity", position = position_dodge(), width=14) +
@@ -280,5 +285,27 @@ ggplot(all_res[seq(1, nrow(all_res), by = 25), ], aes(x = time)) +
        fill = "vaccin coverage") +
   scale_fill_manual(values = c("0%" = "#77dd77", "50%" = "#ffcccb", "80%" = "#aec6cf")) + 
   theme_minimal()
+
+#heatmap pour voir le nombre de personnes infectées en fonction de la couverture vaccinale 
+# et du taux d'individus exposés aux antibiotiques
+corr_vacc_teta<- data.frame(vacc = numeric(), teta=numeric(), LastIR = numeric())
+for (i in seq(1,19,by=1)){
+  for(j in seq(0.001,0.002,by=0.0001)){
+    
+    vec_virus=I_vac[[i]]
+    param<-create_params(teta=j)
+    Init.cond<-create_initial_cond(Sa0=tail(run0$Sa, n = 1),CRa0=tail(run0$CRa, n = 1),CSa0=tail(run0$CSa, n = 1),
+                                   IRa0=tail(run0$IRa, n = 1),ISa0=tail(run0$ISa, n = 1),S0=tail(run0$S, n = 1),
+                                   CR0=tail(run0$CR, n = 1),CS0=tail(run0$CS, n = 1))
+    runt<-run(Init.cond,param)
+    LastIR=runt[["IRa"]][nrow(runt) - 1]
+    new_row=data.frame(vacc=results_df[i,1], teta=j, LastIR)
+    corr_vacc_teta <- bind_rows(corr_vacc_teta, new_row)
+  }
+  
+}
+
+heatmap(corr_vacc_teta,"vacc","teta","LastIR",NULL)
+
 
 
