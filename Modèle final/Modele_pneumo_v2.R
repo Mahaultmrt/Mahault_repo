@@ -5,6 +5,7 @@ library(dplyr)
 library(gridExtra)
 library(grid)
 library(gt)
+library(tidyr)
 
 #Code modèle page8 n°2
 
@@ -40,7 +41,7 @@ Res_model <- function(t, pop, param,vec_virus) {
 }
 
 
-create_params<-function(beta=0.056,ct=0.9652,deltaRa=0,deltaSa=0,gamma=0.05,rho=3*10^-6,rhoRa=3*10^-6,rhoSa=3*10^-6,teta=0.0014,omega=0.08, alpha=0.33, sigmaR=1,sigmaS=0,ATB=0.1)
+create_params<-function(beta=0.01,ct=0.998,deltaRa=0,deltaSa=0,gamma=0.05,rho=3*10^-6,rhoRa=3.0*10^-6,rhoSa=3*10^-6,teta=0.0014,omega=0.08, alpha=0.33, sigmaR=1,sigmaS=0,ATB=0.1)
 {
   list(beta=beta,ct=ct,deltaRa=deltaRa,deltaSa=deltaSa,gamma=gamma,rho=rho,rhoRa=rhoRa,rhoSa=rhoSa,teta=teta,omega=omega,alpha=alpha,sigmaR=sigmaR,sigmaS=sigmaS,ATB=ATB)
 }
@@ -55,6 +56,7 @@ run<-function(Init.cond,param,Tmax=400,dt=1){
   proportion=as.data.frame(t(apply(result, 1, function(row) row / sum(row[-1]))))
   proportion$CR_tot<-proportion$CRa+proportion$CR
   proportion$CS_tot<-proportion$CSa+proportion$CS
+  proportion$C_tot<-proportion$CR_tot+proportion$CS_tot
   return(proportion)
   
 }
@@ -112,6 +114,7 @@ vec_virus=vec_virus_0
 param<-create_params(rho=0,rhoRa=0,rhoSa=0)
 Init.cond<-create_initial_cond()
 run0<-run(Init.cond,param)
+run0_g<-graph(run0,NULL,"S.Pneumoniae colonized people without a virus epidemic and without infection")
 
 #Pas d'épidémie pas de vaccination et infection
 vec_virus=vec_virus_0
@@ -124,7 +127,7 @@ run1<-run(Init.cond,param)
 run1_g<-graph(run1,NULL,title="S.Pneumoniae colonization without a virus epidemic")
 graph(run1,c("new_teta"),title=NULL)
 propC1<-graph(run1,c("CRa","CSa","CR","CS"),"S.Pneumoniae colonized people without a virus epidemic")
-CR_CS1<-graph(run1,c("CR_tot","CS_tot"),"S.Pneumoniae colonized people without a virus epidemic")
+CR_CS1<-graph(run1,c("CR_tot","CS_tot","C_tot"),"S.Pneumoniae colonized people without a virus epidemic")
 
 
 # Epidémie de grippe mais pas de vaccination
@@ -136,7 +139,7 @@ Init.cond<-create_initial_cond(Sa0=tail(run0$Sa, n = 1),CRa0=tail(run0$CRa, n = 
 run2<-run(Init.cond,param)
 run2_g<-graph(run2,NULL,title="S.Pneumoniae colonization with influenza epidemic, no vaccination")
 propC2<-graph(run2,c("CRa","CSa","CR","CS"),"S.Pneumoniae colonized people with influenza epidemic, no vaccination")
-CR_CS2<-graph(run2,c("CR_tot","CS_tot"),"S.Pneumoniae colonized people with influenza epidemic, no vaccination")
+CR_CS2<-graph(run2,c("CR_tot","CS_tot","C_tot"),"S.Pneumoniae colonized people with influenza epidemic, no vaccination")
 
 
 # Epidémie de grippe mais vaccination 50%
@@ -148,7 +151,7 @@ Init.cond<-create_initial_cond(Sa0=tail(run0$Sa, n = 1),CRa0=tail(run0$CRa, n = 
 run3<-run(Init.cond,param)
 run3_g<-graph(run3,NULL,title="S.Pneumoniae colonization with influenza epidemic, vaccination 50%")
 propC3<-graph(run3,c("CRa","CSa","CR","CS"),"S.Pneumoniae colonized peoplewith influenza epidemic, vaccination 50%")
-CR_CS3<-graph(run3,c("CR_tot","CS_tot"),"S.Pneumoniae colonized peoplewith influenza epidemic, vaccination 50%")
+CR_CS3<-graph(run3,c("CR_tot","CS_tot","C_tot"),"S.Pneumoniae colonized peoplewith influenza epidemic, vaccination 50%")
 tetas<-graph(run3,c("teta","new_teta"),"Parameters teta for S.pneumonia colonization with 50% of vaccination for influenza")
 
 
@@ -161,7 +164,7 @@ Init.cond<-create_initial_cond(Sa0=tail(run0$Sa, n = 1),CRa0=tail(run0$CRa, n = 
 run4<-run(Init.cond,param)
 run4_g<-graph(run4,NULL,title="S.Pneumoniae colonization with influenza epidemic, vaccination 80%")
 propC4<-graph(run4,c("CRa","CSa","CR","CS"),"S.Pneumoniae colonized people with influenza epidemic, vaccination 80%")
-CR_CS4<-graph(run4,c("CR_tot","CS_tot"),"S.Pneumoniae colonized people with influenza epidemic, vaccination 80%")
+CR_CS4<-graph(run4,c("CR_tot","CS_tot","C_tot"),"S.Pneumoniae colonized people with influenza epidemic, vaccination 80%")
 
 
 grid.arrange(propC1,propC2,propC3,propC4)
@@ -184,12 +187,15 @@ IR_g<-graph(all_res,c("IR_no_vaccination","IR_50_vaccination","IR_80_vaccination
 IS_IR_g<-graph(all_res,c("IR_no_vaccination","IR_50_vaccination","IR_80_vaccination","IS_no_vaccination","IS_50_vaccination","IS_80_vaccination"),title=NULL)
 I_tot_g<-graph(all_res,c("I_no_vaccination","I_50_vaccination","I_80_vaccination"),title=NULL)
 
-grid.arrange(run1_g,run2_g,run3_g,IR_g,ncol=2)
+grid.arrange(run0_g,run2_g,run3_g,IR_g,ncol=2)
 grid.arrange(IR_g,IS_IR_g,I_tot_g,ncol=2)
 
 
 res <- data.frame(time = r1$time)
 IR_final <- data.frame(vacc = numeric(), LastIR = numeric())
+IS_final<- data.frame(vacc = numeric(), LastIS = numeric())
+IS_IR_final<- data.frame(vacc = numeric(), LastIS_IR = numeric())
+
 I_relative<- data.frame(vacc = numeric(), value = numeric())
 for (i in seq(1,19,by=1)){
   
@@ -202,15 +208,21 @@ for (i in seq(1,19,by=1)){
   LastIR=runt[["IRa"]][nrow(runt) - 1]
   new_row=data.frame(vacc=results_df[i,1], LastIR)
   IR_final <- bind_rows(IR_final, new_row)
+  LastIS=runt[["ISa"]][nrow(runt) - 1]
+  new_row2=data.frame(vacc=results_df[i,1], LastIS)
+  IS_final <- bind_rows(IS_final, new_row2)
+  runt$IR_IS=runt$IRa+runt$ISa
+  LastIS_IR=runt[["IR_IS"]][nrow(runt) - 1]
+  new_row3=data.frame(vacc=results_df[i,1], LastIS_IR)
+  IS_IR_final<-bind_rows(IS_IR_final, new_row3)
   value<-LastIR/tail(run1$IRa, n = 1)
-  new_row2=data.frame(vacc=results_df[i,1], value)
-  I_relative <- bind_rows(I_relative, new_row2)
+  new_row4=data.frame(vacc=results_df[i,1], value)
+  I_relative <- bind_rows(I_relative, new_row4)
   col<-paste("vaccination",results_df[i,1])
   
   res[[col]]<- runt$IRa
   
 }
-
 
 graph(res,NULL,title=NULL)
 graph(res,c("vaccination 0.1","vaccination 0.95"),title=NULL)
@@ -254,18 +266,24 @@ for (i in seq(1,19,by=1)){
   }
   
 }
-heatmap(corr_vacc_ATB,"vacc","ATB","LastIR",NULL)
+heatmap(corr_vacc_ATB,"vacc","ATB","LastIR","People infected depending on the vaccination coverage and the proportion of ATB")
 
-ggplot(all_res[seq(1, nrow(all_res), by = 25), ], aes(x = time)) +
-  geom_bar(aes(y = IR_no_vaccination, fill = "0%"), stat = "identity", position = position_dodge(), width=14) +
-  geom_bar(aes(y = IR_50_vaccination, fill = "50%"), stat = "identity", position = position_dodge(), width = 14) +
-  geom_bar(aes(y = IR_80_vaccination, fill = "80%"), stat = "identity", position = position_dodge(), width = 14) +
-  labs(title = "People infected by a resistant strain depending on vaccin coverage",
-       x = "time",
-       y = "infected people",
-       fill = "vaccin coverage") +
-  scale_fill_manual(values = c("0%" = "#77dd77", "50%" = "#ffcccb", "80%" = "#aec6cf")) + 
+
+
+I_final<-merge(IR_final,IS_final,by="vacc")
+I_final<-merge(I_final,IS_IR_final,by="vacc")
+I_final <- pivot_longer(I_final, cols = c(LastIS_IR,LastIS,LastIR), names_to = "Strain", values_to = "Value")
+I_final$Strain <- factor(I_final_long$Strain, levels = c("LastIR", "LastIS", "LastIS_IR"))
+ggplot(I_final, aes(fill=Strain, y=Value, x=vacc)) + 
+  geom_bar(position="stack", stat="identity")+
+  labs(title = "Barplot of people infected depending on the vaccin coverage", x = "Vaccin coverage", y = "Infected people at the end of the season") +
   theme_minimal()
+
+  
+
+
+
+
 
 #heatmap pour voir le nombre de personnes infectées en fonction de la couverture vaccinale 
 # et du taux d'individus exposés aux antibiotiques
@@ -286,7 +304,29 @@ for (i in seq(1,19,by=1)){
   
 }
 
-heatmap(corr_vacc_teta,"vacc","teta","LastIR",NULL)
+heatmap(corr_vacc_teta,"vacc","teta","LastIR","People infected depending on the vaccination coverage and the rate of ATB (teta)")
 
+constante<- data.frame(beta = numeric(), ct=numeric(), cte = numeric())
 
+for (i in seq(0.08,0.1,by=0.001)){
+  for(j in seq(0.959,0.999,by=0.001)){
+    
+    vec_virus=vec_virus_0
+    param<-create_params(beta=i,ct=j,rho=0,rhoRa=0,rhoSa=0)
+    Init.cond<-create_initial_cond()
+    run0<-run(Init.cond,param)
+    
+    vec_virus=I_vac_0
+    param<-create_params(beta=i,ct=j)
+    Init.cond<-create_initial_cond(Sa0=tail(run0$Sa, n = 1),CRa0=tail(run0$CRa, n = 1),CSa0=tail(run0$CSa, n = 1),
+                                   IRa0=tail(run0$IRa, n = 1),ISa0=tail(run0$ISa, n = 1),S0=tail(run0$S, n = 1),
+                                   CR0=tail(run0$CR, n = 1),CS0=tail(run0$CS, n = 1))
+    runt<-run(Init.cond,param)
+    cte=runt[1,"C_tot"]-min(runt$C_tot,na.rm = TRUE)
+    new_row=data.frame(beta=i, ct=j, cte)
+    constante<-bind_rows(constante,new_row)
+    
+  }
+  
+}
 
