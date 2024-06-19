@@ -8,6 +8,9 @@ library(RColorBrewer)
 library(gt)
 library(tidyr)
 
+
+
+
 #Code modèle page 12
 
 Res_model <- function(t, pop, param,vec_virus) {
@@ -36,7 +39,7 @@ Res_model <- function(t, pop, param,vec_virus) {
 }
 
 
-create_params<-function(beta=0.014,ct=0.96,deltaRa=0,deltaSa=0,gamma=0.01,rho=1.8*10^-6,rhoRa=1.8*10^-6,rhoSa=1.8*10^-6,teta=0.0014,omega=0.14, alpha=0.33, sigmaR=1,sigmaS=0, ATB=0.1,phi=1.1)
+create_params<-function(beta=0.014,ct=0.96,deltaRa=0,deltaSa=0,gamma=0.01,rho=1.8*10^-6,rhoRa=1.8*10^-6,rhoSa=1.8*10^-6,teta=0.0014,omega=0.14, alpha=0.33, sigmaR=1,sigmaS=0, ATB=0.1,phi=9.83)
 {
   list(beta=beta,ct=ct,deltaRa=deltaRa,deltaSa=deltaSa,gamma=gamma,rho=rho,rhoRa=rhoRa,rhoSa=rhoSa,teta=teta,omega=omega,alpha=alpha,sigmaR=sigmaR,sigmaS=sigmaS,ATB=ATB,phi=phi)
 }
