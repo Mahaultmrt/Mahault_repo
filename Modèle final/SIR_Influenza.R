@@ -31,11 +31,11 @@ create_params<-function(beta=0.28,gamma=0.14,vf=0.6)
   list(beta=beta,gamma=gamma,vf=vf)
 }
 
-create_initial_cond<-function(Sv0=0,Snv0=1000,Iv0=0,Inv0=1,Rv0=0,Rnv0=0){
+create_initial_cond<-function(Sv0=0,Snv0=100000,Iv0=0,Inv0=1,Rv0=0,Rnv0=0){
   c(Sv=Sv0,Snv=Snv0,Iv=Iv0,Inv=Inv0,Rv=Rv0,Rnv=Rnv0)
 }
 
-run<-function(Init.cond,param,Tmax=400,dt=1){
+run<-function(Init.cond,param,Tmax=365,dt=1){
   Time=seq(from=0,to=Tmax,by=dt)
   result = as.data.frame(lsoda(Init.cond, Time, SIR_model_vacc_2, param))
   return(result)
@@ -49,7 +49,6 @@ graph<- function(data,filter_values,title){
   
   if(!is.null(filter_values))
   {
-    p<-data %>%
       melt(id = "time") %>%
       filter(variable %in% filter_values) %>%
       ggplot() +
@@ -99,7 +98,7 @@ I_vac_0<-approxfun(r1$time,r1%>%
 
 # vaccination 50%
 param<-create_params()
-Init.cond<-create_initial_cond(Sv0=500,Snv0=500)
+Init.cond<-create_initial_cond(Sv0=100000*0.5,Snv0=100000*0.5)
 r2<-run(Init.cond,param)
 r2$Iv_Inv<-r2$Iv+r2$Inv
 r2_g<- graph(r2,NULL,title="Influenza epidemic 50% vaccination")
@@ -121,7 +120,7 @@ I_vac_50<-approxfun(r2$time,r2%>%
 
 # vaccination 80%
 param<-create_params()
-Init.cond<-create_initial_cond(Sv0=800,Snv0=200)
+Init.cond<-create_initial_cond(Sv0=100000*0.8,Snv0=100000*0.2)
 r3<-run(Init.cond,param)
 r3$Iv_Inv<-r3$Iv+r3$Inv
 r3_g<- graph(r3,NULL,title="Influenza epidemic 80% vaccination")
