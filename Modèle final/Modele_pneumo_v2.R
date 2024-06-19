@@ -35,7 +35,7 @@ Res_model <- function(t, pop, param,vec_virus) {
     res<-c(dSa,dCRa,dCSa,dIRa,dISa,dS,dCR,dCS)
 
    
-    list(res,new_teta=new_teta)
+    list(res)
     
   })
   
@@ -47,14 +47,16 @@ create_params<-function(beta=0.065,ct=0.96,deltaRa=0,deltaSa=0,gamma=0.05,rho=3*
   list(beta=beta,ct=ct,deltaRa=deltaRa,deltaSa=deltaSa,gamma=gamma,rho=rho,rhoRa=rhoRa,rhoSa=rhoSa,teta=teta,omega=omega,alpha=alpha,sigmaR=sigmaR,sigmaS=sigmaS,ATB=ATB)
 }
 
-create_initial_cond<-function(Sa0=800,CRa0=40,CSa0=160,IRa0=0,ISa0=0,S0=800,CR0=40,CS0=160){
+create_initial_cond<-function(Sa0=100000*0.5*0.8,CRa0=100000*0.5*0.04,CSa0=100000*0.5*0.16,IRa0=0,ISa0=0,S0=100000*0.5*0.8,CR0=100000*0.5*0.04,CS0=100000*0.5*0.16){
   c(Sa=Sa0,CRa=CRa0,CSa=CSa0,IRa=IRa0,ISa=ISa0,S=S0,CR=CR0,CS=CS0)
 }
 
-run<-function(Init.cond,param,Tmax=400,dt=1){
+run<-function(Init.cond,param,Tmax=365,dt=1){
   Time=seq(from=0,to=Tmax,by=dt)
   result = as.data.frame(lsoda(Init.cond, Time, Res_model, param,vec_virus=vec_virus))
-  proportion=as.data.frame(t(apply(result, 1, function(row) row / sum(row[-1]))))
+  tot <- sum(result[1, -1])
+  proportion <- result
+  proportion[ , -1] <- proportion[ , -1] / tot
   proportion$CR_tot<-proportion$CRa+proportion$CR
   proportion$CS_tot<-proportion$CSa+proportion$CS
   proportion$C_tot<-proportion$CR_tot+proportion$CS_tot
@@ -77,7 +79,7 @@ graph<- function(data,filter_values,title){
       theme(axis.text = element_text(size = 8),
             axis.title = element_text(size = 8, face = "bold"),
             legend.text = element_text(size = 6),
-            plot.title = element_text(size = 8, face = "bold",hjust = 0.5)) +
+            plot.title = element_text(size = 7, face = "bold",hjust = 0.5)) +
       labs(title=title,x = "Time", y = "Value", colour = "Population:")
     
     
@@ -91,7 +93,7 @@ graph<- function(data,filter_values,title){
       theme(axis.text = element_text(size = 8),
             axis.title = element_text(size = 8, face = "bold"),
             legend.text = element_text(size = 6),
-            plot.title = element_text(size = 8, face = "bold",hjust = 0.5)) +
+            plot.title = element_text(size = 7, face = "bold",hjust = 0.5)) +
       labs(title=title,x = "Time", y = "Value", colour = "Population:")
     
     
@@ -99,14 +101,14 @@ graph<- function(data,filter_values,title){
   
   return(p)
 }
-heatmap<-function(data,x_var,y_var,fill_var,title=NULL,low_col="#377eb8",high_col="#e41a1c",values=FALSE,var_text=NULL){
+heatmap<-function(data,x_var,y_var,fill_var,x_text=NULL,y_text=NULL,fill_text=NULL,title=NULL,low_col="#377eb8",high_col="#e41a1c",values=FALSE,var_text=NULL){
   graph<-ggplot(data, aes_string(x = x_var, y = y_var, fill = fill_var)) +
     geom_tile(color = "black") +
     scale_fill_gradient(low = low_col, high = high_col) +
     labs(title = title,
-         x = x_var,
-         y = y_var,
-         fill = fill_var)+
+         x = x_text,
+         y = y_text,
+         fill = fill_text)+
     theme_minimal()
   
   if (values &! is.null(var_text)){
@@ -121,7 +123,7 @@ vec_virus=vec_virus_0
 param<-create_params(rho=0,rhoRa=0,rhoSa=0)
 Init.cond<-create_initial_cond()
 run0<-run(Init.cond,param)
-run0_g<-graph(run0,NULL,"S.Pneumoniae colonized people without a virus epidemic and without infection")
+run0_g<-graph(run0,NULL,"S.Pneumoniae colonization without a virus epidemic and without infection")
 CR_CS0<-graph(run0,c("CR_tot","CS_tot","C_tot"),"S.Pneumoniae colonized people without a virus epidemic and without infection")
 
 #Pas d'épidémie pas de vaccination et infection
@@ -133,7 +135,6 @@ Init.cond<-create_initial_cond(Sa0=tail(run0$Sa, n = 1),CRa0=tail(run0$CRa, n = 
                                CR0=tail(run0$CR, n = 1),CS0=tail(run0$CS, n = 1))
 run1<-run(Init.cond,param)
 run1_g<-graph(run1,NULL,title="S.Pneumoniae colonization without a virus epidemic")
-graph(run1,c("new_teta"),title=NULL)
 propC1<-graph(run1,c("CRa","CSa","CR","CS"),"S.Pneumoniae colonized people without a virus epidemic")
 CR_CS1<-graph(run1,c("CR_tot","CS_tot","C_tot"),"S.Pneumoniae colonized people without a virus epidemic")
 
@@ -195,7 +196,7 @@ IR_g<-graph(all_res,c("IR_no_vaccination","IR_50_vaccination","IR_80_vaccination
 IS_IR_g<-graph(all_res,c("IR_no_vaccination","IR_50_vaccination","IR_80_vaccination","IS_no_vaccination","IS_50_vaccination","IS_80_vaccination"),title=NULL)
 I_tot_g<-graph(all_res,c("I_no_vaccination","I_50_vaccination","I_80_vaccination"),title=NULL)
 
-grid.arrange(run0_g,run2_g,run3_g,IR_g,ncol=2)
+grid.arrange(run0_g,run2_g,run3_g,run4_g,ncol=2)
 grid.arrange(IR_g,IS_IR_g,I_tot_g,ncol=2)
 
 
@@ -249,7 +250,7 @@ IR_final_table <- IR_final%>%
 
 ggplot(IR_final, aes(x = vacc, y = LastIR)) +
   geom_bar(stat = "identity", fill = "#D8BFD8", color = "black") +
-  labs(title = "Barplot of people infected depending on the vaccin coverage", x = "Vaccin coverage", y = "Infected people at the end of the season") +
+  labs(title = "Barplot of people infected depending on the vaccine coverage", x = "Vaccine coverage", y = "Infected people at the end of the season") +
   theme_minimal()
 
 
@@ -275,7 +276,8 @@ for (i in seq(1,19,by=1)){
   }
   
 }
-heatmap(corr_vacc_ATB,"vacc","ATB","LastIR_relative","People infected depending on the vaccination coverage and the proportion of ATB (relative incidence)",values=FALSE)
+heatmap(corr_vacc_ATB,"vacc","ATB","LastIR_relative","vaccine coverage","Antibiotics",
+        "total annual incidence per 100 000","People infected depending on the vaccine coverage and the proportion of ATB (relative incidence)",values=FALSE)
 
 
 
@@ -285,7 +287,7 @@ I_final <- pivot_longer(I_final, cols = c(LastIR,LastIS,LastIS_IR), names_to = "
 I_final$Strain <- factor(I_final$Strain, levels = c("LastIS_IR","LastIS","LastIR"))
 ggplot(I_final, aes(fill=Strain, y=Value, x=vacc)) + 
   geom_bar(position="stack", stat="identity")+
-  labs(title = "Barplot of people infected by a resistant strain depending on the vaccin coverage", x = "Vaccin coverage", y = "Infected people at the end of the season") +
+  labs(title = "Barplot of people infected by a resistant strain depending on the vaccine coverage", x = "Vaccin coverage", y = "Infected people at the end of the season") +
   theme_minimal()
 
 
@@ -313,7 +315,7 @@ for (i in seq(1,19,by=1)){
 }
 
 
-heatmap(corr_vacc_ATB_ISIR,"vacc","ATB","LastISIR","People infected depending on the vaccination coverage and the proportion of ATB (percentage of infected resistant)",values=TRUE,var_text="LastpropIR")
+heatmap(corr_vacc_ATB_ISIR,"vacc","ATB","LastISIR","People infected depending on the vaccine coverage and the proportion of ATB (percentage of infected resistant)",values=TRUE,var_text="LastpropIR")
 
 
 

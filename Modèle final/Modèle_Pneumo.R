@@ -52,7 +52,7 @@ create_params<-function(beta=0.056,ct=0.9652,deltaRa=0,deltaSa=0,gamma=0.05,rho=
   list(beta=beta,ct=ct,deltaRa=deltaRa,deltaSa=deltaSa,gamma=gamma,rho=rho,rhoRa=rhoRa,rhoSa=rhoSa,teta=teta,omega=omega,alpha=alpha,sigmaR=sigmaR,sigmaS=sigmaS,ATB=ATB)
 }
 
-create_initial_cond<-function(Sa0=800,CRa0=40,CSa0=160,IRa0=0,ISa0=0,S0=800,CR0=40,CS0=160){
+create_initial_cond<-function(Sa0=100000*0.5*0.8,CRa0=100000*0.5*0.04,CSa0=100000*0.5*0.16,IRa0=0,ISa0=0,S0=100000*0.5*0.8,CR0=100000*0.5*0.04,CS0=100000*0.5*0.16){
   c(Sa=Sa0,CRa=CRa0,CSa=CSa0,IRa=IRa0,ISa=ISa0,S=S0,CR=CR0,CS=CS0)
 }
 
