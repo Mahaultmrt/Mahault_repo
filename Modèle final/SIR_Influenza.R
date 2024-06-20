@@ -49,6 +49,7 @@ graph<- function(data,filter_values,title){
   
   if(!is.null(filter_values))
   {
+    p<-data %>%
       melt(id = "time") %>%
       filter(variable %in% filter_values) %>%
       ggplot() +
@@ -56,8 +57,7 @@ graph<- function(data,filter_values,title){
       theme_bw() +
       theme(axis.text = element_text(size = 8),
             axis.title = element_text(size = 8, face = "bold"),
-            legend.text = element_text(size = 6),
-            plot.title = element_text(size = 8, face = "bold",hjust = 0.5)) +
+            legend.text = element_text(size = 6)) +
       labs(title=title,x = "Time", y = "Value", colour = "Population:")
     
     
@@ -70,8 +70,7 @@ graph<- function(data,filter_values,title){
       theme_bw() +
       theme(axis.text = element_text(size = 8),
             axis.title = element_text(size = 8, face = "bold"),
-            legend.text = element_text(size = 6),
-            plot.title = element_text(size = 8, face = "bold",hjust = 0.5)) +
+            legend.text = element_text(size = 6)) +
       labs(title=title,x = "Time", y = "Value", colour = "Population:")
     
     
@@ -84,10 +83,9 @@ param<-create_params()
 Init.cond<-create_initial_cond()
 r1<-run(Init.cond,param)
 r1$Iv_Inv<-r1$Iv+r1$Inv
-r1_g<- graph(r1,NULL,title="Influenza epidemic no vaccination")
-I_g1<-graph(r1,"Iv_Inv", title="Influenza epidemic, no vaccination, infected people")
-Iv_Inv_g1<-graph(r1,c("Iv","Inv"),title="Influenza epidemic, no vaccination, infected people")
-
+r1_g<- graph(r1,NULL,title="Epidemic Dynamics of Influenza per 100,000 Population without vaccination")
+I_g1<-graph(r1,"Iv_Inv", title="Cumulative Incidence of Infected Individuals per 100,000 without vaccination")
+Iv_Inv_g1<-graph(r1,c("Iv","Inv"),title="Infected Individuals per 100,000 without vaccination")
 grid.arrange(I_g1,Iv_Inv_g1,ncol=1)
 
 
@@ -101,15 +99,15 @@ param<-create_params()
 Init.cond<-create_initial_cond(Sv0=100000*0.5,Snv0=100000*0.5)
 r2<-run(Init.cond,param)
 r2$Iv_Inv<-r2$Iv+r2$Inv
-r2_g<- graph(r2,NULL,title="Influenza epidemic 50% vaccination")
-I_g2<-graph(r2,"Iv_Inv", title="Influenza epidemic, 50% vaccination, infected people (Iv+InV)")
-Iv_Inv_g2<-graph(r2,c("Iv","Inv"),title="Influenza epidemic, 50% vaccination, infected people")
+r2_g<- graph(r2,NULL,title="Epidemic Dynamics of Influenza per 100,000 Population with 50% vaccine coverage for Influenza")
+I_g2<-graph(r2,"Iv_Inv", title="Cumulative Incidence of Infected Individuals per 100,000 with 50% vaccine covergage")
+Iv_Inv_g2<-graph(r2,c("Iv","Inv"),title="Infected Individuals per 100,000 with 50% vaccine coverage")
 prop_I2=r2%>%
   mutate(propI=Iv_Inv/(Sv+Iv+Rv+Snv+Inv+Rnv))%>%
   select(propI)%>%
   pull
 r2$propI<-prop_I2
-graph(r2,"propI","proportion of people infect by influenza with 50% vaccination")
+graph(r2,"propI","Cumulative Incidence of Infected Individuals per 100,000 with 50% Vaccination Coverage for Influenza")
 grid.arrange(I_g2,Iv_Inv_g2,ncol=1)
 
 
@@ -123,9 +121,9 @@ param<-create_params()
 Init.cond<-create_initial_cond(Sv0=100000*0.8,Snv0=100000*0.2)
 r3<-run(Init.cond,param)
 r3$Iv_Inv<-r3$Iv+r3$Inv
-r3_g<- graph(r3,NULL,title="Influenza epidemic 80% vaccination")
-I_g3<-graph(r3,"Iv_Inv", title="Influenza epidemic, 80% vaccination, infected people (Iv+InV)")
-Iv_Inv_g3<-graph(r3,c("Iv","Inv"),title="Influenza epidemic, 80% vaccination, infected people")
+r3_g<- graph(r3,NULL,title="Epidemic Dynamics of Influenza per 100,000 Population with 80% vaccine coverage for Influenza")
+I_g3<-graph(r3,"Iv_Inv", title="Cumulative Incidence of Infected Individuals per 100,000 with 80% vaccine covergage")
+Iv_Inv_g3<-graph(r3,c("Iv","Inv"),title="Infected Individuals per 100,000 with 80% vaccine coverage")
 grid.arrange(I_g3,Iv_Inv_g3,ncol=1)
 
 I_vac_80<-approxfun(r3$time,r3%>%
@@ -166,13 +164,13 @@ for (i in seq(0.1,1,by=0.05)){
 }
 
 ggplot() +   
-  geom_point(data=results_df, aes(x=vacc,y=max_propI,colour="Max PropI"))+
-  geom_line(data=results_df, aes(x=vacc,y=max_propI, colour="Max PropI"))+
-  geom_point(data=results_df, aes(x=vacc,y=last_propR, colour="Last PropR"))+
-  geom_line(data=results_df, aes(x=vacc,y=last_propR, colour="Last PropR"))+
-  labs(title = "Epidemic spike and recovery according to vaccination", y = "Proportion",
-       x = "Vacc") +
-  scale_colour_manual(name = "Legend", values = c("Max PropI" = "purple", "Last PropR" = "orange")) +
+  geom_point(data=results_df, aes(x=vacc,y=max_propI,colour="Infected people at Epidemic peak"))+
+  geom_line(data=results_df, aes(x=vacc,y=max_propI, colour="Infected people at Epidemic peak"))+
+  geom_point(data=results_df, aes(x=vacc,y=last_propR, colour="Annual recovery"))+
+  geom_line(data=results_df, aes(x=vacc,y=last_propR, colour="Annual recovery"))+
+  labs(title = "Infected people at Epidemic peak and annual recovery according to vaccination", y = "Population (per 100,000)",
+       x = "Vaccine coverage") +
+  scale_colour_manual(name = "Legend", values = c("Infected people at Epidemic peak" = "purple", "Annual recovery" = "orange")) +
   theme_bw()
 
 
