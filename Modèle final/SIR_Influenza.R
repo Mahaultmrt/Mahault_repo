@@ -99,7 +99,7 @@ param<-create_params()
 Init.cond<-create_initial_cond(Sv0=100000*0.5,Snv0=100000*0.5)
 r2<-run(Init.cond,param)
 r2$Iv_Inv<-r2$Iv+r2$Inv
-r2_g<- graph(r2,NULL,title="Epidemic Dynamics of Influenza per 100,000 Population with 50% vaccine coverage for Influenza")
+r2_g<- graph(r2,NULL,title="Epidemic Dynamics of Influenza per 100,000 Population with 50% vaccine coverage")
 I_g2<-graph(r2,"Iv_Inv", title="Cumulative Incidence of Infected Individuals per 100,000 with 50% vaccine covergage")
 Iv_Inv_g2<-graph(r2,c("Iv","Inv"),title="Infected Individuals per 100,000 with 50% vaccine coverage")
 prop_I2=r2%>%
