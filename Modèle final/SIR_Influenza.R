@@ -57,7 +57,8 @@ graph<- function(data,filter_values,title){
       theme_bw() +
       theme(axis.text = element_text(size = 8),
             axis.title = element_text(size = 8, face = "bold"),
-            legend.text = element_text(size = 6)) +
+            legend.text = element_text(size = 6),
+            plot.title = element_text(size = 8, face = "bold",hjust = 0.5)) +
       labs(title=title,x = "Time", y = "Value", colour = "Population:")
     
     
@@ -70,7 +71,8 @@ graph<- function(data,filter_values,title){
       theme_bw() +
       theme(axis.text = element_text(size = 8),
             axis.title = element_text(size = 8, face = "bold"),
-            legend.text = element_text(size = 6)) +
+            legend.text = element_text(size = 6),
+            plot.title = element_text(size = 8, face = "bold",hjust = 0.5)) +
       labs(title=title,x = "Time", y = "Value", colour = "Population:")
     
     
@@ -86,6 +88,12 @@ r1$Iv_Inv<-r1$Iv+r1$Inv
 r1_g<- graph(r1,NULL,title="Epidemic Dynamics of Influenza per 100,000 Population without vaccination")
 I_g1<-graph(r1,"Iv_Inv", title="Cumulative Incidence of Infected Individuals per 100,000 without vaccination")
 Iv_Inv_g1<-graph(r1,c("Iv","Inv"),title="Infected Individuals per 100,000 without vaccination")
+prop_I1=r1%>%
+  mutate(propI=Iv_Inv/(Sv+Iv+Rv+Snv+Inv+Rnv))%>%
+  select(propI)%>%
+  pull
+r1$propI<-prop_I1
+propI1_g<-graph(r1,"propI","Cumulative Incidence of Infected Individuals per 100,000 \nwithout Vaccination for Influenza")
 grid.arrange(I_g1,Iv_Inv_g1,ncol=1)
 
 
@@ -107,7 +115,7 @@ prop_I2=r2%>%
   select(propI)%>%
   pull
 r2$propI<-prop_I2
-graph(r2,"propI","Cumulative Incidence of Infected Individuals per 100,000 with 50% Vaccination Coverage for Influenza")
+propI2_g<-graph(r2,"propI","Cumulative Incidence of Infected Individuals per 100,000 \nwith 50% vaccine Coverage for Influenza")
 grid.arrange(I_g2,Iv_Inv_g2,ncol=1)
 
 
@@ -124,6 +132,12 @@ r3$Iv_Inv<-r3$Iv+r3$Inv
 r3_g<- graph(r3,NULL,title="Epidemic Dynamics of Influenza per 100,000 Population with 80% vaccine coverage for Influenza")
 I_g3<-graph(r3,"Iv_Inv", title="Cumulative Incidence of Infected Individuals per 100,000 with 80% vaccine covergage")
 Iv_Inv_g3<-graph(r3,c("Iv","Inv"),title="Infected Individuals per 100,000 with 80% vaccine coverage")
+prop_I3=r3%>%
+  mutate(propI=Iv_Inv/(Sv+Iv+Rv+Snv+Inv+Rnv))%>%
+  select(propI)%>%
+  pull
+r3$propI<-prop_I3
+propI3_g<-graph(r3,"propI","Cumulative Incidence of Infected Individuals per 100,000 \nwith 80% vaccine Coverage for Influenza")
 grid.arrange(I_g3,Iv_Inv_g3,ncol=1)
 
 I_vac_80<-approxfun(r3$time,r3%>%
@@ -131,11 +145,12 @@ I_vac_80<-approxfun(r3$time,r3%>%
                       select(propI)%>%
                       pull)
 
+grid.arrange(I_g3,Iv_Inv_g3,ncol=1)
+
 vec_virus_0<-function(time){
   return(0)
 }
 
-grid.arrange(Iv_Inv_g1,Iv_Inv_g2,Iv_Inv_g3,ncol=2)
 
 results_df <- data.frame(vacc = numeric(), max_propI = numeric(), last_propR=numeric())
 I_vac<-list()
@@ -163,16 +178,21 @@ for (i in seq(0.1,1,by=0.05)){
 
 }
 
-ggplot() +   
+I_R<-ggplot() +   
   geom_point(data=results_df, aes(x=vacc,y=max_propI,colour="Infected people at Epidemic peak"))+
   geom_line(data=results_df, aes(x=vacc,y=max_propI, colour="Infected people at Epidemic peak"))+
   geom_point(data=results_df, aes(x=vacc,y=last_propR, colour="Annual recovery"))+
   geom_line(data=results_df, aes(x=vacc,y=last_propR, colour="Annual recovery"))+
-  labs(title = "Infected people at Epidemic peak and annual recovery according to vaccination", y = "Population (per 100,000)",
-       x = "Vaccine coverage") +
+  labs(title = "Infected people at Epidemic peak \nand annual recovery according to vaccination", y = "Population (per 100,000)",
+       x = "Vaccine coverage",size=6) +
   scale_colour_manual(name = "Legend", values = c("Infected people at Epidemic peak" = "purple", "Annual recovery" = "orange")) +
-  theme_bw()
+  theme_bw()+
+  theme(axis.text = element_text(size = 8),
+        axis.title = element_text(size = 8, face = "bold"),
+        legend.text = element_text(size = 6),
+        plot.title = element_text(size = 8, face = "bold",hjust = 0.5))
 
 
+grid.arrange(propI1_g,propI2_g,propI3_g,I_R,ncol=2)
 
 
