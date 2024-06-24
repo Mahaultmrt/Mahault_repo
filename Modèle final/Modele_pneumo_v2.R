@@ -79,7 +79,7 @@ graph<- function(data,filter_values,title){
       theme(axis.text = element_text(size = 8),
             axis.title = element_text(size = 8, face = "bold"),
             legend.text = element_text(size = 6),
-            plot.title = element_text(size = 7, face = "bold",hjust = 0.5)) +
+            plot.title = element_text(size = 8, face = "bold",hjust = 0.5)) +
       labs(title=title,x = "Time", y = "Value", colour = "Population:")
     
     
@@ -102,7 +102,7 @@ graph<- function(data,filter_values,title){
   return(p)
 }
 
-heatmap <- function(data, x_var, y_var, fill_var, x_text = NULL, y_text = NULL, fill_text = NULL, title = NULL, low_col = "#377eb8", high_col = "#e41a1c", values = FALSE, var_text = NULL) {
+heatmap <- function(data, x_var, y_var, fill_var, x_text = NULL, y_text = NULL, fill_text = NULL, title = NULL, low_col = "#0072B2", high_col = "#D55E00", values = FALSE, var_text = NULL) {
   graph <- ggplot(data, aes_string(x = x_var, y = y_var, fill = fill_var)) +
     geom_tile(color = "black") +
     scale_fill_gradient(low = low_col, high = high_col) +
@@ -177,7 +177,7 @@ propC4<-graph(run4,c("CRa","CSa","CR","CS"),"S.Pneumoniae colonized people with 
 CR_CS4<-graph(run4,c("CR_tot","CS_tot","C_tot"),"S.Pneumoniae colonized people with influenza epidemic and vaccine coverage at 80%")
 
 
-grid.arrange(propC1,propC2,propC3,propC4)
+grid.arrange(propC1,propC2,propC3,propC4,CR_CS1,CR_CS2,CR_CS3,CR_CS4,ncol=2)
 grid.arrange(CR_CS1,CR_CS2,CR_CS3,CR_CS4)
 
 
@@ -277,8 +277,8 @@ for (i in seq(1,19,by=1)){
   }
   
 }
-heatmap(corr_vacc_ATB,"vacc","ATB","LastIR_relative","vaccine coverage","Antibiotics",
-        "Annual relative incidence (resistant strain) \nper 100 000","Relative IPD incidence depending on the vaccine coverage and the proportion of ATB",values=FALSE)
+h1<-heatmap(corr_vacc_ATB,"vacc","ATB","LastIR_relative","vaccine coverage","Antibiotics",
+        "Annual relative incidence \nof IPD (resistant strain) per 100 000","Relative incidence of IPD \ndepending on the vaccine coverage and the proportion of ATB",values=FALSE)
 
 
 I_final<-merge(IR_final,IS_final,by="vacc")
@@ -321,11 +321,11 @@ for (i in seq(1,19,by=1)){
 }
 
 
-heatmap(corr_vacc_ATB_ISIR,"vacc","ATB","LastISIR","vaccine coverage","Antibiotics",
-        "Total annual incidence \n per 100,000", "Total IPD incidence depending on the vaccine coverage and the proportion of ATB",values=TRUE,var_text="LastpropIR")
+h2<-heatmap(corr_vacc_ATB_ISIR,"vacc","ATB","LastISIR","vaccine coverage","Antibiotics",
+        "Total annual incidence \nof IPD per 100,000", "Total incidence of IPD depending on the vaccine coverage \nand the proportion of ATB",values=TRUE,var_text="LastpropIR")
 
 
-
+grid.arrange(h1,h2,ncol=2)
 
 constante<- data.frame(betatest = numeric(),cte = numeric())
 
@@ -370,4 +370,5 @@ ggplot(df_ISIR_barplot,aes(x=factor(vacc),y=Incidence))+
        x="vaccination",
        y="Annual Incidence")+
   theme_minimal()
+
 
