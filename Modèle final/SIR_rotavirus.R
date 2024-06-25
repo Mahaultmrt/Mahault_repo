@@ -95,7 +95,7 @@ prop_I1=r1%>%
   select(propI)%>%
   pull
 r1$propI<-prop_I1
-propI1_g<-graph(r1,"propI","Cumulative Incidence of Infected Individuals per 100,000 without Vaccination for Rotavirus")
+propI1_g<-graph(r1,"propI","Cumulative Incidence of Infected Individuals per 100,000 \nwithout Vaccination for Rotavirus")
 grid.arrange(I_g1,Iv_Inv_g1,ncol=1)
 
 I_vac_0<-approxfun(r1$time,r1%>%
@@ -110,13 +110,13 @@ r2<-run(Init.cond,param)
 r2$Iv_Inv<-r2$Iv+r2$Inv
 r2_g<- graph(r2,NULL,title="Epidemic Dynamics of Rotavirus per 100,000 Population with 50% vaccine coverage")
 I_g2<-graph(r2,"Iv_Inv", title="Cumulative Incidence of Infected Individuals per 100,000 with 50% vaccine covergage")
-Iv_Inv_g2<-graph(r2,c("Iv","Inv"),title="Infected Individuals per 100,000 with 50% vaccine coverage")
+Iv_Inv_g2<-graph(r2,c("Iv","Inv"),title="Infected Individuals per 100,000 \nwith 50% vaccine coverage")
 prop_I2=r2%>%
   mutate(propI=Iv_Inv/(Sv+Iv+Rv+Snv+Inv+Rnv))%>%
   select(propI)%>%
   pull
 r2$propI<-prop_I2
-propI2_g<-graph(r2,"propI","Cumulative Incidence of Infected Individuals per 100,000 with 50% Vaccination Coverage for Rotavirus")
+propI2_g<-graph(r2,"propI","Cumulative Incidence of Infected Individuals per 100,000 \nwith 50% Vaccination Coverage for Rotavirus")
 grid.arrange(I_g2,Iv_Inv_g2,ncol=1)
 
 
@@ -140,7 +140,7 @@ prop_I3=r3%>%
   select(propI)%>%
   pull
 r3$propI<-prop_I3
-propI3_g<-graph(r3,"propI","Cumulative Incidence of Infected Individuals per 100,000 with 80% Vaccination Coverage for Rotavirus")
+propI3_g<-graph(r3,"propI","Cumulative Incidence of Infected Individuals per 100,000 \nwith 80% Vaccination Coverage for Rotavirus")
 grid.arrange(I_g3,Iv_Inv_g3,ncol=1)
 
 I_vac_80<-approxfun(r3$time,r3%>%
@@ -207,7 +207,11 @@ I_R<-ggplot() +
   labs(title = "Infected people at Epidemic peak and annual recovery according to vaccination", y = "Population (per 100,000)",
        x = "Vaccine coverage") +
   scale_colour_manual(name = " ", values = c("Infected people at Epidemic peak" = "purple", "Annual recovery" = "orange")) +
-  theme_bw()
+  theme_bw()+
+  theme(axis.text = element_text(size = 8),
+        axis.title = element_text(size = 8, face = "bold"),
+        legend.text = element_text(size = 6),
+        plot.title = element_text(size = 8, face = "bold",hjust = 0.5))
 
 
 grid.arrange(propI1_g,propI2_g,propI3_g,I_R,ncol=2)
