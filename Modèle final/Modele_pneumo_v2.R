@@ -7,6 +7,8 @@ library(grid)
 library(gt)
 library(tidyr)
 library(forcats)
+library(ppcor)
+
 
 #Code modèle page8 n°2
 
@@ -102,7 +104,7 @@ graph<- function(data,filter_values,title){
   return(p)
 }
 
-heatmap <- function(data, x_var, y_var, fill_var, x_text = NULL, y_text = NULL, fill_text = NULL, title = NULL, low_col = "#0072B2", high_col = "#D55E00", values = FALSE, var_text = NULL) {
+heatmap <- function(data, x_var, y_var, fill_var, x_text = NULL, y_text = NULL, fill_text = NULL, title = NULL, low_col = "#377eb8", high_col = "#e41a1c", values = FALSE, var_text = NULL) {
   graph <- ggplot(data, aes_string(x = x_var, y = y_var, fill = fill_var)) +
     geom_tile(color = "black") +
     scale_fill_gradient(low = low_col, high = high_col) +
@@ -371,4 +373,48 @@ ggplot(df_ISIR_barplot,aes(x=factor(vacc),y=Incidence))+
        y="Annual Incidence")+
   theme_minimal()
 
+corr_vacc_beta<- data.frame(vacc = numeric(), betas=numeric(), LastIR_relative=numeric())
+for (i in seq(1,19,by=1)){
+  for(j in seq(0.06,0.07,by=0.001)){
+    
+    vec_virus=I_vac[[i]]
+    param<-create_params(beta=j)
+    Init.cond<-create_initial_cond(Sa0=tail(run0$Sa, n = 1),CRa0=tail(run0$CRa, n = 1),CSa0=tail(run0$CSa, n = 1),
+                                   IRa0=tail(run0$IRa, n = 1),ISa0=tail(run0$ISa, n = 1),S0=tail(run0$S, n = 1),
+                                   CR0=tail(run0$CR, n = 1),CS0=tail(run0$CS, n = 1))
+    runt<-run(Init.cond,param)
+    LastIR=runt[["IRa"]][nrow(runt) - 1]
+    LastIR_relative=LastIR/tail(run1$IRa, n = 1)
+    new_row=data.frame(vacc=results_df[i,1], betas=j, LastIR_relative)
+    corr_vacc_beta <- bind_rows(corr_vacc_beta, new_row)
+    
+    
+  }
+  
+}
 
+h3<-heatmap(corr_vacc_beta,"vacc","betas","LastIR_relative","vaccine coverage","Beta",
+            "Total annual incidence \nof IPD per 100,000", "Total incidence of IPD depending on the vaccine coverage \nand the rate of transmission",values=FALSE)
+
+corr_vacc_alpha<- data.frame(vacc = numeric(), alphas=numeric(), LastIR_relative=numeric())
+for (i in seq(1,19,by=1)){
+  for(j in seq(0.3,0.45,by=0.01)){
+    
+    vec_virus=I_vac[[i]]
+    param<-create_params(alpha=j)
+    Init.cond<-create_initial_cond(Sa0=tail(run0$Sa, n = 1),CRa0=tail(run0$CRa, n = 1),CSa0=tail(run0$CSa, n = 1),
+                                   IRa0=tail(run0$IRa, n = 1),ISa0=tail(run0$ISa, n = 1),S0=tail(run0$S, n = 1),
+                                   CR0=tail(run0$CR, n = 1),CS0=tail(run0$CS, n = 1))
+    runt<-run(Init.cond,param)
+    LastIR=runt[["IRa"]][nrow(runt) - 1]
+    LastIR_relative=LastIR/tail(run1$IRa, n = 1)
+    new_row=data.frame(vacc=results_df[i,1], alphas=j, LastIR_relative)
+    corr_vacc_alpha <- bind_rows(corr_vacc_alpha, new_row)
+    
+    
+  }
+  
+}
+
+h4<-heatmap(corr_vacc_alpha,"vacc","alphas","LastIR_relative","vaccine coverage","Alpha",
+            "Total annual incidence \nof IPD per 100,000", "Total incidence of IPD depending on the vaccine coverage \nand antibiotics clearance",values=FALSE)

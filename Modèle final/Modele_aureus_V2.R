@@ -7,6 +7,7 @@ library(grid)
 library(gt)
 library(tidyr)
 library(forcats)
+library(DT)
 
 #Code modèle page
 
@@ -178,7 +179,7 @@ run4_g<-graph(run4,NULL,title="S.Aureus Colonization in a Population of 100,000 
 propC4<-graph(run4,c("CRa","CSa","CR","CS"),"S.Aureus colonized people with influenza epidemic and vaccine coverage at 80%")
 CR_CS4<-graph(run4,c("CR_tot","CS_tot"),"S.Aureus colonized people with influenza epidemic and vaccine coverage at 80%")
 
-grid.arrange(propC1,propC2,propC3,propC4)
+grid.arrange(propC1,propC2,propC3,propC4,CR_CS1,CR_CS2,CR_CS3,CR_CS4,ncol=2)
 grid.arrange(CR_CS1,CR_CS2,CR_CS3,CR_CS4)
 
 
@@ -282,7 +283,7 @@ for (i in seq(1,19,by=1)){
   
 }
 heatmap(corr_vacc_ATB,"vacc","ATB","LastIR_relative","vaccine coverage","Antibiotics",
-        "Annual relative incidence (resistant strain) \nper 100 000","Relative IPD incidence depending on the vaccine coverage and the proportion of ATB",values=FALSE)
+        "Annual relative incidence (resistant strain) \nper 100 000","Relative incidence of infected people depending on the vaccine coverage and the proportion of ATB",values=FALSE)
 
 
 
@@ -298,7 +299,7 @@ ggplot(I_final, aes(fill=Strain, y=Value, x=vacc)) +
                     values = c("LastIS_IR" = "#00BFC4", 
                                "LastIS" = "#1F77B4", 
                                "LastIR" = "#E66100")) +
-  labs(title = "Annual Incidence depending on the vaccine coverage", x = "Vaccine coverage", y = "Annual Incidence") +
+  labs(title = "Annual Incidence of infected people depending on the vaccine coverage", x = "Vaccine coverage", y = "Annual Incidence") +
   theme_minimal()
 
 
@@ -328,7 +329,7 @@ for (i in seq(1,19,by=1)){
 
 
 heatmap(corr_vacc_ATB_ISIR,"vacc","ATB","LastISIR","vaccine coverage","Antibiotics",
-        "Total annual incidence \n per 100,000", "Total annual incidence depending on the vaccine coverage and the proportion of ATB",values=TRUE,var_text="LastpropIR")
+        "Total annual incidence \n per 100,000", "Total annual incidence of infected people depending on the vaccine coverage and the proportion of ATB",values=TRUE,var_text="LastpropIR")
 
 df_ISIR_barplot<-data.frame(vacc = numeric(), Incidence=numeric(), propI = numeric())
 new_row=data.frame(vacc=0, Incidence=run2[["IRa"]][nrow(run2) - 1]+run2[["ISa"]][nrow(run2) - 1], 
@@ -345,12 +346,27 @@ df_ISIR_barplot<-bind_rows(df_ISIR_barplot,new_row3)
 ggplot(df_ISIR_barplot,aes(x=factor(vacc),y=Incidence))+
   geom_bar(stat="identity",fill="#00BFC4",width=0.3)+
   geom_text(aes(label=round(propI*100,4)),vjust=-0.5,color="black")+
-  labs(title="Annual total incidence et percentage of infected people (resistant strain) depending on vaccination",
+  labs(title="Annual total incidence of infected people et percentage of people infected by a resistant strain \ndepending on vaccination",
        x="vaccination",
        y="Annual Incidence")+
   theme_minimal()
 
 
+diff_relative<- data.frame(vacc = numeric(), LastIR_diff = numeric())
+for (i in seq(1,19,by=1)){
+  vec_virus=I_vac[[i]]
+  param<-create_params()
+  Init.cond<-create_initial_cond(Sa0=tail(run0$Sa, n = 1),CRa0=tail(run0$CRa, n = 1),CSa0=tail(run0$CSa, n = 1),
+                                 IRa0=tail(run0$IRa, n = 1),ISa0=tail(run0$ISa, n = 1),S0=tail(run0$S, n = 1),
+                                 CR0=tail(run0$CR, n = 1),CS0=tail(run0$CS, n = 1))
+  runt<-run(Init.cond,param)
+  LastIR_diff=run2[["IRa"]][nrow(run2) - 1]-runt[["IRa"]][nrow(runt) - 1]
+  new_row=data.frame(vacc=results_df[i,1], LastIR_diff)
+  diff_relative <- bind_rows(diff_relative, new_row)
 
+}
 
- 
+ggplot(diff_relative, aes(x = vacc, y = LastIR_diff)) +
+  geom_bar(stat = "identity", fill = "#D8BFD8", color = "black") +
+  labs(title = "Barplot of people infected depending on the vaccin coverage", x = "Vaccin coverage", y = "Infected people at the end of the season") +
+  theme_minimal()
