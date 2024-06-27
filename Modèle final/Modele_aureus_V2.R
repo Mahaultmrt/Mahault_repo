@@ -61,6 +61,8 @@ run<-function(Init.cond,param,Tmax=365,dt=1){
   proportion$CR_tot<-proportion$CRa+proportion$CR
   proportion$CS_tot<-proportion$CSa+proportion$CS
   proportion$C_tot<-proportion$CR_tot+proportion$CS_tot
+
+  
   return(proportion)
 }
 
@@ -370,3 +372,5 @@ ggplot(diff_relative, aes(x = vacc, y = LastIR_diff)) +
   geom_bar(stat = "identity", fill = "#D8BFD8", color = "black") +
   labs(title = "Barplot of people infected depending on the vaccin coverage", x = "Vaccin coverage", y = "Infected people at the end of the season") +
   theme_minimal()
+
+

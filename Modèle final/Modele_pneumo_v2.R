@@ -418,3 +418,5 @@ for (i in seq(1,19,by=1)){
 
 h4<-heatmap(corr_vacc_alpha,"vacc","alphas","LastIR_relative","vaccine coverage","Alpha",
             "Total annual incidence \nof IPD per 100,000", "Total incidence of IPD depending on the vaccine coverage \nand antibiotics clearance",values=FALSE)
+
+
