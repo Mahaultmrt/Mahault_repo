@@ -7,7 +7,7 @@ library(grid)
 library(gt)
 library(tidyr)
 library(forcats)
-library(ppcor)
+#library(ppcor)
 
 
 #Code modèle page8 n°2
@@ -59,9 +59,9 @@ run<-function(Init.cond,param,Tmax=365,dt=1){
   tot <- sum(result[1, -1])
   proportion <- result
   proportion[ , -1] <- proportion[ , -1] / tot
-  proportion$CR_tot<-proportion$CRa+proportion$CR
-  proportion$CS_tot<-proportion$CSa+proportion$CS
-  proportion$C_tot<-proportion$CR_tot+proportion$CS_tot
+  # proportion$CR_tot<-proportion$CRa+proportion$CR
+  # proportion$CS_tot<-proportion$CSa+proportion$CS
+  # proportion$C_tot<-proportion$CR_tot+proportion$CS_tot
   return(proportion)
   
 }
@@ -82,7 +82,7 @@ graph<- function(data,filter_values,title){
             axis.title = element_text(size = 8, face = "bold"),
             legend.text = element_text(size = 6),
             plot.title = element_text(size = 8, face = "bold",hjust = 0.5)) +
-      labs(title=title,x = "Time", y = "Value", colour = "Population:")
+      labs(title=title,x = "Time", y = "Proportion of Individuals", colour = "Population:")
     
     
   }
@@ -96,7 +96,7 @@ graph<- function(data,filter_values,title){
             axis.title = element_text(size = 8, face = "bold"),
             legend.text = element_text(size = 6),
             plot.title = element_text(size = 8, face = "bold",hjust = 0.5)) +
-      labs(title=title,x = "Time", y = "Value", colour = "Population:")
+      labs(title=title,x = "Time", y = "Proportion of Individuals", colour = "Population:")
     
     
   }
@@ -126,7 +126,7 @@ vec_virus=vec_virus_0
 param<-create_params(rho=0,rhoRa=0,rhoSa=0)
 Init.cond<-create_initial_cond()
 run0<-run(Init.cond,param)
-run0_g<-graph(run0,NULL,"S.Pneumoniae Colonization in a Population of 100,000 Individuals \nwithout virus épidemics and IPD")
+run0_g<-graph(run0,NULL,"S.Pneumoniae Colonization dynamics \n(without virus épidemics and IPD)")
 CR_CS0<-graph(run0,c("CR_tot","CS_tot","C_tot"),"S.Pneumoniae colonized people without a virus epidemic and without IPD")
 
 #Pas d'épidémie pas de vaccination et infection
@@ -204,6 +204,7 @@ I_tot_g<-graph(all_res,c("IPD_total_no_vaccination","IPD_total_50_vaccination","
 
 grid.arrange(run0_g,run2_g,run3_g,run4_g,ncol=2)
 grid.arrange(IR_g,IS_IR_g,I_tot_g,ncol=2)
+
 
 
 res <- data.frame(time = r1$time)
@@ -420,3 +421,10 @@ h4<-heatmap(corr_vacc_alpha,"vacc","alphas","LastIR_relative","vaccine coverage"
             "Total annual incidence \nof IPD per 100,000", "Total incidence of IPD depending on the vaccine coverage \nand antibiotics clearance",values=FALSE)
 
 
+tail(run0$Sa, n = 1)*100+tail(run0$S, n = 1)*100
+tail(run0$CRa, n = 1)*100+tail(run0$CR, n = 1)*100
+tail(run0$CSa, n = 1)*100+tail(run0$CS, n = 1)*100
+tail(run0$ISa, n = 1)*100
+tail(run0$IRa, n = 1)*100
+
+tail(run0$Sa, n = 1)*100+tail(run0$CRa, n = 1)*100+tail(run0$CSa, n = 1)*100+tail(run0$ISa, n = 1)*100+tail(run0$IRa, n = 1)*100

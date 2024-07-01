@@ -59,7 +59,7 @@ graph<- function(data,filter_values,title){
             axis.title = element_text(size = 8, face = "bold"),
             legend.text = element_text(size = 6),
             plot.title = element_text(size = 8, face = "bold",hjust = 0.5)) +
-      labs(title=title,x = "Time", y = "Value", colour = "Population:")
+      labs(title=title,x = "Time", y = "Proportion of Individuals", colour = "Population:")
     
     
   }
@@ -73,7 +73,7 @@ graph<- function(data,filter_values,title){
             axis.title = element_text(size = 8, face = "bold"),
             legend.text = element_text(size = 6),
             plot.title = element_text(size = 8, face = "bold",hjust = 0.5)) +
-      labs(title=title,x = "Time", y = "Value", colour = "Population:")
+      labs(title=title,x = "Time", y = "Proportion of Individuals", colour = "Population:")
     
     
   }
@@ -183,7 +183,7 @@ I_R<-ggplot() +
   geom_line(data=results_df, aes(x=vacc,y=max_propI, colour="Infected people at Epidemic peak"))+
   geom_point(data=results_df, aes(x=vacc,y=last_propR, colour="Annual recovery"))+
   geom_line(data=results_df, aes(x=vacc,y=last_propR, colour="Annual recovery"))+
-  labs(title = "Infected people at Epidemic peak \nand annual recovery according to vaccination", y = "Population (per 100,000)",
+  labs(title = "Infected people at Epidemic peak \nand cumulative incidence according to vaccination", y = "Proportion of Individuals",
        x = "Vaccine coverage",size=6) +
   scale_colour_manual(name = "Legend", values = c("Infected people at Epidemic peak" = "purple", "Annual recovery" = "orange")) +
   theme_bw()+
@@ -195,4 +195,5 @@ I_R<-ggplot() +
 
 grid.arrange(propI1_g,propI2_g,propI3_g,I_R,ncol=2)
 
-
+combined_propI<-data.frame(time=seq(from=0,to=365,by=1),no_vaccination=r1$propI,vaccination_50=r2$propI,vaccination_80=r3$propI)
+graph(combined_propI,NULL,"Proportion of People infected by influenza")
