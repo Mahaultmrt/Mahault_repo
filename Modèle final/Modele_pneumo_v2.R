@@ -17,21 +17,21 @@ Res_model <- function(t, pop, param,vec_virus) {
   with(as.list(c(pop, param)), {
     
     
-    N=Sa+CRa+CSa+IRa+ISa+S+CR+CS
+    N=Sa+CRa+CSa+S+CR+CS
     
     
     new_teta<-teta-log(1-vec_virus(t)*ATB)
     
     
     dSa <- -Sa*((beta*ct*(CRa+IRa+CR)/N)+beta*(CSa+ISa+CS)/N)-omega*Sa+new_teta*S+(gamma+alpha*(1-sigmaR))*CRa+(gamma+alpha*(1-sigmaS))*CSa
-    dCRa <- Sa*(beta*ct*(CRa+IRa+CR)/N)-(gamma+alpha*(1-sigmaR))*CRa-rhoRa*CRa-omega*CRa+new_teta*CR
-    dCSa <- Sa*(beta*(CSa+ISa+CS)/N)-(gamma+alpha*(1-sigmaS))*CSa-rhoSa*CSa-omega*CSa+new_teta*CS
+    dCRa <- Sa*(beta*ct*(CRa+IRa+CR)/N)-(gamma+alpha*(1-sigmaR))*CRa-omega*CRa+new_teta*CR
+    dCSa <- Sa*(beta*(CSa+ISa+CS)/N)-(gamma+alpha*(1-sigmaS))*CSa-omega*CSa+new_teta*CS
     dIRa <- rhoRa*CRa-deltaRa*IRa+rho*CR
     dISa <- rhoSa*CSa-deltaSa*ISa+rho*CS
     
     dS <- -S*((beta*ct*(CRa+IRa+CR)/N)+beta*(CSa+ISa+CS)/N)+omega*Sa-new_teta*S+gamma*CR+gamma*CS+deltaRa*IRa+deltaSa*ISa
-    dCR <- S*(beta*ct*(CRa+IRa+CR)/N)-gamma*CR-rho*CR+omega*CRa-new_teta*CR
-    dCS <- S*(beta*(CSa+ISa+CS)/N)-gamma*CS-rho*CS+omega*CSa-new_teta*CS
+    dCR <- S*(beta*ct*(CRa+IRa+CR)/N)-gamma*CR+omega*CRa-new_teta*CR
+    dCS <- S*(beta*(CSa+ISa+CS)/N)-gamma*CS+omega*CSa-new_teta*CS
     
     
     res<-c(dSa,dCRa,dCSa,dIRa,dISa,dS,dCR,dCS)
@@ -56,12 +56,13 @@ create_initial_cond<-function(Sa0=100000*0.5*0.8,CRa0=100000*0.5*0.04,CSa0=10000
 run<-function(Init.cond,param,Tmax=365,dt=1){
   Time=seq(from=0,to=Tmax,by=dt)
   result = as.data.frame(lsoda(Init.cond, Time, Res_model, param,vec_virus=vec_virus))
-  tot <- sum(result[1, -1])
+  tot <- sum(result[1, !(colnames(result) %in% c("time", "IRa", "ISa","N"))])
   proportion <- result
   proportion[ , -1] <- proportion[ , -1] / tot
-  # proportion$CR_tot<-proportion$CRa+proportion$CR
-  # proportion$CS_tot<-proportion$CSa+proportion$CS
-  # proportion$C_tot<-proportion$CR_tot+proportion$CS_tot
+  proportion$CR_tot<-proportion$CRa+proportion$CR
+  proportion$CS_tot<-proportion$CSa+proportion$CS
+  proportion$C_tot<-proportion$CR_tot+proportion$CS_tot
+
   return(proportion)
   
 }
@@ -137,7 +138,7 @@ Init.cond<-create_initial_cond(Sa0=tail(run0$Sa, n = 1),CRa0=tail(run0$CRa, n = 
                                IRa0=tail(run0$IRa, n = 1),ISa0=tail(run0$ISa, n = 1),S0=tail(run0$S, n = 1),
                                CR0=tail(run0$CR, n = 1),CS0=tail(run0$CS, n = 1))
 run1<-run(Init.cond,param)
-run1_g<-graph(run1,NULL,title="S.Pneumoniae Colonization in a Population of 100,000 Individuals \nwithout virus épidemics")
+run1_g<-graph(run1,NULL,title="S.Pneumoniae Colonization dynamics \nwithout virus épidemics")
 propC1<-graph(run1,c("CRa","CSa","CR","CS"),"S.Pneumoniae colonized people without virus epidemics")
 CR_CS1<-graph(run1,c("CR_tot","CS_tot","C_tot"),"S.Pneumoniae colonized people without a virus epidemics")
 
@@ -149,7 +150,7 @@ Init.cond<-create_initial_cond(Sa0=tail(run0$Sa, n = 1),CRa0=tail(run0$CRa, n = 
                                IRa0=tail(run0$IRa, n = 1),ISa0=tail(run0$ISa, n = 1),S0=tail(run0$S, n = 1),
                                CR0=tail(run0$CR, n = 1),CS0=tail(run0$CS, n = 1))
 run2<-run(Init.cond,param)
-run2_g<-graph(run2,NULL,title="S.Pneumoniae Colonization in a Population of 100,000 Individuals \nwith influenza epidemic, no vaccination")
+run2_g<-graph(run2,NULL,title="S.Pneumoniae Colonization dynamics \nwith influenza epidemic, no vaccination")
 propC2<-graph(run2,c("CRa","CSa","CR","CS"),"S.Pneumoniae colonized people with influenza epidemic, no vaccination")
 CR_CS2<-graph(run2,c("CR_tot","CS_tot","C_tot"),"S.Pneumoniae colonized people with influenza epidemic, no vaccination")
 
@@ -161,7 +162,7 @@ Init.cond<-create_initial_cond(Sa0=tail(run0$Sa, n = 1),CRa0=tail(run0$CRa, n = 
                                IRa0=tail(run0$IRa, n = 1),ISa0=tail(run0$ISa, n = 1),S0=tail(run0$S, n = 1),
                                CR0=tail(run0$CR, n = 1),CS0=tail(run0$CS, n = 1))
 run3<-run(Init.cond,param)
-run3_g<-graph(run3,NULL,title="S.Pneumoniae Colonization in a Population of 100,000 Individuals \nwith influenza epidemic and vaccine coverage at 50%")
+run3_g<-graph(run3,NULL,title="S.Pneumoniae Colonization dynamics \nwith influenza epidemic and vaccine coverage at 50%")
 propC3<-graph(run3,c("CRa","CSa","CR","CS"),"S.Pneumoniae colonized people with influenza epidemic and vaccine coverage at 50%")
 CR_CS3<-graph(run3,c("CR_tot","CS_tot","C_tot"),"S.Pneumoniae colonized peoplewith influenza epidemic and vaccine coverage at 50%")
 tetas<-graph(run3,c("teta","new_teta"),"Parameters teta for S.pneumonia colonization with 50% of vaccination for influenza")
@@ -174,7 +175,7 @@ Init.cond<-create_initial_cond(Sa0=tail(run0$Sa, n = 1),CRa0=tail(run0$CRa, n = 
                                IRa0=tail(run0$IRa, n = 1),ISa0=tail(run0$ISa, n = 1),S0=tail(run0$S, n = 1),
                                CR0=tail(run0$CR, n = 1),CS0=tail(run0$CS, n = 1))
 run4<-run(Init.cond,param)
-run4_g<-graph(run4,NULL,title="S. pneumoniae Colonization in a Population of 100,000 Individuals \nwith influenza epidemic and vaccine coverage at 80%")
+run4_g<-graph(run4,NULL,title="S. pneumoniae Colonization dynamics \nwith influenza epidemic and vaccine coverage at 80%")
 propC4<-graph(run4,c("CRa","CSa","CR","CS"),"S.Pneumoniae colonized people with influenza epidemicand vaccine coverage at 80%")
 CR_CS4<-graph(run4,c("CR_tot","CS_tot","C_tot"),"S.Pneumoniae colonized people with influenza epidemic and vaccine coverage at 80%")
 
@@ -285,18 +286,15 @@ h1<-heatmap(corr_vacc_ATB,"vacc","ATB","LastIR_relative","vaccine coverage","Ant
 
 
 I_final<-merge(IR_final,IS_final,by="vacc")
-I_final<-merge(I_final,IS_IR_final,by="vacc")
-I_final <- pivot_longer(I_final, cols = c(LastIR,LastIS,LastIS_IR), names_to = "Strain", values_to = "Value")
-I_final$Strain <- factor(I_final$Strain, levels = c("LastIS_IR","LastIS","LastIR"))
+I_final <- pivot_longer(I_final, cols = c(LastIR,LastIS), names_to = "Strain", values_to = "Value")
+I_final$Strain <- factor(I_final$Strain, levels = c("LastIS","LastIR"))
 ggplot(I_final, aes(fill=Strain, y=Value, x=vacc)) + 
   geom_bar(position="stack", stat="identity")+
-  scale_fill_manual(name=" ",labels = c("LastIS_IR" = "Total annual IPD", 
-                               "LastIS" = "Annual IPD (senstive strain)", 
+  scale_fill_manual(name=" ",labels = c("LastIS" = "Annual IPD (senstive strain)", 
                                "LastIR" = "Annual IPD (resistant strain)"),
-                    values = c("LastIS_IR" = "#00BFC4", 
-                               "LastIS" = "#1F77B4", 
+                    values = c("LastIS" = "#1F77B4", 
                                "LastIR" = "#E66100")) +
-  labs(title = "Annual IPD depending on the vaccine coverage", x = "Vaccine coverage", y = "Annual IPD") +
+  labs(title = "Annual number of IPDs depending on the vaccine coverage", x = "Vaccine coverage", y = "Annual IPD") +
   theme_minimal()
 
 
@@ -313,7 +311,7 @@ for (i in seq(1,19,by=1)){
     runt$ISIR=runt$ISa+runt$IRa
     LastIRa=runt[["IRa"]][nrow(runt) - 1]
     LastISIR=runt[["ISIR"]][nrow(runt) - 1]
-    LastpropIR=round(LastIRa*100/LastISIR,2)
+    LastpropIR=round(LastIRa*100/LastISIR,digits =0)
     new_row=data.frame(vacc=results_df[i,1], ATB=j, LastISIR,LastpropIR)
     corr_vacc_ATB_ISIR <- bind_rows(corr_vacc_ATB_ISIR, new_row)
     
@@ -325,7 +323,7 @@ for (i in seq(1,19,by=1)){
 
 
 h2<-heatmap(corr_vacc_ATB_ISIR,"vacc","ATB","LastISIR","vaccine coverage","Antibiotics",
-        "Total annual incidence \nof IPD per 100,000", "Total incidence of IPD depending on the vaccine coverage \nand the proportion of ATB",values=TRUE,var_text="LastpropIR")
+        "Total annual number of IPDs", "Total numbers of IPDs depending on the vaccine coverage \nand the proportion of ATB",values=TRUE,var_text="LastpropIR")
 
 
 grid.arrange(h1,h2,ncol=2)

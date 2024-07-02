@@ -48,15 +48,15 @@ create_initial_cond<-function(CSa0=800,CRa0=200,CS0=800,CR0=200,IRa0=0,ISa0=0){
   c(CSa=CSa0,CRa=CRa0,CS=CS0,CR=CR0,IRa=IRa0,ISa=ISa0)
 }
 
-run<-function(Init.cond,param,Tmax=400,dt=1){
+run<-function(Init.cond,param,Tmax=365,dt=1){
   Time=seq(from=0,to=Tmax,by=dt)
   result = as.data.frame(lsoda(Init.cond, Time, Res_model, param,vec_virus=vec_virus))
   tot <- sum(result[1, -1])
   proportion <- result
   proportion[ , -1] <- proportion[ , -1] / tot
-  proportion$CR_tot<-proportion$CRa+proportion$CR
-  proportion$CS_tot<-proportion$CSa+proportion$CS
-  proportion$C_tot<-proportion$CR_tot+proportion$CS_tot
+  # proportion$CR_tot<-proportion$CRa+proportion$CR
+  # proportion$CS_tot<-proportion$CSa+proportion$CS
+  # proportion$C_tot<-proportion$CR_tot+proportion$CS_tot
   return(proportion)
   
   
@@ -79,7 +79,7 @@ graph<- function(data,filter_values,title){
             axis.title = element_text(size = 8, face = "bold"),
             legend.text = element_text(size = 6),
             plot.title = element_text(size = 8, face = "bold",hjust = 0.5)) +
-      labs(title=title,x = "Time", y = "Value", colour = "Population:")
+      labs(title=title,x = "Time", y = "Proportion of Individuals", colour = "Population:")
     
     
   }
@@ -93,7 +93,7 @@ graph<- function(data,filter_values,title){
             axis.title = element_text(size = 8, face = "bold"),
             legend.text = element_text(size = 6),
             plot.title = element_text(size = 8, face = "bold",hjust = 0.5)) +
-      labs(title=title,x = "Time", y = "Value", colour = "Population:")
+      labs(title=title,x = "Time", y = "Proportion of Individuals", colour = "Population:")
     
     
   }
@@ -125,7 +125,7 @@ vec_virus=vec_virus_0
 param<-create_params(rho=0,rhoRa=0,rhoSa=0)
 Init.cond<-create_initial_cond()
 run0<-run(Init.cond,param)
-run0_g<-graph(run0,NULL,"E.Coli Colonization in a Population of 100,000 Individuals \nwithout virus épidemics and infection")
+run0_g<-graph(run0,NULL,"E.Coli Colonization dynamics \nwithout virus épidemics and infection")
 CR_CS0<-graph(run0,c("CR_tot","CS_tot","C_tot"),"E.Coli colonized people without a virus epidemic and without infection")
 
 
@@ -135,7 +135,7 @@ param<-create_params()
 Init.cond<-create_initial_cond(CSa0=tail(run0$CSa, n = 1),CRa0=tail(run0$CRa, n = 1),CS0=tail(run0$CS, n = 1),
                                CR0=tail(run0$CR, n = 1),IRa0=tail(run0$IRa, n = 1),ISa0=tail(run0$ISa, n = 1))
 run1<-run(Init.cond,param)
-run1_g<-graph(run1,NULL,title="E.Coli Colonization in a Population of 100,000 Individuals \nwithout virus épidemics")
+run1_g<-graph(run1,NULL,title="E.Coli Colonization dynamics \nwithout virus épidemics")
 propC1<-graph(run1,c("CRa","pCSa","CR","CS"),"E.Coli colonized people without a virus epidemic")
 CR_CS1<-graph(run1,c("CR_tot","CS_tot","C_tot"),"E.Coli colonized people without a virus epidemic")
 
@@ -146,7 +146,7 @@ param<-create_params()
 Init.cond<-create_initial_cond(CSa0=tail(run0$CSa, n = 1),CRa0=tail(run0$CRa, n = 1),CS0=tail(run0$CS, n = 1),
                                CR0=tail(run0$CR, n = 1),IRa0=tail(run0$IRa, n = 1),ISa0=tail(run0$ISa, n = 1))
 run2<-run(Init.cond,param)
-run2_g<-graph(run2,NULL,title="E.Coli Colonization in a Population of 100,000 Individuals \nwith virus epidemic, no vaccination")
+run2_g<-graph(run2,NULL,title="E.Coli Colonization dynamics \nwith virus epidemic, no vaccination")
 propC2<-graph(run2,c("CRa","CSa","CR","CS"),"E.Coli colonized people with rotavirus epidemic, no vaccination")
 CR_CS2<-graph(run2,c("CR_tot","CS_tot","C_tot"),"E.Coli colonized people with rotavirus epidemic, no vaccination")
 
@@ -158,7 +158,7 @@ param<-create_params()
 Init.cond<-create_initial_cond(CSa0=tail(run0$CSa, n = 1),CRa0=tail(run0$CRa, n = 1),CS0=tail(run0$CS, n = 1),
                                CR0=tail(run0$CR, n = 1),IRa0=tail(run0$IRa, n = 1),ISa0=tail(run0$ISa, n = 1))
 run3<-run(Init.cond,param)
-run3_g<-graph(run3,NULL,title="E.Coli Colonization in a Population of 100,000 Individuals \nwith rotavirus epidemic and vaccine coverage at 50%")
+run3_g<-graph(run3,NULL,title="E.Coli Colonization dynamics \nwith rotavirus epidemic and vaccine coverage at 50%")
 propC3<-graph(run3,c("CRa","CSa","CR","CS"),"E.Coli colonized people with rotavirus epidemic and vaccine coverage at 50%")
 CR_CS3<-graph(run3,c("CR_tot","CS_tot","C_tot"),"E.Coli colonized people with rotavirus epidemic and vaccine coverage at 50%")
 tetas<-graph(run3,c("teta","new_teta"),"Parameters teta for E.Coli colonization with 50% of vaccination for rotavirus")
@@ -172,7 +172,7 @@ param<-create_params()
 Init.cond<-create_initial_cond(CSa0=tail(run0$CSa, n = 1),CRa0=tail(run0$CRa, n = 1),CS0=tail(run0$CS, n = 1),
                                CR0=tail(run0$CR, n = 1),IRa0=tail(run0$IRa, n = 1),ISa0=tail(run0$ISa, n = 1))
 run4<-run(Init.cond,param)
-run4_g<-graph(run4,NULL,title="E.Coli Colonization in a Population of 100,000 Individuals \nwith rotavirus epidemic and vaccine coverage at 80%")
+run4_g<-graph(run4,NULL,title="E.Coli Colonization dynamics\nwith rotavirus epidemic and vaccine coverage at 80%")
 propC4<-graph(run4,c("CRa","CSa","CR","CS"),"E.Coli colonized people with rotavirus epidemic and vaccine coverage at 80%")
 CR_CS4<-graph(run4,c("CR_tot","CS_tot","C_tot"),"E.Coli colonized people with rotavirus epidemic and vaccine coverage at 80%")
 
@@ -256,20 +256,16 @@ ggplot(IR_final, aes(x = vacc, y = LastIR)) +
   theme_minimal()
 
 I_final<-merge(IR_final,IS_final,by="vacc")
-I_final<-merge(I_final,IS_IR_final,by="vacc")
-I_final <- pivot_longer(I_final, cols = c(LastIR,LastIS,LastIS_IR), names_to = "Strain", values_to = "Value")
-I_final$Strain <- factor(I_final$Strain, levels = c("LastIS_IR","LastIS","LastIR"))
+I_final <- pivot_longer(I_final, cols = c(LastIR,LastIS), names_to = "Strain", values_to = "Value")
+I_final$Strain <- factor(I_final$Strain, levels = c("LastIS","LastIR"))
 ggplot(I_final, aes(fill=Strain, y=Value, x=vacc)) + 
   geom_bar(position="stack", stat="identity")+
-  scale_fill_manual(name=" ",labels = c("LastIS_IR" = "Total annual Incidence", 
-                               "LastIS" = "Annual Incidence (senstive strain)", 
-                               "LastIR" = "Annual Incidence (resistant strain)"),
-                    values = c("LastIS_IR" = "#00BFC4", 
-                               "LastIS" = "#1F77B4", 
+  scale_fill_manual(name=" ",labels = c("LastIS" = "Annual infection (senstive strain)", 
+                                        "LastIR" = "Annual infection (resistant strain)"),
+                    values = c("LastIS" = "#1F77B4", 
                                "LastIR" = "#E66100")) +
-  labs(title = "Annual Incidence depending on the vaccine coverage", x = "Vaccine coverage", y = "Annual Incidence") +
+  labs(title = "Annual infection depending on the vaccine coverage", x = "Vaccine coverage", y = "Annual IPD") +
   theme_minimal()
-
 
 
 
