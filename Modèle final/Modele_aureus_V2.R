@@ -58,9 +58,9 @@ run<-function(Init.cond,param,Tmax=365,dt=1){
   tot <- sum(result[1, -1])
   proportion <- result
   proportion[ , -1] <- proportion[ , -1] / tot
-  proportion$CR_tot<-proportion$CRa+proportion$CR
-  proportion$CS_tot<-proportion$CSa+proportion$CS
-  proportion$C_tot<-proportion$CR_tot+proportion$CS_tot
+  # proportion$CR_tot<-proportion$CRa+proportion$CR
+  # proportion$CS_tot<-proportion$CSa+proportion$CS
+  # proportion$C_tot<-proportion$CR_tot+proportion$CS_tot
 
   
   return(proportion)
@@ -82,7 +82,7 @@ graph<- function(data,filter_values,title){
             axis.title = element_text(size = 8, face = "bold"),
             legend.text = element_text(size = 6),
             plot.title = element_text(size = 8, face = "bold",hjust = 0.5)) +
-      labs(title=title,x = "Time", y = "Value", colour = "Population:")
+      labs(title=title,x = "Time", y = "Proportion of Individuals", colour = "Population:")
     
     
   }
@@ -96,7 +96,7 @@ graph<- function(data,filter_values,title){
             axis.title = element_text(size = 8, face = "bold"),
             legend.text = element_text(size = 6),
             plot.title = element_text(size = 8, face = "bold",hjust = 0.5)) +
-      labs(title=title,x = "Time", y = "Value", colour = "Population:")
+      labs(title=title,x = "Time", y = "Proportion of Individuals", colour = "Population:")
     
     
   }
@@ -126,7 +126,7 @@ vec_virus=vec_virus_0
 param<-create_params(rhoR=0,rhoS=0)
 Init.cond<-create_initial_cond()
 run0<-run(Init.cond,param)
-run0_g<-graph(run0,NULL,"S.Aureus Colonization in a Population of 100,000 Individuals \nwithout virus épidemics infection")
+run0_g<-graph(run0,NULL,"S.Aureus Colonization dynamics \nwithout virus épidemics infection")
 CR_CS0<-graph(run0,c("CR_tot","CS_tot","C_tot"),"S.Aureus colonized people without a virus epidemic and without IPD")
 
 # pas d'épidémie
@@ -134,7 +134,7 @@ vec_virus=vec_virus_0
 param<-create_params()
 Init.cond<-create_initial_cond()
 run1<-run(Init.cond,param)
-run1_g<-graph(run1,NULL,title="S.Aureus Colonization in a Population of 100,000 Individuals \nwithout virus épidemics")
+run1_g<-graph(run1,NULL,title="S.Aureus Colonization dynamics \nwithout virus épidemics")
 propC1<-graph(run1,c("CRa","CSa","CR","CS"),"S.Aureus colonized people without virus epidemics")
 CR_CS1<-graph(run1,c("CR_tot","CS_tot"),"S.Aureus colonized people without a virus epidemics")
 
@@ -150,7 +150,7 @@ Init.cond<-create_initial_cond(Sa0=tail(run0$Sa, n = 1),CRa0=tail(run0$CRa, n = 
                                IRa0=tail(run0$IRa, n = 1),ISa0=tail(run0$ISa, n = 1),S0=tail(run0$S, n = 1),
                                CR0=tail(run0$CR, n = 1),CS0=tail(run0$CS, n = 1))
 run2<-run(Init.cond,param)
-run2_g<-graph(run2,NULL,title="S.Aureus Colonization in a Population of 100,000 Individuals \nwith influenza epidemic, no vaccination")
+run2_g<-graph(run2,NULL,title="S.Aureus Colonization dynamics \nwith influenza epidemic, no vaccination")
 propC2<-graph(run2,c("CRa","CSa","CR","CS"),"S.Aureus colonized people with influenza epidemic, no vaccination")
 CR_CS2<-graph(run2,c("CR_tot","CS_tot"),"S.Aureus colonized people with influenza epidemic, no vaccination")
 
@@ -162,7 +162,7 @@ Init.cond<-create_initial_cond(Sa0=tail(run0$Sa, n = 1),CRa0=tail(run0$CRa, n = 
                                IRa0=tail(run0$IRa, n = 1),ISa0=tail(run0$ISa, n = 1),S0=tail(run0$S, n = 1),
                                CR0=tail(run0$CR, n = 1),CS0=tail(run0$CS, n = 1))
 run3<-run(Init.cond,param)
-run3_g<-graph(run3,NULL,title="S.Aureus Colonization in a Population of 100,000 Individuals \nwith influenza epidemic and vaccine coverage at 50%")
+run3_g<-graph(run3,NULL,title="S.Aureus Colonization dynamics \nwith influenza epidemic and vaccine coverage at 50%")
 propC3<-graph(run3,c("CRa","CSa","CR","CS"),"S.Aureus colonized people with influenza epidemic and vaccine coverage at 50%")
 CR_CS3<-graph(run3,c("CR_tot","CS_tot"),"S.Aureus colonized people with influenza epidemic and vaccine coverage at 50%")
 tetas<-graph(run3,c("teta","new_teta"),"Parameters teta for S.Aureus colonization with 50% of vaccination for influenza")
@@ -177,7 +177,7 @@ Init.cond<-create_initial_cond(Sa0=tail(run0$Sa, n = 1),CRa0=tail(run0$CRa, n = 
                                IRa0=tail(run0$IRa, n = 1),ISa0=tail(run0$ISa, n = 1),S0=tail(run0$S, n = 1),
                                CR0=tail(run0$CR, n = 1),CS0=tail(run0$CS, n = 1))
 run4<-run(Init.cond,param)
-run4_g<-graph(run4,NULL,title="S.Aureus Colonization in a Population of 100,000 Individuals \nwith influenza epidemic and vaccine coverage at 80%")
+run4_g<-graph(run4,NULL,title="S.Aureus Colonization dynamics \nwith influenza epidemic and vaccine coverage at 80%")
 propC4<-graph(run4,c("CRa","CSa","CR","CS"),"S.Aureus colonized people with influenza epidemic and vaccine coverage at 80%")
 CR_CS4<-graph(run4,c("CR_tot","CS_tot"),"S.Aureus colonized people with influenza epidemic and vaccine coverage at 80%")
 
@@ -290,18 +290,15 @@ heatmap(corr_vacc_ATB,"vacc","ATB","LastIR_relative","vaccine coverage","Antibio
 
 
 I_final<-merge(IR_final,IS_final,by="vacc")
-I_final<-merge(I_final,IS_IR_final,by="vacc")
-I_final <- pivot_longer(I_final, cols = c(LastIR,LastIS,LastIS_IR), names_to = "Strain", values_to = "Value")
-I_final$Strain <- factor(I_final$Strain, levels = c("LastIS_IR","LastIS","LastIR"))
+I_final <- pivot_longer(I_final, cols = c(LastIR,LastIS), names_to = "Strain", values_to = "Value")
+I_final$Strain <- factor(I_final$Strain, levels = c("LastIS","LastIR"))
 ggplot(I_final, aes(fill=Strain, y=Value, x=vacc)) + 
   geom_bar(position="stack", stat="identity")+
-  scale_fill_manual(name=" ",labels = c("LastIS_IR" = "Total annual Incidence", 
-                                        "LastIS" = "Annual Incidence (senstive strain)", 
-                                        "LastIR" = "Annual Incidence (resistant strain)"),
-                    values = c("LastIS_IR" = "#00BFC4", 
-                               "LastIS" = "#1F77B4", 
+  scale_fill_manual(name=" ",labels = c("LastIS" = "Annual infection (senstive strain)", 
+                                        "LastIR" = "Annual infection (resistant strain)"),
+                    values = c("LastIS" = "#1F77B4", 
                                "LastIR" = "#E66100")) +
-  labs(title = "Annual Incidence of infected people depending on the vaccine coverage", x = "Vaccine coverage", y = "Annual Incidence") +
+  labs(title = "Annual infection depending on the vaccine coverage", x = "Vaccine coverage", y = "Annual IPD") +
   theme_minimal()
 
 
@@ -319,7 +316,7 @@ for (i in seq(1,19,by=1)){
     runt$ISIR=runt$ISa+runt$IRa
     LastIRa=runt[["IRa"]][nrow(runt) - 1]
     LastISIR=runt[["ISIR"]][nrow(runt) - 1]
-    LastpropIR=round(LastIRa*100/LastISIR,2)
+    LastpropIR=round(LastIRa*100/LastISIR,digits=0)
     new_row=data.frame(vacc=results_df[i,1], ATB=j, LastISIR,LastpropIR)
     corr_vacc_ATB_ISIR <- bind_rows(corr_vacc_ATB_ISIR, new_row)
     
@@ -331,7 +328,7 @@ for (i in seq(1,19,by=1)){
 
 
 heatmap(corr_vacc_ATB_ISIR,"vacc","ATB","LastISIR","vaccine coverage","Antibiotics",
-        "Total annual incidence \n per 100,000", "Total annual incidence of infected people depending on the vaccine coverage and the proportion of ATB",values=TRUE,var_text="LastpropIR")
+        "Total annual incidence", "Total annual incidence of infected people depending on the vaccine coverage and the proportion of ATB",values=TRUE,var_text="LastpropIR")
 
 df_ISIR_barplot<-data.frame(vacc = numeric(), Incidence=numeric(), propI = numeric())
 new_row=data.frame(vacc=0, Incidence=run2[["IRa"]][nrow(run2) - 1]+run2[["ISa"]][nrow(run2) - 1], 

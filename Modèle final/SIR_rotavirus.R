@@ -36,7 +36,7 @@ create_initial_cond<-function(Sv0=0,Snv0=100000,Iv0=0,Inv0=1,Rv0=0,Rnv0=0){
   c(Sv=Sv0,Snv=Snv0,Iv=Iv0,Inv=Inv0,Rv=Rv0,Rnv=Rnv0)
 }
 
-run<-function(Init.cond,param,Tmax=400,dt=1){
+run<-function(Init.cond,param,Tmax=365,dt=1){
   Time=seq(from=0,to=Tmax,by=dt)
   result = as.data.frame(lsoda(Init.cond, Time, SIR_model_vacc_2, param))
   return(result)
@@ -60,7 +60,7 @@ graph<- function(data,filter_values,title){
             axis.title = element_text(size = 8, face = "bold"),
             legend.text = element_text(size = 6),
             plot.title = element_text(size = 8, face = "bold",hjust = 0.5)) +
-      labs(title=title,x = "Time", y = "Value", colour = "Population:")
+      labs(title=title,x = "Time", y = "Proportion of Individuals", colour = "Population:")
     
     
   }
@@ -74,7 +74,7 @@ graph<- function(data,filter_values,title){
             axis.title = element_text(size = 8, face = "bold"),
             legend.text = element_text(size = 6),
             plot.title = element_text(size = 8, face = "bold",hjust = 0.5)) +
-      labs(title=title,x = "Time", y = "Value", colour = "Population:")
+      labs(title=title,x = "Time", y = "Proportion of Individuals", colour = "Population:")
     
     
   }
@@ -95,7 +95,7 @@ prop_I1=r1%>%
   select(propI)%>%
   pull
 r1$propI<-prop_I1
-propI1_g<-graph(r1,"propI","Cumulative Incidence of Infected Individuals per 100,000 \nwithout Vaccination for Rotavirus")
+propI1_g<-graph(r1,"propI","Proportion od people infected by Rotavirus \nwithout Vaccination for Rotavirus")
 grid.arrange(I_g1,Iv_Inv_g1,ncol=1)
 
 I_vac_0<-approxfun(r1$time,r1%>%
@@ -116,7 +116,7 @@ prop_I2=r2%>%
   select(propI)%>%
   pull
 r2$propI<-prop_I2
-propI2_g<-graph(r2,"propI","Cumulative Incidence of Infected Individuals per 100,000 \nwith 50% Vaccination Coverage for Rotavirus")
+propI2_g<-graph(r2,"propI","Proportion od people infected by Rotavirus \nwith 50% Vaccination Coverage for Rotavirus")
 grid.arrange(I_g2,Iv_Inv_g2,ncol=1)
 
 
@@ -140,7 +140,7 @@ prop_I3=r3%>%
   select(propI)%>%
   pull
 r3$propI<-prop_I3
-propI3_g<-graph(r3,"propI","Cumulative Incidence of Infected Individuals per 100,000 \nwith 80% Vaccination Coverage for Rotavirus")
+propI3_g<-graph(r3,"propI","Proportion od people infected by Rotavirus \nwith 80% Vaccination Coverage for Rotavirus")
 grid.arrange(I_g3,Iv_Inv_g3,ncol=1)
 
 I_vac_80<-approxfun(r3$time,r3%>%
@@ -204,9 +204,9 @@ I_R<-ggplot() +
   geom_line(data=results_df, aes(x=vacc,y=max_propI, colour="Infected people at Epidemic peak"))+
   geom_point(data=results_df, aes(x=vacc,y=last_propR, colour="Annual recovery"))+
   geom_line(data=results_df, aes(x=vacc,y=last_propR, colour="Annual recovery"))+
-  labs(title = "Infected people at Epidemic peak and annual recovery according to vaccination", y = "Population (per 100,000)",
-       x = "Vaccine coverage") +
-  scale_colour_manual(name = " ", values = c("Infected people at Epidemic peak" = "purple", "Annual recovery" = "orange")) +
+  labs(title = "Infected people at Epidemic peak \nand cumulative incidence according to vaccination", y = "Proportion of Individuals",
+       x = "Vaccine coverage",size=6) +
+  scale_colour_manual(name = "Legend", values = c("Infected people at Epidemic peak" = "purple", "Annual recovery" = "orange")) +
   theme_bw()+
   theme(axis.text = element_text(size = 8),
         axis.title = element_text(size = 8, face = "bold"),
@@ -216,3 +216,5 @@ I_R<-ggplot() +
 
 grid.arrange(propI1_g,propI2_g,propI3_g,I_R,ncol=2)
 
+combined_propI<-data.frame(time=seq(from=0,to=365,by=1),no_vaccination=r1$propI,vaccination_50=r2$propI,vaccination_80=r3$propI)
+graph(combined_propI,NULL,"Proportion of People infected by Rotavirus")
