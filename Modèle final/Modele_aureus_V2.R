@@ -16,21 +16,21 @@ Res_model <- function(t, pop, param,vec_virus) {
   with(as.list(c(pop, param)), {
     
     
-    N=Sa+CRa+CSa+IRa+ISa+S+CR+CS
+    N=Sa+CRa+CSa+S+CR+CS
     
     
     new_teta<-teta-log(1-vec_virus(t)*ATB)
     
     
     dSa <- -Sa*((beta*ct*(CRa+IRa+CR)/N)+beta*(CSa+ISa+CS)/N)-omega*Sa+new_teta*S+(gamma+alpha*(1-sigmaR))*CRa+(gamma+alpha*(1-sigmaS))*CSa
-    dCRa <- Sa*(beta*ct*(CRa+IRa+CR)/N)-(gamma+alpha*(1-sigmaR))*CRa-rhoR*CRa-omega*CRa+new_teta*CR
-    dCSa <- Sa*(beta*(CSa+ISa+CS)/N)-(gamma+alpha*(1-sigmaS))*CSa-rhoS*CSa-omega*CSa+new_teta*CS
+    dCRa <- Sa*(beta*ct*(CRa+IRa+CR)/N)-(gamma+alpha*(1-sigmaR))*CRa-omega*CRa+new_teta*CR
+    dCSa <- Sa*(beta*(CSa+ISa+CS)/N)-(gamma+alpha*(1-sigmaS))*CSa-omega*CSa+new_teta*CS
     dIRa <- rhoR*CRa-deltaRa*IRa+rhoR*CR
     dISa <- rhoS*CSa-deltaSa*ISa+rhoS*CS
     
     dS <- -S*((beta*ct*(CRa+IRa+CR)/N)+beta*(CSa+ISa+CS)/N)+omega*Sa-new_teta*S+gamma*CR+gamma*CS+deltaRa*IRa+deltaSa*ISa
-    dCR <- S*(beta*ct*(CRa+IRa+CR)/N)-gamma*CR-rhoR*CR+omega*CRa-new_teta*CR
-    dCS <- S*(beta*(CSa+ISa+CS)/N)-gamma*CS-rhoS*CS+omega*CSa-new_teta*CS
+    dCR <- S*(beta*ct*(CRa+IRa+CR)/N)-gamma*CR+omega*CRa-new_teta*CR
+    dCS <- S*(beta*(CSa+ISa+CS)/N)-gamma*CS+omega*CSa-new_teta*CS
     
     
     res<-c(dSa,dCRa,dCSa,dIRa,dISa,dS,dCR,dCS)
@@ -48,14 +48,14 @@ create_params<-function(beta=1.46*10^-2,ct=0.95,deltaRa=0,deltaSa=0,gamma=1.02*1
   list(beta=beta,ct=ct,deltaRa=deltaRa,deltaSa=deltaSa,gamma=gamma,rhoR=rhoR,rhoS=rhoS,teta=teta,omega=omega,alpha=alpha,sigmaR=sigmaR,sigmaS=sigmaS,ATB=ATB)
 }
 
-create_initial_cond<-function(Sa0=700,CRa0=30,CSa0=270,IRa0=0,ISa0=0,S0=700,CR0=30,CS0=270){
+create_initial_cond<-function(Sa0=100000*0.5*0.7,CRa0=100000*0.5*0.03,CSa0=100000*0.5*0.27,IRa0=0,ISa0=0,S0=100000*0.5*0.7,CR0=100000*0.5*0.03,CS0=100000*0.5*0.27){
   c(Sa=Sa0,CRa=CRa0,CSa=CSa0,IRa=IRa0,ISa=ISa0,S=S0,CR=CR0,CS=CS0)
 }
 
 run<-function(Init.cond,param,Tmax=365,dt=1){
   Time=seq(from=0,to=Tmax,by=dt)
   result = as.data.frame(lsoda(Init.cond, Time, Res_model, param,vec_virus=vec_virus))
-  tot <- sum(result[1, -1])
+  tot <- sum(result[1, !(colnames(result) %in% c("time", "IRa", "ISa","N"))])
   proportion <- result
   proportion[ , -1] <- proportion[ , -1] / tot
   # proportion$CR_tot<-proportion$CRa+proportion$CR
@@ -298,7 +298,7 @@ ggplot(I_final, aes(fill=Strain, y=Value, x=vacc)) +
                                         "LastIR" = "Annual infection (resistant strain)"),
                     values = c("LastIS" = "#1F77B4", 
                                "LastIR" = "#E66100")) +
-  labs(title = "Annual infection depending on the vaccine coverage", x = "Vaccine coverage", y = "Annual IPD") +
+  labs(title = "Annual infections depending on the vaccine coverage", x = "Vaccine coverage", y = "Annual IPD") +
   theme_minimal()
 
 
@@ -370,4 +370,12 @@ ggplot(diff_relative, aes(x = vacc, y = LastIR_diff)) +
   labs(title = "Barplot of people infected depending on the vaccin coverage", x = "Vaccin coverage", y = "Infected people at the end of the season") +
   theme_minimal()
 
+
+tail(run0$Sa, n = 1)*100+tail(run0$S, n = 1)*100
+tail(run0$CRa, n = 1)*100+tail(run0$CR, n = 1)*100
+tail(run0$CSa, n = 1)*100+tail(run0$CS, n = 1)*100
+tail(run0$ISa, n = 1)*100
+tail(run0$IRa, n = 1)*100
+
+tail(run0$Sa, n = 1)*100+tail(run0$CRa, n = 1)*100+tail(run0$CSa, n = 1)*100+tail(run0$ISa, n = 1)*100+tail(run0$IRa, n = 1)*100
 

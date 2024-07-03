@@ -328,29 +328,6 @@ h2<-heatmap(corr_vacc_ATB_ISIR,"vacc","ATB","LastISIR","vaccine coverage","Antib
 
 grid.arrange(h1,h2,ncol=2)
 
-constante<- data.frame(betatest = numeric(),cte = numeric())
-
-for (i in seq(0.03,0.06,by=0.001)){
-  
-    vec_virus=vec_virus_0
-    param<-create_params(beta=i,ct=0.96,rho=0,rhoRa=0,rhoSa=0)
-    Init.cond<-create_initial_cond()
-    run0<-run(Init.cond,param)
-    
-    vec_virus=I_vac_0
-    param<-create_params(beta=i,ct=0.96)
-    Init.cond<-create_initial_cond(Sa0=tail(run0$Sa, n = 1),CRa0=tail(run0$CRa, n = 1),CSa0=tail(run0$CSa, n = 1),
-                                   IRa0=tail(run0$IRa, n = 1),ISa0=tail(run0$ISa, n = 1),S0=tail(run0$S, n = 1),
-                                   CR0=tail(run0$CR, n = 1),CS0=tail(run0$CS, n = 1))
-    runt<-run(Init.cond,param)
-    cte=runt[1,"C_tot"]-min(runt$C_tot,na.rm = TRUE)
-    new_row=data.frame(betatest=i,cte)
-    constante<-bind_rows(constante,new_row)
-    
-    
-  
-  
-}
 
 df_ISIR_barplot<-data.frame(vacc = numeric(), Incidence=numeric(), propI = numeric())
 new_row=data.frame(vacc=0, Incidence=run2[["IRa"]][nrow(run2) - 1]+run2[["ISa"]][nrow(run2) - 1], 
