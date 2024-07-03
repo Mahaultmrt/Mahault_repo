@@ -18,15 +18,15 @@ Res_model <- function(t, pop, param,vec_virus) {
   with(as.list(c(pop, param)), {
     
     
-    N=CSa+CRa+CS+CR+IRa+ISa
+    N=CSa+CRa+CS+CR
     
     
     new_teta<-teta-log(1-vec_virus(t)*ATB)
     
-    dCSa<- - CSa*(beta*ct*phi*(CRa+CR)/N)+(gamma+alpha*(1-sigmaR))*CRa-CSa*omega+new_teta*CS-rhoSa*CSa
-    dCRa<- CSa*(beta*ct*phi*(CRa+CR)/N)-(gamma+alpha*(1-sigmaR))*CRa-CRa*omega+new_teta*CR-rhoRa*CRa
-    dCS<- -CS*(beta*ct*(CRa+CR)/N)+gamma*CR+CSa*omega-new_teta*CS-rho*CS
-    dCR<- CS*(beta*ct*(CRa+CR)/N)-gamma*CR+CRa*omega-new_teta*CR-rho*CR
+    dCSa<- - CSa*(beta*ct*phi*(CRa+CR)/N)+(gamma+alpha*(1-sigmaR))*CRa-CSa*omega+new_teta*CS
+    dCRa<- CSa*(beta*ct*phi*(CRa+CR)/N)-(gamma+alpha*(1-sigmaR))*CRa-CRa*omega+new_teta*CR
+    dCS<- -CS*(beta*ct*(CRa+CR)/N)+gamma*CR+CSa*omega-new_teta*CS
+    dCR<- CS*(beta*ct*(CRa+CR)/N)-gamma*CR+CRa*omega-new_teta*CR
     dIRa<- rhoRa*CRa+rho*CR
     dISa<-rhoSa*CSa+rho*CS
     
@@ -44,14 +44,14 @@ create_params<-function(beta=0.014,ct=0.96,deltaRa=0,deltaSa=0,gamma=0.01,rho=1.
   list(beta=beta,ct=ct,deltaRa=deltaRa,deltaSa=deltaSa,gamma=gamma,rho=rho,rhoRa=rhoRa,rhoSa=rhoSa,teta=teta,omega=omega,alpha=alpha,sigmaR=sigmaR,ATB=ATB,phi=phi)
 }
 
-create_initial_cond<-function(CSa0=800,CRa0=200,CS0=800,CR0=200,IRa0=0,ISa0=0){
+create_initial_cond<-function(CSa0=100000*0.5*0.8,CRa0=100000*0.5*0.2,CS0=100000*0.5*0.8,CR0=100000*0.5*0.2,IRa0=0,ISa0=0){
   c(CSa=CSa0,CRa=CRa0,CS=CS0,CR=CR0,IRa=IRa0,ISa=ISa0)
 }
 
 run<-function(Init.cond,param,Tmax=365,dt=1){
   Time=seq(from=0,to=Tmax,by=dt)
   result = as.data.frame(lsoda(Init.cond, Time, Res_model, param,vec_virus=vec_virus))
-  tot <- sum(result[1, -1])
+  tot <- sum(result[1, !(colnames(result) %in% c("time", "IRa", "ISa","N"))])
   proportion <- result
   proportion[ , -1] <- proportion[ , -1] / tot
   # proportion$CR_tot<-proportion$CRa+proportion$CR
@@ -407,3 +407,11 @@ for (i in seq(1,19,by=1)){
 
 h4<-heatmap(corr_vacc_alpha,"vacc","alphas","LastIR_relative","vaccine coverage","Alpha",
             "Total annual incidence \nof IPD per 100,000", "Total incidence of IPD depending on the vaccine coverage \nand antibiotics clearance",values=FALSE)
+
+
+tail(run0$CRa, n = 1)*100+tail(run0$CR, n = 1)*100
+tail(run0$CSa, n = 1)*100+tail(run0$CS, n = 1)*100
+tail(run0$ISa, n = 1)*100
+tail(run0$IRa, n = 1)*100
+
+tail(run0$CRa, n = 1)*100+tail(run0$CSa, n = 1)*100+tail(run0$ISa, n = 1)*100+tail(run0$IRa, n = 1)*100

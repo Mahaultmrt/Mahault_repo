@@ -90,14 +90,14 @@ Init.cond<-create_initial_cond()
 r1<-run(Init.cond,param)
 r1$Iv_Inv<-r1$Iv+r1$Inv
 r1_g<- graph(r1,NULL,title="Epidemic Dynamics of Influenza per 100,000 Population without vaccination")
-I_g1<-graph(r1,"Iv_Inv", title="Cumulative Incidence of Infected Individuals per 100,000 without vaccination")
+I_g1<-graph(r1,"Iv_Inv", title="Infected Individuals without vaccination")
 Iv_Inv_g1<-graph(r1,c("Iv","Inv"),title="Infected Individuals per 100,000 without vaccination")
 prop_I1=r1%>%
   mutate(propI=Iv_Inv/(Sv+Iv+Rv+Snv+Inv+Rnv))%>%
   select(propI)%>%
   pull
 r1$propI<-prop_I1
-propI1_g<-graph(r1,"propI","Cumulative Incidence of Infected Individuals per 100,000 \nwithout Vaccination for Influenza")
+propI1_g<-graph(r1,"propI","Porpotion of Infected Individuals \nwithout Vaccination for Influenza")
 Incidence1<-graph(r1,"Incidence","Incidence of infected people without vaccination")
 grid.arrange(I_g1,Iv_Inv_g1,ncol=1)
 
@@ -113,8 +113,8 @@ Init.cond<-create_initial_cond(Sv0=99500*0.5,Snv0=99500*0.5)
 r2<-run(Init.cond,param)
 r2$Iv_Inv<-r2$Iv+r2$Inv
 r2_g<- graph(r2,NULL,title="Epidemic Dynamics of Influenza per 100,000 Population with 50% vaccine coverage")
-I_g2<-graph(r2,"Iv_Inv", title="Cumulative Incidence of Infected Individuals per 100,000 with 50% vaccine covergage")
-Iv_Inv_g2<-graph(r2,c("Iv","Inv"),title="Infected Individuals per 100,000 with 50% vaccine coverage")
+I_g2<-graph(r2,"Iv_Inv", title="Infected Individuals with 50% vaccine covergage")
+Iv_Inv_g2<-graph(r2,c("Iv","Inv"),title="Infected Individuals with 50% vaccine coverage")
 prop_I2=r2%>%
   mutate(propI=Iv_Inv/(Sv+Iv+Rv+Snv+Inv+Rnv))%>%
   select(propI)%>%
@@ -136,14 +136,14 @@ Init.cond<-create_initial_cond(Sv0=99500*0.8,Snv0=99500*0.2)
 r3<-run(Init.cond,param)
 r3$Iv_Inv<-r3$Iv+r3$Inv
 r3_g<- graph(r3,NULL,title="Epidemic Dynamics of Influenza per 100,000 Population with 80% vaccine coverage for Influenza")
-I_g3<-graph(r3,"Iv_Inv", title="Cumulative Incidence of Infected Individuals per 100,000 with 80% vaccine covergage")
-Iv_Inv_g3<-graph(r3,c("Iv","Inv"),title="Infected Individuals per 100,000 with 80% vaccine coverage")
+I_g3<-graph(r3,"Iv_Inv", title="Infected Individuals with 80% vaccine covergage")
+Iv_Inv_g3<-graph(r3,c("Iv","Inv"),title="Infected Individuals with 80% vaccine coverage")
 prop_I3=r3%>%
   mutate(propI=Iv_Inv/(Sv+Iv+Rv+Snv+Inv+Rnv))%>%
   select(propI)%>%
   pull
 r3$propI<-prop_I3
-propI3_g<-graph(r3,"propI","Cumulative Incidence of Infected Individuals per 100,000 \nwith 80% vaccine Coverage for Influenza")
+propI3_g<-graph(r3,"propI","Porpotion of Infected Individuals \nwith 80% vaccine Coverage for Influenza")
 Incidence3<-graph(r3,"Incidence","Incidence of infected people \nwith 80% vaccine coverage")
 grid.arrange(I_g3,Iv_Inv_g3,ncol=1)
 
