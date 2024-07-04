@@ -75,10 +75,10 @@ graph<- function(data,filter_values,title){
       ggplot() +
       geom_line(aes(time, value, colour = variable), linewidth = 0.8) +
       theme_bw() +
-      theme(axis.text = element_text(size = 8),
-            axis.title = element_text(size = 8, face = "bold"),
-            legend.text = element_text(size = 6),
-            plot.title = element_text(size = 8, face = "bold",hjust = 0.5)) +
+      theme(axis.text = element_text(size = 12),
+            axis.title = element_text(size = 12, face = "bold"),
+            legend.text = element_text(size = 10),
+            plot.title = element_text(size = 12, face = "bold",hjust = 0.5)) +
       labs(title=title,x = "Time", y = "Proportion of Individuals", colour = "Population:")
     
     
@@ -89,10 +89,10 @@ graph<- function(data,filter_values,title){
       ggplot() +
       geom_line(aes(time, value, colour = variable), linewidth = 0.8) +
       theme_bw() +
-      theme(axis.text = element_text(size = 8),
-            axis.title = element_text(size = 8, face = "bold"),
-            legend.text = element_text(size = 6),
-            plot.title = element_text(size = 8, face = "bold",hjust = 0.5)) +
+      theme(axis.text = element_text(size = 12),
+            axis.title = element_text(size = 12, face = "bold"),
+            legend.text = element_text(size = 10),
+            plot.title = element_text(size = 12, face = "bold",hjust = 0.5)) +
       labs(title=title,x = "Time", y = "Proportion of Individuals", colour = "Population:")
     
     
@@ -264,6 +264,10 @@ ggplot(I_final, aes(fill=Strain, y=Value, x=vacc)) +
                                         "LastIR" = "Annual infection (resistant strain)"),
                     values = c("LastIS" = "#1F77B4", 
                                "LastIR" = "#E66100")) +
+  theme(axis.text = element_text(size = 12),
+        axis.title = element_text(size = 12, face = "bold"),
+        legend.text = element_text(size = 10),
+        plot.title = element_text(size = 12, face = "bold",hjust = 0.5)) +
   labs(title = "Annual infection depending on the vaccine coverage", x = "Vaccine coverage", y = "Annual IPD") +
   theme_minimal()
 

@@ -37,7 +37,7 @@ Res_model <- function(t, pop, param,vec_virus) {
     res<-c(dSa,dCRa,dCSa,dIRa,dISa,dS,dCR,dCS)
 
    
-    list(res)
+    list(res,new_teta=new_teta)
     
   })
   
@@ -79,11 +79,11 @@ graph<- function(data,filter_values,title){
       ggplot() +
       geom_line(aes(time, value, colour = variable), linewidth = 0.8) +
       theme_bw() +
-      theme(axis.text = element_text(size = 8),
-            axis.title = element_text(size = 8, face = "bold"),
-            legend.text = element_text(size = 6),
-            plot.title = element_text(size = 8, face = "bold",hjust = 0.5)) +
-      labs(title=title,x = "Time", y = "Proportion of Individuals", colour = "Population:")
+      theme(axis.text = element_text(size = 12),
+            axis.title = element_text(size = 12, face = "bold"),
+            legend.text = element_text(size = 10),
+            plot.title = element_text(size = 12, face = "bold",hjust = 0.5)) +
+      labs(title=title,x = "Time", y = "Value", colour = "Population:")
     
     
   }
@@ -93,10 +93,10 @@ graph<- function(data,filter_values,title){
       ggplot() +
       geom_line(aes(time, value, colour = variable), linewidth = 0.8) +
       theme_bw() +
-      theme(axis.text = element_text(size = 8),
-            axis.title = element_text(size = 8, face = "bold"),
-            legend.text = element_text(size = 6),
-            plot.title = element_text(size = 8, face = "bold",hjust = 0.5)) +
+      theme(axis.text = element_text(size = 12),
+            axis.title = element_text(size = 12, face = "bold"),
+            legend.text = element_text(size = 10),
+            plot.title = element_text(size = 12, face = "bold",hjust = 0.5)) +
       labs(title=title,x = "Time", y = "Proportion of Individuals", colour = "Population:")
     
     
@@ -113,6 +113,10 @@ heatmap <- function(data, x_var, y_var, fill_var, x_text = NULL, y_text = NULL, 
          x = x_text,
          y = y_text,
          fill = fill_text) +
+    theme(axis.text = element_text(size = 12),
+          axis.title = element_text(size = 12, face = "bold"),
+          legend.text = element_text(size = 10),
+          plot.title = element_text(size = 12, face = "bold",hjust = 0.5)) +
     theme_minimal()
   
   if (values & !is.null(var_text)) {
@@ -295,6 +299,10 @@ ggplot(I_final, aes(fill=Strain, y=Value, x=vacc)) +
                     values = c("LastIS" = "#1F77B4", 
                                "LastIR" = "#E66100")) +
   labs(title = "Annual number of IPDs depending on the vaccine coverage", x = "Vaccine coverage", y = "Annual IPD") +
+  theme(axis.text = element_text(size = 12),
+        axis.title = element_text(size = 12, face = "bold"),
+        legend.text = element_text(size = 10),
+        plot.title = element_text(size = 12, face = "bold",hjust = 0.5)) +
   theme_minimal()
 
 

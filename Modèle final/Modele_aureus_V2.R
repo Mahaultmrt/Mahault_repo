@@ -78,10 +78,10 @@ graph<- function(data,filter_values,title){
       ggplot() +
       geom_line(aes(time, value, colour = variable), linewidth = 0.8) +
       theme_bw() +
-      theme(axis.text = element_text(size = 8),
-            axis.title = element_text(size = 8, face = "bold"),
-            legend.text = element_text(size = 6),
-            plot.title = element_text(size = 8, face = "bold",hjust = 0.5)) +
+      theme(axis.text = element_text(size = 12),
+            axis.title = element_text(size = 12, face = "bold"),
+            legend.text = element_text(size = 10),
+            plot.title = element_text(size = 12, face = "bold",hjust = 0.5)) +
       labs(title=title,x = "Time", y = "Proportion of Individuals", colour = "Population:")
     
     
@@ -92,10 +92,10 @@ graph<- function(data,filter_values,title){
       ggplot() +
       geom_line(aes(time, value, colour = variable), linewidth = 0.8) +
       theme_bw() +
-      theme(axis.text = element_text(size = 8),
-            axis.title = element_text(size = 8, face = "bold"),
-            legend.text = element_text(size = 6),
-            plot.title = element_text(size = 8, face = "bold",hjust = 0.5)) +
+      theme(axis.text = element_text(size = 12),
+            axis.title = element_text(size = 12, face = "bold"),
+            legend.text = element_text(size = 10),
+            plot.title = element_text(size = 12, face = "bold",hjust = 0.5)) +
       labs(title=title,x = "Time", y = "Proportion of Individuals", colour = "Population:")
     
     
@@ -112,6 +112,10 @@ heatmap <- function(data, x_var, y_var, fill_var, x_text = NULL, y_text = NULL, 
          x = x_text,
          y = y_text,
          fill = fill_text) +
+    theme(axis.text = element_text(size = 12),
+          axis.title = element_text(size = 12, face = "bold"),
+          legend.text = element_text(size = 10),
+          plot.title = element_text(size = 12, face = "bold",hjust = 0.5)) +
     theme_minimal()
   
   if (values & !is.null(var_text)) {
@@ -298,7 +302,11 @@ ggplot(I_final, aes(fill=Strain, y=Value, x=vacc)) +
                                         "LastIR" = "Annual infection (resistant strain)"),
                     values = c("LastIS" = "#1F77B4", 
                                "LastIR" = "#E66100")) +
-  labs(title = "Annual infections depending on the vaccine coverage", x = "Vaccine coverage", y = "Annual IPD") +
+  labs(title = "Annual propotion of infection \ndepending on the vaccine coverage", x = "Vaccine coverage", y = "Annual proportion of infection") +
+  theme(axis.text = element_text(size = 12),
+        axis.title = element_text(size = 12, face = "bold"),
+        legend.text = element_text(size = 10),
+        plot.title = element_text(size = 12, face = "bold",hjust = 0.5)) +
   theme_minimal()
 
 
@@ -328,7 +336,7 @@ for (i in seq(1,19,by=1)){
 
 
 heatmap(corr_vacc_ATB_ISIR,"vacc","ATB","LastISIR","vaccine coverage","Antibiotics",
-        "Total annual incidence", "Total annual incidence of infected people depending on the vaccine coverage and the proportion of ATB",values=TRUE,var_text="LastpropIR")
+        "Total annual propotion of infection", "Total annual proportion of infection \ndepending on the vaccine coverage and the proportion of ATB",values=TRUE,var_text="LastpropIR")
 
 df_ISIR_barplot<-data.frame(vacc = numeric(), Incidence=numeric(), propI = numeric())
 new_row=data.frame(vacc=0, Incidence=run2[["IRa"]][nrow(run2) - 1]+run2[["ISa"]][nrow(run2) - 1], 

@@ -59,10 +59,10 @@ graph<- function(data,filter_values,title){
       ggplot() +
       geom_line(aes(time, value, colour = variable), linewidth = 0.8) +
       theme_bw() +
-      theme(axis.text = element_text(size = 8),
-            axis.title = element_text(size = 8, face = "bold"),
-            legend.text = element_text(size = 6),
-            plot.title = element_text(size = 8, face = "bold",hjust = 0.5)) +
+      theme(axis.text = element_text(size = 12),
+            axis.title = element_text(size =12, face = "bold"),
+            legend.text = element_text(size = 10),
+            plot.title = element_text(size = 12, face = "bold",hjust = 0.5)) +
       labs(title=title,x = "Time", y = "Proportion of Individuals", colour = "Population:")
     
     
@@ -73,10 +73,10 @@ graph<- function(data,filter_values,title){
       ggplot() +
       geom_line(aes(time, value, colour = variable), linewidth = 0.8) +
       theme_bw() +
-      theme(axis.text = element_text(size = 8),
-            axis.title = element_text(size = 8, face = "bold"),
-            legend.text = element_text(size = 6),
-            plot.title = element_text(size = 8, face = "bold",hjust = 0.5)) +
+      theme(axis.text = element_text(size = 12),
+            axis.title = element_text(size = 12, face = "bold"),
+            legend.text = element_text(size = 10),
+            plot.title = element_text(size = 12, face = "bold",hjust = 0.5)) +
       labs(title=title,x = "Time", y = "Proportion of Individuals", colour = "Population:")
     
     
@@ -188,16 +188,16 @@ for (i in seq(0.1,1,by=0.05)){
 I_R<-ggplot() +   
   geom_point(data=results_df, aes(x=vacc,y=max_propI,colour="Infected people at Epidemic peak"))+
   geom_line(data=results_df, aes(x=vacc,y=max_propI, colour="Infected people at Epidemic peak"))+
-  geom_point(data=results_df, aes(x=vacc,y=last_propR, colour="Annual recovery"))+
-  geom_line(data=results_df, aes(x=vacc,y=last_propR, colour="Annual recovery"))+
+  geom_point(data=results_df, aes(x=vacc,y=last_propR, colour="Cumulative incidence"))+
+  geom_line(data=results_df, aes(x=vacc,y=last_propR, colour="Cumulative incidence"))+
   labs(title = "Infected people at Epidemic peak \nand cumulative incidence according to vaccination", y = "Proportion of Individuals",
        x = "Vaccine coverage",size=6) +
-  scale_colour_manual(name = "Legend", values = c("Infected people at Epidemic peak" = "purple", "Annual recovery" = "orange")) +
+  scale_colour_manual(name = "Legend", values = c("Infected people at Epidemic peak" = "purple", "Cumulative incidence" = "orange")) +
   theme_bw()+
-  theme(axis.text = element_text(size = 8),
-        axis.title = element_text(size = 8, face = "bold"),
-        legend.text = element_text(size = 6),
-        plot.title = element_text(size = 8, face = "bold",hjust = 0.5))
+  theme(axis.text = element_text(size = 12),
+        axis.title = element_text(size = 12, face = "bold"),
+        legend.text = element_text(size = 10),
+        plot.title = element_text(size = 12, face = "bold",hjust = 0.5))
 
 
 grid.arrange(propI1_g,propI2_g,propI3_g,I_R,ncol=2)
