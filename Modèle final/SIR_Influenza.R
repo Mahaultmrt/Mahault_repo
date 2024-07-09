@@ -63,7 +63,7 @@ graph<- function(data,filter_values,title){
             axis.title = element_text(size =12, face = "bold"),
             legend.text = element_text(size = 10),
             plot.title = element_text(size = 12, face = "bold",hjust = 0.5)) +
-      labs(title=title,x = "Time", y = "Proportion of Individuals", colour = "Population:")
+      labs(title=title,x = "Time (days)", y = "Proportion of Individuals", colour = "Population:")
     
     
   }
@@ -77,7 +77,7 @@ graph<- function(data,filter_values,title){
             axis.title = element_text(size = 12, face = "bold"),
             legend.text = element_text(size = 10),
             plot.title = element_text(size = 12, face = "bold",hjust = 0.5)) +
-      labs(title=title,x = "Time", y = "Proportion of Individuals", colour = "Population:")
+      labs(title=title,x = "Time (days)", y = "Proportion of Individuals", colour = "Population:")
     
     
   }
@@ -206,3 +206,8 @@ combined_propI<-data.frame(time=seq(from=0,to=365,by=1),no_vaccination=r1$propI,
 graph(combined_propI,NULL,"Proportion of People infected by influenza")
 
 grid.arrange(Incidence1,Incidence2,Incidence3,ncol=2)
+
+combined_Incidence<-data.frame(time=seq(from=0,to=365,by=1),no_vaccination=r1$Incidence,vaccination_50=r2$Incidence,vaccination_80=r3$Incidence)
+graph(combined_Incidence,NULL,"Incidence of infected people by influenza")
+
+

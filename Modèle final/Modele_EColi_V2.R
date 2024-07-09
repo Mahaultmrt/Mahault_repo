@@ -39,12 +39,12 @@ Res_model <- function(t, pop, param,vec_virus) {
 }
 
 
-create_params<-function(beta=0.014,ct=0.96,deltaRa=0,deltaSa=0,gamma=0.01,rho=1.8*10^-6,rhoRa=1.8*10^-6,rhoSa=1.8*10^-6,teta=0.0014,omega=0.14, alpha=0.33, sigmaR=1, ATB=0.1,phi=9.83)
+create_params<-function(beta=0.012,ct=0.96,deltaRa=0,deltaSa=0,gamma=0.01,rho=1.8*10^-6,rhoRa=1.8*10^-6,rhoSa=1.8*10^-6,teta=0.0014,omega=0.14, alpha=0.33, sigmaR=1, ATB=0.1,phi=9.83)
 {
   list(beta=beta,ct=ct,deltaRa=deltaRa,deltaSa=deltaSa,gamma=gamma,rho=rho,rhoRa=rhoRa,rhoSa=rhoSa,teta=teta,omega=omega,alpha=alpha,sigmaR=sigmaR,ATB=ATB,phi=phi)
 }
 
-create_initial_cond<-function(CSa0=100000*0.5*0.8,CRa0=100000*0.5*0.2,CS0=100000*0.5*0.8,CR0=100000*0.5*0.2,IRa0=0,ISa0=0){
+create_initial_cond<-function(CSa0=100000*0.01*0.8,CRa0=100000*0.01*0.2,CS0=100000*0.99*0.8,CR0=100000*0.99*0.2,IRa0=0,ISa0=0){
   c(CSa=CSa0,CRa=CRa0,CS=CS0,CR=CR0,IRa=IRa0,ISa=ISa0)
 }
 
@@ -164,7 +164,7 @@ vec_virus=vec_virus_0
 param<-create_params(rho=0,rhoRa=0,rhoSa=0)
 Init.cond<-create_initial_cond()
 run0<-run(Init.cond,param)
-run0_g<-graph(run0,c("CSa","CRa","CS","CR"),"E.Coli Colonization dynamics \nwithout virus épidemics")
+run0_g<-graph(run0,c("CSa","CRa","CS","CR"),"E.Coli Colonization dynamics \nwithout virus epidemics")
 CR_CS0<-graph2(run0,c("CR_tot","CS_tot","C_tot"),"E.Coli colonized people without a virus epidemic and without infection")
 
 

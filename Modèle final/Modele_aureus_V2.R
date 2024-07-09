@@ -7,7 +7,6 @@ library(grid)
 library(gt)
 library(tidyr)
 library(forcats)
-library(DT)
 
 #Code modèle page
 
@@ -43,12 +42,12 @@ Res_model <- function(t, pop, param,vec_virus) {
 }
 
 
-create_params<-function(beta=1.76*10^-2,ct=0.81,deltaRa=0,deltaSa=0,gamma=1.02*10^-2,rhoR=8.22*10^-6,rhoS=1.20*10^-4,teta=0.0014,omega=0.08, alpha=0.33, sigmaR=1,sigmaS=0, ATB=0.1)
+create_params<-function(beta=1.65*10^-2,ct=0.90,deltaRa=0,deltaSa=0,gamma=1.02*10^-2,rhoR=8.22*10^-6,rhoS=1.20*10^-4,teta=0.0014,omega=0.08, alpha=0.33, sigmaR=1,sigmaS=0, ATB=0.1)
 {
   list(beta=beta,ct=ct,deltaRa=deltaRa,deltaSa=deltaSa,gamma=gamma,rhoR=rhoR,rhoS=rhoS,teta=teta,omega=omega,alpha=alpha,sigmaR=sigmaR,sigmaS=sigmaS,ATB=ATB)
 }
 
-create_initial_cond<-function(Sa0=100000*0.5*0.7,CRa0=100000*0.5*0.03,CSa0=100000*0.5*0.27,IRa0=0,ISa0=0,S0=100000*0.5*0.7,CR0=100000*0.5*0.03,CS0=100000*0.5*0.27){
+create_initial_cond<-function(Sa0=100000*0.02*0.7,CRa0=100000*0.02*0.03,CSa0=100000*0.02*0.27,IRa0=0,ISa0=0,S0=100000*0.98*0.7,CR0=100000*0.98*0.03,CS0=100000*0.98*0.27){
   c(Sa=Sa0,CRa=CRa0,CSa=CSa0,IRa=IRa0,ISa=ISa0,S=S0,CR=CR0,CS=CS0)
 }
 
@@ -173,7 +172,7 @@ vec_virus=vec_virus_0
 param<-create_params(rhoR=0,rhoS=0)
 Init.cond<-create_initial_cond()
 run0<-run(Init.cond,param)
-run0_g<-graph(run0,c("Sa","CRa","CSa","S","CR","CS"),"S.Aureus Colonization dynamics \n(without virus épidemic)")
+run0_g<-graph(run0,c("Sa","CRa","CSa","S","CR","CS"),"S.Aureus Colonization dynamics \n(without virus epidemic)")
 CR_CS0<-graph2(run0,c("CR_tot","CS_tot","C_tot"),"S.Aureus colonized people without a virus epidemic and without IPD")
 
 # pas d'épidémie

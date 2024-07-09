@@ -23,15 +23,15 @@ Res_model <- function(t, pop, param,vec_virus) {
     new_teta<-teta-log(1-vec_virus(t)*ATB)
     
     
-    dSa <- -Sa*((beta*ct*(CRa+IRa+CR)/N)+beta*(CSa+ISa+CS)/N)-omega*Sa+new_teta*S+(gamma+alpha*(1-sigmaR))*CRa+(gamma+alpha*(1-sigmaS))*CSa
-    dCRa <- Sa*(beta*ct*(CRa+IRa+CR)/N)-(gamma+alpha*(1-sigmaR))*CRa-omega*CRa+new_teta*CR
-    dCSa <- Sa*(beta*(CSa+ISa+CS)/N)-(gamma+alpha*(1-sigmaS))*CSa-omega*CSa+new_teta*CS
+    dSa <- -Sa*((beta*ct*(CRa+CR)/N)+beta*(CSa+CS)/N)-omega*Sa+new_teta*S+(gamma+alpha*(1-sigmaR))*CRa+(gamma+alpha*(1-sigmaS))*CSa
+    dCRa <- Sa*(beta*ct*(CRa+CR)/N)-(gamma+alpha*(1-sigmaR))*CRa-omega*CRa+new_teta*CR
+    dCSa <- Sa*(beta*(CSa+CS)/N)-(gamma+alpha*(1-sigmaS))*CSa-omega*CSa+new_teta*CS
     dIRa <- rhoRa*CRa-deltaRa*IRa+rho*CR
     dISa <- rhoSa*CSa-deltaSa*ISa+rho*CS
     
-    dS <- -S*((beta*ct*(CRa+IRa+CR)/N)+beta*(CSa+ISa+CS)/N)+omega*Sa-new_teta*S+gamma*CR+gamma*CS+deltaRa*IRa+deltaSa*ISa
-    dCR <- S*(beta*ct*(CRa+IRa+CR)/N)-gamma*CR+omega*CRa-new_teta*CR
-    dCS <- S*(beta*(CSa+ISa+CS)/N)-gamma*CS+omega*CSa-new_teta*CS
+    dS <- -S*((beta*ct*(CRa+CR)/N)+beta*(CSa+CS)/N)+omega*Sa-new_teta*S+gamma*CR+gamma*CS+deltaRa*IRa+deltaSa*ISa
+    dCR <- S*(beta*ct*(CRa+CR)/N)-gamma*CR+omega*CRa-new_teta*CR
+    dCS <- S*(beta*(CSa+CS)/N)-gamma*CS+omega*CSa-new_teta*CS
     
     
     res<-c(dSa,dCRa,dCSa,dIRa,dISa,dS,dCR,dCS)
@@ -49,7 +49,7 @@ create_params<-function(beta=0.065,ct=0.96,deltaRa=0,deltaSa=0,gamma=0.05,rho=3*
   list(beta=beta,ct=ct,deltaRa=deltaRa,deltaSa=deltaSa,gamma=gamma,rho=rho,rhoRa=rhoRa,rhoSa=rhoSa,teta=teta,omega=omega,alpha=alpha,sigmaR=sigmaR,sigmaS=sigmaS,ATB=ATB)
 }
 
-create_initial_cond<-function(Sa0=100000*0.5*0.8,CRa0=100000*0.5*0.04,CSa0=100000*0.5*0.16,IRa0=0,ISa0=0,S0=100000*0.5*0.8,CR0=100000*0.5*0.04,CS0=100000*0.5*0.16){
+create_initial_cond<-function(Sa0=100000*0.02*0.8,CRa0=100000*0.02*0.04,CSa0=100000*0.02*0.16,IRa0=0,ISa0=0,S0=100000*0.98*0.8,CR0=100000*0.98*0.04,CS0=100000*0.98*0.16){
   c(Sa=Sa0,CRa=CRa0,CSa=CSa0,IRa=IRa0,ISa=ISa0,S=S0,CR=CR0,CS=CS0)
 }
 
@@ -174,7 +174,7 @@ vec_virus=vec_virus_0
 param<-create_params(rho=0,rhoRa=0,rhoSa=0)
 Init.cond<-create_initial_cond()
 run0<-run(Init.cond,param)
-run0_g<-graph(run0,c("Sa","CRa","CSa","S","CR","CS"),"S.Pneumoniae Colonization dynamics \n(without virus épidemic)")
+run0_g<-graph(run0,c("Sa","CRa","CSa","S","CR","CS"),"S.Pneumoniae Colonization dynamics \n(without virus epidemic)")
 CR_CS0<-graph2(run0,c("CR_tot","CS_tot","C_tot"),"S.Pneumoniae colonized people without a virus epidemic and without IPD")
 
 #Pas d'épidémie pas de vaccination et infection
@@ -212,7 +212,7 @@ run3<-run(Init.cond,param)
 run3_g<-graph(run3,NULL,title="S.Pneumoniae Colonization dynamics \nwith influenza epidemic and vaccine coverage at 50%")
 propC3<-graph(run3,c("CRa","CSa","CR","CS"),"S.Pneumoniae colonized people with influenza epidemic and vaccine coverage at 50%")
 CR_CS3<-graph2(run3,c("CR_tot","CS_tot","C_tot"),"S.Pneumoniae colonized peoplewith influenza epidemic and vaccine coverage at 50%")
-tetas<-graph2(run3,c("teta","new_teta"),"Parameters teta for S.pneumonia colonization with 50% of vaccination for influenza")
+tetas<-graph2(run3,c("teta","new_teta"),"Parameter teta for S.pneumonia colonization with 50% of vaccination for influenza")
 
 
 # Epidémie de grippe mais vaccination 80%
@@ -463,7 +463,7 @@ all_graph <- ggplot(all_run, aes(x = time, y = value, colour = variable)) +
         axis.title = element_text(size = 12, face = "bold"),
         legend.text = element_text(size = 10),
         plot.title = element_text(size = 12, face = "bold", hjust = 0.5))+
-  labs(title = "S.Pneumoniae Colonization dynamics", x = "Time", y = "Proportion of Individuals", colour = "Population:") +
+  labs(title = "S.Pneumoniae Colonization dynamics", x = "Time (days)", y = "Proportion of Individuals", colour = "Population:") +
   facet_grid(. ~ vaccination) + 
   scale_color_manual(values = color_values)+
   theme_bw() 
