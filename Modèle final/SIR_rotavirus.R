@@ -63,7 +63,7 @@ graph<- function(data,filter_values,title){
             axis.title = element_text(size = 12, face = "bold"),
             legend.text = element_text(size = 10),
             plot.title = element_text(size = 12, face = "bold",hjust = 0.5)) +
-      labs(title=title,x = "Time", y = "Proportion of Individuals", colour = "Population:")
+      labs(title=title,x = "Time (days)", y = "Proportion of Individuals", colour = "Population:")
     
     
   }
@@ -77,7 +77,7 @@ graph<- function(data,filter_values,title){
             axis.title = element_text(size = 12, face = "bold"),
             legend.text = element_text(size = 10),
             plot.title = element_text(size = 12, face = "bold",hjust = 0.5)) +
-      labs(title=title,x = "Time", y = "Proportion of Individuals", colour = "Population:")
+      labs(title=title,x = "Time (days)", y = "Proportion of Individuals", colour = "Population:")
     
     
   }
