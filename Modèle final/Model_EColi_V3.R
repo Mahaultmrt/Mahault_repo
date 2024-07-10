@@ -99,7 +99,7 @@ grid.arrange(run0_g,run2_g,run3_g,run4_g,ncol=2)
 
 IR_final <- data.frame(vacc = numeric(), LastIR = numeric())
 IS_final<- data.frame(vacc = numeric(), LastIS = numeric())
-for (i in seq(1,19,by=1)){
+for (i in seq(1,21,by=1)){
   
   vec_virus=I_vac[[i]]
   param<-create_params()
@@ -124,35 +124,6 @@ I_final <- pivot_longer(I_final, cols = c(LastIR,LastIS), names_to = "Strain", v
 I_final$Strain <- factor(I_final$Strain, levels = c("LastIS","LastIR"))
 
 Cumulative_incidence<-graph_barplot(I_final)
-
-
-corr_vacc_ATB_ISIR<- data.frame(vacc = numeric(), ATB=numeric(), LastISIR = numeric(), LastpropIR=numeric())
-for (i in seq(1,19,by=1)){
-  for(j in seq(0.1,0.5,by=0.1)){
-    
-    vec_virus=I_vac[[i]]
-    param<-create_params(ATB=j)
-    Init.cond<-create_initial_cond(CRa0=tail(run0$CRa, n = 1),CSa0=tail(run0$CSa, n = 1),
-                                   IRa0=tail(run0$IRa, n = 1),ISa0=tail(run0$ISa, n = 1),
-                                   CR0=tail(run0$CR, n = 1),CS0=tail(run0$CS, n = 1))
-    runt<-run(Init.cond,param)
-    runt$ISIR=runt$ISa+runt$IRa
-    LastIRa=runt[["IRa"]][nrow(runt) - 1]
-    LastISIR=runt[["ISIR"]][nrow(runt) - 1]
-    LastpropIR=round(LastIRa*100/LastISIR,2)
-    new_row=data.frame(vacc=results_df[i,1], ATB=j, LastISIR,LastpropIR)
-    corr_vacc_ATB_ISIR <- bind_rows(corr_vacc_ATB_ISIR, new_row)
-    
-    
-    
-  }
-  
-}
-
-
-h1<-heatmap(corr_vacc_ATB_ISIR,"vacc","ATB","LastISIR","vaccine coverage","Antibiotics",
-        "Total annual incidence \n per 100,000", "Total IPD incidence depending on the vaccine coverage and the proportion of ATB",values=TRUE,var_text="LastpropIR")
-
 
 
 data0<-percentage_final(run0)

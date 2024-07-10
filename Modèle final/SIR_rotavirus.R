@@ -147,7 +147,7 @@ grid.arrange(I_g1,I_g2,I_g3,ncol=2)
 
 results_df <- data.frame(vacc = numeric(), Max_I = numeric())
 I_vac<-list()
-for (i in seq(0.1,1,by=0.05)){
+for (i in seq(0,1,by=0.05)){
   param<-create_params()
   Init.cond<-create_initial_cond(Sv0=1000*i,Snv0=1000*(1-i))
   r<-run(Init.cond,param)

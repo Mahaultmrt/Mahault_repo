@@ -93,7 +93,7 @@ grid.arrange(run0_g,run2_g,run3_g,run4_g,ncol=2)
 
 IR_final <- data.frame(vacc = numeric(), LastIR = numeric())
 IS_final<- data.frame(vacc = numeric(), LastIS = numeric())
-for (i in seq(1,19,by=1)){
+for (i in seq(1,21,by=1)){
   
   vec_virus=I_vac[[i]]
   param<-create_params()
@@ -120,7 +120,7 @@ Cumulative_incidence<-graph_barplot(I_final)
 
 
 corr_vacc_ATB_ISIR<- data.frame(vacc = numeric(), ATB=numeric(), LastISIR = numeric(), LastpropIR=numeric())
-for (i in seq(1,19,by=1)){
+for (i in seq(1,21,by=1)){
   for(j in seq(0,0.5,by=0.1)){
     
     vec_virus=I_vac[[i]]
@@ -167,3 +167,30 @@ res_graphs<-all_graph(all_run,NULL)+
   geom_hline(yintercept=tail(run0$S, n = 1), linetype="dashed",color="#68CF33",alpha=0.5)+
   geom_hline(yintercept=tail(run0$CR, n = 1), linetype="dashed",color="#FC7E00",alpha=0.5)+
   geom_hline(yintercept=tail(run0$CS, n = 1), linetype="dashed",color="#2B9CFF",alpha=0.5)
+
+
+diff<- data.frame(vacc = numeric(), diffIR=numeric(), diffIS = numeric())
+for (i in seq(1,21,by=1)){
+
+  diffIR=(IR_final$LastIR[i+1]-IR_final$LastIR[1])
+  diffIS=(IS_final$LastIS[i+1]-IS_final$LastIS[1])
+  new_row=data.frame(vacc=results_df[i,1], diffIR, diffIS)
+  diff <- bind_rows(diff, new_row)
+
+  
+}
+
+
+ggplot() +   
+  geom_point(data=diff, aes(x=vacc,y=diffIR,colour="difference in cumulative infection (resistant strain)"))+
+  geom_line(data=diff, aes(x=vacc,y=diffIR,colour="difference in cumulative infection (resistant strain)"))+
+  geom_point(data=diff, aes(x=vacc,y=diffIS, colour="difference in cumulative infection (sensitive strain)"))+
+  geom_line(data=diff, aes(x=vacc,y=diffIS, colour="difference in cumulative infection (sensitive strain)"))+
+  labs(title = "Difference in cumulative infection depending on vaccine coverage \ncompared with baseline value", y = "Value",
+       x = "Vaccine coverage",size=6) +
+  scale_colour_manual(name = "Legend", values = c("difference in cumulative infection (resistant strain)" = "#BD5E00", "difference in cumulative infection (sensitive strain)" = "#163F9E")) +
+  theme_bw()+
+  theme(axis.text = element_text(size = 12),
+        axis.title = element_text(size = 12, face = "bold"),
+        legend.text = element_text(size = 10),
+        plot.title = element_text(size = 12, face = "bold",hjust = 0.5))
