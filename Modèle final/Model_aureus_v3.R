@@ -101,7 +101,7 @@ grid.arrange(run0_g,run2_g,run3_g,run4_g,ncol=2)
 
 IR_final <- data.frame(vacc = numeric(), LastIR = numeric())
 IS_final<- data.frame(vacc = numeric(), LastIS = numeric())
-for (i in seq(1,19,by=1)){
+for (i in seq(1,21,by=1)){
   
   vec_virus=I_vac[[i]]
   param<-create_params()
@@ -129,7 +129,7 @@ Cumulative_incidence<-graph_barplot(I_final)
 
 
 corr_vacc_ATB_ISIR<- data.frame(vacc = numeric(), ATB=numeric(), LastISIR = numeric(), LastpropIR=numeric())
-for (i in seq(1,19,by=1)){
+for (i in seq(1,21,by=1)){
   for(j in seq(0,0.5,by=0.1)){
     
     vec_virus=I_vac[[i]]
