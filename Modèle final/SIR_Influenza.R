@@ -47,58 +47,21 @@ run<-function(Init.cond,param,Tmax=365,dt=1){
 }
 
 
-graph<- function(data,filter_values,title){
-  #data_name<-as.character(substitute(data))
-  
-  
-  if(!is.null(filter_values))
-  {
-    p<-data %>%
-      melt(id = "time") %>%
-      filter(variable %in% filter_values) %>%
-      ggplot() +
-      geom_line(aes(time, value, colour = variable), linewidth = 0.8) +
-      theme_bw() +
-      theme(axis.text = element_text(size = 12),
-            axis.title = element_text(size =12, face = "bold"),
-            legend.text = element_text(size = 10),
-            plot.title = element_text(size = 12, face = "bold",hjust = 0.5)) +
-      labs(title=title,x = "Time (days)", y = "Proportion of Individuals", colour = "Population:")
-    
-    
-  }
-  else{
-    p<-data %>%
-      melt(id = "time") %>%
-      ggplot() +
-      geom_line(aes(time, value, colour = variable), linewidth = 0.8) +
-      theme_bw() +
-      theme(axis.text = element_text(size = 12),
-            axis.title = element_text(size = 12, face = "bold"),
-            legend.text = element_text(size = 10),
-            plot.title = element_text(size = 12, face = "bold",hjust = 0.5)) +
-      labs(title=title,x = "Time (days)", y = "Proportion of Individuals", colour = "Population:")
-    
-    
-  }
-  
-  return(p)
-}
 #pas de vaccination
 param<-create_params()
 Init.cond<-create_initial_cond()
 r1<-run(Init.cond,param)
 r1$Iv_Inv<-r1$Iv+r1$Inv
-r1_g<- graph(r1,NULL,title="Epidemic Dynamics of Influenza per 100,000 Population without vaccination")
-I_g1<-graph(r1,"Iv_Inv", title="Infected Individuals without vaccination")
-Iv_Inv_g1<-graph(r1,c("Iv","Inv"),title="Infected Individuals per 100,000 without vaccination")
+r1_g<- graph2(r1,NULL,title="Epidemic Dynamics of Influenza per 100,000 Population without vaccination")
+I_g1<-graph2(r1,"Iv_Inv", title="Infected Individuals without vaccination")
+Iv_Inv_g1<-graph2(r1,c("Iv","Inv"),title="Infected Individuals per 100,000 without vaccination")
 prop_I1=r1%>%
   mutate(propI=Iv_Inv/(Sv+Iv+Rv+Snv+Inv+Rnv))%>%
   select(propI)%>%
   pull
 r1$propI<-prop_I1
-propI1_g<-graph(r1,"propI","Porpotion of Infected Individuals \nwithout Vaccination for Influenza")
-Incidence1<-graph(r1,"Incidence","Incidence of infected people without vaccination")
+propI1_g<-graph2(r1,"propI","Porpotion of Infected Individuals \nwithout Vaccination for Influenza")
+Incidence1<-graph2(r1,"Incidence","Incidence of infected people without vaccination")
 grid.arrange(I_g1,Iv_Inv_g1,ncol=1)
 
 
@@ -112,16 +75,16 @@ param<-create_params()
 Init.cond<-create_initial_cond(Sv0=99500*0.5,Snv0=99500*0.5)
 r2<-run(Init.cond,param)
 r2$Iv_Inv<-r2$Iv+r2$Inv
-r2_g<- graph(r2,NULL,title="Epidemic Dynamics of Influenza per 100,000 Population with 50% vaccine coverage")
-I_g2<-graph(r2,"Iv_Inv", title="Infected Individuals with 50% vaccine covergage")
-Iv_Inv_g2<-graph(r2,c("Iv","Inv"),title="Infected Individuals with 50% vaccine coverage")
+r2_g<- graph2(r2,NULL,title="Epidemic Dynamics of Influenza per 100,000 Population with 50% vaccine coverage")
+I_g2<-graph2(r2,"Iv_Inv", title="Infected Individuals with 50% vaccine covergage")
+Iv_Inv_g2<-graph2(r2,c("Iv","Inv"),title="Infected Individuals with 50% vaccine coverage")
 prop_I2=r2%>%
   mutate(propI=Iv_Inv/(Sv+Iv+Rv+Snv+Inv+Rnv))%>%
   select(propI)%>%
   pull
 r2$propI<-prop_I2
-propI2_g<-graph(r2,"propI","Proportion of People infected by Influenza with 50% vaccine Coverage")
-Incidence2<-graph(r2,"Incidence","Incidence of infected people \nwith 50% vaccine coverage")
+propI2_g<-graph2(r2,"propI","Proportion of People infected by Influenza with 50% vaccine Coverage")
+Incidence2<-graph2(r2,"Incidence","Incidence of infected people \nwith 50% vaccine coverage")
 grid.arrange(I_g2,Iv_Inv_g2,ncol=1)
 
 
@@ -135,16 +98,16 @@ param<-create_params()
 Init.cond<-create_initial_cond(Sv0=99500*0.8,Snv0=99500*0.2)
 r3<-run(Init.cond,param)
 r3$Iv_Inv<-r3$Iv+r3$Inv
-r3_g<- graph(r3,NULL,title="Epidemic Dynamics of Influenza per 100,000 Population with 80% vaccine coverage for Influenza")
-I_g3<-graph(r3,"Iv_Inv", title="Infected Individuals with 80% vaccine covergage")
-Iv_Inv_g3<-graph(r3,c("Iv","Inv"),title="Infected Individuals with 80% vaccine coverage")
+r3_g<- graph2(r3,NULL,title="Epidemic Dynamics of Influenza per 100,000 Population with 80% vaccine coverage for Influenza")
+I_g3<-graph2(r3,"Iv_Inv", title="Infected Individuals with 80% vaccine covergage")
+Iv_Inv_g3<-graph2(r3,c("Iv","Inv"),title="Infected Individuals with 80% vaccine coverage")
 prop_I3=r3%>%
   mutate(propI=Iv_Inv/(Sv+Iv+Rv+Snv+Inv+Rnv))%>%
   select(propI)%>%
   pull
 r3$propI<-prop_I3
-propI3_g<-graph(r3,"propI","Porpotion of Infected Individuals \nwith 80% vaccine Coverage for Influenza")
-Incidence3<-graph(r3,"Incidence","Incidence of infected people \nwith 80% vaccine coverage")
+propI3_g<-graph2(r3,"propI","Porpotion of Infected Individuals \nwith 80% vaccine Coverage for Influenza")
+Incidence3<-graph2(r3,"Incidence","Incidence of infected people \nwith 80% vaccine coverage")
 grid.arrange(I_g3,Iv_Inv_g3,ncol=1)
 
 I_vac_80<-approxfun(r3$time,r3%>%
@@ -203,11 +166,11 @@ I_R<-ggplot() +
 grid.arrange(propI1_g,propI2_g,propI3_g,I_R,ncol=2)
 
 combined_propI<-data.frame(time=seq(from=0,to=365,by=1),no_vaccination=r1$propI,vaccination_50=r2$propI,vaccination_80=r3$propI)
-graph(combined_propI,NULL,"Proportion of People infected by influenza")
+graph2(combined_propI,NULL,"Proportion of People infected by influenza")
 
 grid.arrange(Incidence1,Incidence2,Incidence3,ncol=2)
 
 combined_Incidence<-data.frame(time=seq(from=0,to=365,by=1),no_vaccination=r1$Incidence,vaccination_50=r2$Incidence,vaccination_80=r3$Incidence)
-graph(combined_Incidence,NULL,"Incidence of infected people by influenza")
+graph2(combined_Incidence,NULL,"Incidence of infected people by influenza")
 
 
