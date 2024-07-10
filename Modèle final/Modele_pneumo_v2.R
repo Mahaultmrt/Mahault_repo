@@ -148,7 +148,7 @@ graph2<- function(data,filter_values,title){
   return(p)
 }
 
-heatmap <- function(data, x_var, y_var, fill_var, x_text = NULL, y_text = NULL, fill_text = NULL, title = NULL, low_col = "#377eb8", high_col = "#e41a1c", values = FALSE, var_text = NULL) {
+heatmap <- function(data, x_var, y_var, fill_var, x_text = NULL, y_text = NULL, fill_text = NULL, title = NULL, low_col = "#B39DDB", high_col = "#4B0082", values = FALSE, var_text = NULL) {
   graph <- ggplot(data, aes_string(x = x_var, y = y_var, fill = fill_var)) +
     geom_tile(color = "black") +
     scale_fill_gradient(low = low_col, high = high_col) +
@@ -163,7 +163,7 @@ heatmap <- function(data, x_var, y_var, fill_var, x_text = NULL, y_text = NULL, 
     theme_minimal()
   
   if (values & !is.null(var_text)) {
-    graph <- graph + geom_text(aes_string(label = var_text), color = "white", size = 3)
+    graph <- graph + geom_text(aes_string(label = var_text), color = "#FFB347", fontface="bold", size = 3)
   }
   
   return(graph)
@@ -335,7 +335,7 @@ ggplot(I_final, aes(fill=Strain, y=Value, x=vacc)) +
 
 corr_vacc_ATB_ISIR<- data.frame(vacc = numeric(), ATB=numeric(), LastISIR = numeric(), LastpropIR=numeric())
 for (i in seq(1,19,by=1)){
-  for(j in seq(0.1,0.5,by=0.1)){
+  for(j in seq(0,0.5,by=0.1)){
     
     vec_virus=I_vac[[i]]
     param<-create_params(ATB=j)
