@@ -75,7 +75,7 @@ run3<-run(Init.cond,param)
 run3_g<-graph(run3,NULL,title="S.Pneumoniae Colonization dynamics \nwith influenza epidemic and vaccine coverage at 50%")
 propC3<-graph(run3,c("CRa","CSa","CR","CS"),"S.Pneumoniae colonized people with influenza epidemic and vaccine coverage at 50%")
 CR_CS3<-graph2(run3,c("CR_tot","CS_tot","C_tot"),"S.Pneumoniae colonized peoplewith influenza epidemic and vaccine coverage at 50%")
-tetas<-graph2(run3,c("teta","new_teta"),"Parameter teta for S.pneumonia colonization with 50% of vaccination for influenza")
+tetas<-graph3(run3,c("teta","new_teta"),"Parameter teta for S.pneumonia colonization with 50% of vaccination for influenza")
 
 
 # Epidémie de grippe mais vaccination 80%
@@ -181,16 +181,5 @@ for (i in seq(1,21,by=1)){
 }
 
 
-ggplot() +   
-  geom_point(data=diff, aes(x=vacc,y=diffIR,colour="difference in cumulative infection (resistant strain)"))+
-  geom_line(data=diff, aes(x=vacc,y=diffIR,colour="difference in cumulative infection (resistant strain)"))+
-  geom_point(data=diff, aes(x=vacc,y=diffIS, colour="difference in cumulative infection (sensitive strain)"))+
-  geom_line(data=diff, aes(x=vacc,y=diffIS, colour="difference in cumulative infection (sensitive strain)"))+
-  labs(title = "Difference in cumulative infection depending on vaccine coverage \ncompared with baseline value", y = "Value",
-       x = "Vaccine coverage",size=6) +
-  scale_colour_manual(name = "Legend", values = c("difference in cumulative infection (resistant strain)" = "#BD5E00", "difference in cumulative infection (sensitive strain)" = "#163F9E")) +
-  theme_bw()+
-  theme(axis.text = element_text(size = 12),
-        axis.title = element_text(size = 12, face = "bold"),
-        legend.text = element_text(size = 10),
-        plot.title = element_text(size = 12, face = "bold",hjust = 0.5))
+
+diff_graph(diff)

@@ -41,7 +41,7 @@ create_initial_cond<-function(Sv0=0,Snv0=99500,Iv0=0,Inv0=500,Rv0=0,Rnv0=0){
 run<-function(Init.cond,param,Tmax=365,dt=1){
   Time=seq(from=0,to=Tmax,by=dt)
   result = as.data.frame(lsoda(Init.cond, Time, SIR_model_vacc_2, param))
-  result$Incidence<-result$Incidence/100000
+  #result$Incidence<-result$Incidence/100000
   return(result)
   
 }
@@ -67,7 +67,7 @@ grid.arrange(I_g1,Iv_Inv_g1,ncol=1)
 
 I_vac_0<-approxfun(r1$time,r1%>%
                         mutate(propInc=Incidence/(Sv+Iv+Rv+Snv+Inv+Rnv))%>%
-                        select(propI)%>%
+                        select(propInc)%>%
                         pull)
 
 # vaccination 50%
@@ -90,7 +90,7 @@ grid.arrange(I_g2,Iv_Inv_g2,ncol=1)
 
 I_vac_50<-approxfun(r2$time,r2%>%
                      mutate(propInc=Incidence/(Sv+Iv+Rv+Snv+Inv+Rnv))%>%
-                     select(propI)%>%
+                     select(propInc)%>%
                      pull)
 
 # vaccination 80%
@@ -112,7 +112,7 @@ grid.arrange(I_g3,Iv_Inv_g3,ncol=1)
 
 I_vac_80<-approxfun(r3$time,r3%>%
                       mutate(propInc=Incidence/(Sv+Iv+Rv+Snv+Inv+Rnv))%>%
-                      select(propI)%>%
+                      select(propInc)%>%
                       pull)
 
 grid.arrange(I_g3,Iv_Inv_g3,ncol=1)
@@ -134,6 +134,10 @@ for (i in seq(0,1,by=0.05)){
     mutate(propI=Iv_Inv/(Sv+Iv+Rv+Snv+Inv+Rnv))%>%
     select(propI)%>%
     pull
+  prop_Inc=r%>%
+    mutate(prop_Inc=Incidence/(Sv+Iv+Rv+Snv+Inv+Rnv))%>%
+    select(prop_Inc)%>%
+    pull
   max_propI=max(prop_I,na.rm=TRUE)
   prop_R<-r%>%
     mutate(propR=Rv_Rnv/(Sv+Iv+Rv+Snv+Inv+Rnv))%>%
@@ -142,35 +146,17 @@ for (i in seq(0,1,by=0.05)){
   last_propR=tail(prop_R, n = 1)
   new_row=data.frame(vacc=i, max_propI,last_propR, n = 1)
   results_df <- bind_rows(results_df, new_row)
-  virus<-approxfun(r$time,prop_I)
+  virus<-approxfun(r$time,prop_Inc)
   I_vac<-append(I_vac,virus)
  
 
 }
 
-I_R<-ggplot() +   
-  geom_point(data=results_df, aes(x=vacc,y=max_propI,colour="Infected people at Epidemic peak"))+
-  geom_line(data=results_df, aes(x=vacc,y=max_propI, colour="Infected people at Epidemic peak"))+
-  geom_point(data=results_df, aes(x=vacc,y=last_propR, colour="Cumulative incidence"))+
-  geom_line(data=results_df, aes(x=vacc,y=last_propR, colour="Cumulative incidence"))+
-  labs(title = "Infected people at Epidemic peak \nand cumulative incidence according to vaccination", y = "Proportion of Individuals",
-       x = "Vaccine coverage",size=6) +
-  scale_colour_manual(name = "Legend", values = c("Infected people at Epidemic peak" = "purple", "Cumulative incidence" = "orange")) +
-  theme_bw()+
-  theme(axis.text = element_text(size = 12),
-        axis.title = element_text(size = 12, face = "bold"),
-        legend.text = element_text(size = 10),
-        plot.title = element_text(size = 12, face = "bold",hjust = 0.5))
 
+I_R<-graph_I_R(results_df)
+  
 
-grid.arrange(propI1_g,propI2_g,propI3_g,I_R,ncol=2)
-
-combined_propI<-data.frame(time=seq(from=0,to=365,by=1),no_vaccination=r1$propI,vaccination_50=r2$propI,vaccination_80=r3$propI)
-graph2(combined_propI,NULL,"Proportion of People infected by influenza")
-
-grid.arrange(Incidence1,Incidence2,Incidence3,ncol=2)
-
-combined_Incidence<-data.frame(time=seq(from=0,to=365,by=1),no_vaccination=r1$Incidence,vaccination_50=r2$Incidence,vaccination_80=r3$Incidence)
+combined_Incidence<-data.frame(time=seq(from=0,to=365,by=1),no_vaccination=r1$Incidence/100000,vaccination_50=r2$Incidence/100000,vaccination_80=r3$Incidence/100000)
 graph2(combined_Incidence,NULL,"Incidence of infected people by influenza")
 
 
