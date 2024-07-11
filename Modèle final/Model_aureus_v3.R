@@ -176,3 +176,17 @@ res_graphs<-all_graph(all_run,NULL)+
   geom_hline(yintercept=tail(run0$S, n = 1), linetype="dashed",color="#68CF33",alpha=0.5)+
   geom_hline(yintercept=tail(run0$CR, n = 1), linetype="dashed",color="#FC7E00",alpha=0.5)+
   geom_hline(yintercept=tail(run0$CS, n = 1), linetype="dashed",color="#2B9CFF",alpha=0.5)
+
+
+diff<- data.frame(vacc = numeric(), diffIR=numeric(), diffIS = numeric())
+for (i in seq(1,21,by=1)){
+  
+  diffIR=(IR_final$LastIR[i+1]-IR_final$LastIR[1])
+  diffIS=(IS_final$LastIS[i+1]-IS_final$LastIS[1])
+  new_row=data.frame(vacc=results_df[i,1], diffIR, diffIS)
+  diff <- bind_rows(diff, new_row)
+  
+  
+}
+
+diff_graph(diff)

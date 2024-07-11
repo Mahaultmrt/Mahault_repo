@@ -77,7 +77,7 @@ run3<-run(Init.cond,param)
 run3_g<-graph(run3,NULL,title="E.Coli Colonization dynamics \nwith rotavirus epidemic and vaccine coverage at 50%")
 propC3<-graph(run3,c("CRa","CSa","CR","CS"),"E.Coli colonized people with rotavirus epidemic and vaccine coverage at 50%")
 CR_CS3<-graph2(run3,c("CR_tot","CS_tot","C_tot"),"E.Coli colonized people with rotavirus epidemic and vaccine coverage at 50%")
-tetas<-graph2(run3,c("teta","new_teta"),"Parameters teta for E.Coli colonization with 50% of vaccination for rotavirus")
+tetas<-graph3(run3,c("teta","new_teta"),"Parameters teta for E.Coli colonization with 50% of vaccination for rotavirus")
 
 
 
@@ -143,3 +143,17 @@ res_graphs<-all_graph(all_run,NULL)+
   geom_hline(yintercept=tail(run0$ISa, n = 1), linetype="dashed",color="#163F9E",alpha=0.5)+
   geom_hline(yintercept=tail(run0$CR, n = 1), linetype="dashed",color="#FC7E00",alpha=0.5)+
   geom_hline(yintercept=tail(run0$CS, n = 1), linetype="dashed",color="#2B9CFF",alpha=0.5)
+
+
+diff<- data.frame(vacc = numeric(), diffIR=numeric(), diffIS = numeric())
+for (i in seq(1,21,by=1)){
+  
+  diffIR=(IR_final$LastIR[i+1]-IR_final$LastIR[1])
+  diffIS=(IS_final$LastIS[i+1]-IS_final$LastIS[1])
+  new_row=data.frame(vacc=results_df[i,1], diffIR, diffIS)
+  diff <- bind_rows(diff, new_row)
+  
+  
+}
+
+diff_graph(diff)

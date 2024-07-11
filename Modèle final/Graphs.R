@@ -1,3 +1,5 @@
+library(scales)  
+
 # Code avec les fonctions pour afficher les graphiques de sortie des modèles + heatmap
 
 graph<- function(data,filter_values,title){
@@ -60,8 +62,6 @@ graph2<- function(data,filter_values,title){
             legend.text = element_text(size = 10),
             plot.title = element_text(size = 12, face = "bold",hjust = 0.5)) +
       labs(title=title,x = "Time (days)", y = "Proportion of Individuals", colour = "Population:")
-    
-    
   }
   else{
     p<-data %>%
@@ -74,11 +74,65 @@ graph2<- function(data,filter_values,title){
             legend.text = element_text(size = 10),
             plot.title = element_text(size = 12, face = "bold",hjust = 0.5)) +
       labs(title=title,x = "Time (days)", y = "Proportion of Individuals", colour = "Population:")
+  }
+  
+  return(p)
+}
+
+
+graph3<- function(data,filter_values,title){
+  #data_name<-as.character(substitute(data))
+  
+  
+  if(!is.null(filter_values))
+  {
+    p<-data %>%
+      melt(id = "time") %>%
+      filter(variable %in% filter_values) %>%
+      ggplot() +
+      geom_line(aes(time, value, colour = variable), linewidth = 0.8) +
+      theme_bw() +
+      theme(axis.text = element_text(size = 12),
+            axis.title = element_text(size = 12, face = "bold"),
+            legend.text = element_text(size = 10),
+            plot.title = element_text(size = 12, face = "bold",hjust = 0.5)) +
+      labs(title=title,x = "Time (days)", y = "value", colour = "Population:")+
+      scale_y_continuous(breaks = function(x) pretty(x, n = 10))    
     
+  }
+  else{
+    p<-data %>%
+      melt(id = "time") %>%
+      ggplot() +
+      geom_line(aes(time, value, colour = variable), linewidth = 0.8) +
+      theme_bw() +
+      theme(axis.text = element_text(size = 12),
+            axis.title = element_text(size = 12, face = "bold"),
+            legend.text = element_text(size = 10),
+            plot.title = element_text(size = 12, face = "bold",hjust = 0.5)) +
+      labs(title=title,x = "Time (days)", y = "Proportion of Individuals", colour = "Population:")+
+      scale_y_continuous(breaks = function(x) pretty(x, n = 10))    
     
   }
   
   return(p)
+}
+
+#Graph pour afficher l'incidence cumulée et les personnes infectés au pic épidémic 
+graph_I_R<-function(data){
+  ggplot() +   
+    geom_point(data=data, aes(x=vacc,y=max_propI,colour="Infected people at Epidemic peak"))+
+    geom_line(data=data, aes(x=vacc,y=max_propI, colour="Infected people at Epidemic peak"))+
+    geom_point(data=data, aes(x=vacc,y=last_propR, colour="Cumulative incidence"))+
+    geom_line(data=data, aes(x=vacc,y=last_propR, colour="Cumulative incidence"))+
+    labs(title = "Infected people at Epidemic peak \nand cumulative incidence according to vaccination", y = "Proportion of Individuals",
+         x = "Vaccine coverage",size=6) +
+    scale_colour_manual(name = "Legend", values = c("Infected people at Epidemic peak" = "purple", "Cumulative incidence" = "orange")) +
+    theme_bw()+
+    theme(axis.text = element_text(size = 12),
+          axis.title = element_text(size = 12, face = "bold"),
+          legend.text = element_text(size = 10),
+          plot.title = element_text(size = 12, face = "bold",hjust = 0.5))
 }
 
 heatmap <- function(data, x_var, y_var, fill_var, x_text = NULL, y_text = NULL, fill_text = NULL, title = NULL, low_col = "#B39DDB", high_col = "#4B0082", values = FALSE, var_text = NULL) {
@@ -158,4 +212,22 @@ percentage_final<-function(data){
   }
  
   return(tab)
+}
+
+
+diff_graph<- function(data){
+  ggplot() +   
+    geom_point(data=data, aes(x=vacc,y=diffIR,colour="difference in cumulative infection (resistant strain)"))+
+    geom_line(data=data, aes(x=vacc,y=diffIR,colour="difference in cumulative infection (resistant strain)"))+
+    geom_point(data=data, aes(x=vacc,y=diffIS, colour="difference in cumulative infection (sensitive strain)"))+
+    geom_line(data=data, aes(x=vacc,y=diffIS, colour="difference in cumulative infection (sensitive strain)"))+
+    labs(title = "Difference in cumulative infection depending on vaccine coverage \ncompared with baseline value", y = "Value",
+         x = "Vaccine coverage",size=6) +
+    scale_colour_manual(name = "Legend", values = c("difference in cumulative infection (resistant strain)" = "#BD5E00", "difference in cumulative infection (sensitive strain)" = "#163F9E")) +
+    theme_bw()+
+    theme(axis.text = element_text(size = 12),
+          axis.title = element_text(size = 12, face = "bold"),
+          legend.text = element_text(size = 10),
+          plot.title = element_text(size = 12, face = "bold",hjust = 0.5))
+  
 }
