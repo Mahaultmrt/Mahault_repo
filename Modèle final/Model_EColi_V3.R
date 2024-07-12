@@ -22,7 +22,7 @@ create_initial_cond<-function(CSa0=100000*0.01*0.8,CRa0=100000*0.01*0.2,CS0=1000
 run<-function(Init.cond,param,Tmax=365,dt=1){
   Time=seq(from=0,to=Tmax,by=dt)
   result = as.data.frame(lsoda(Init.cond, Time, Res_model_Coli, param,vec_virus=vec_virus))
-  tot <- sum(result[1, !(colnames(result) %in% c("time", "IRa", "ISa","N"))])
+  tot <- sum(result[1, !(colnames(result) %in% c("time", "IRa", "ISa","N","new_teta"))])
   proportion <- result
   proportion[ , -1] <- proportion[ , -1] / tot
   # proportion$CR_tot<-proportion$CRa+proportion$CR
@@ -51,7 +51,7 @@ param<-create_params()
 Init.cond<-create_initial_cond(CSa0=tail(run0$CSa, n = 1),CRa0=tail(run0$CRa, n = 1),CS0=tail(run0$CS, n = 1),
                                CR0=tail(run0$CR, n = 1),IRa0=tail(run0$IRa, n = 1),ISa0=tail(run0$ISa, n = 1))
 run1<-run(Init.cond,param)
-run1_g<-graph(run1,NULL,title="E.Coli Colonization dynamics \nwithout virus épidemics")
+run1_g<-graph(run1,NULL,title="E.Coli Colonization dynamics \nwithout virus epidemics")
 propC1<-graph(run1,c("CRa","pCSa","CR","CS"),"E.Coli colonized people without a virus epidemic")
 CR_CS1<-graph2(run1,c("CR_tot","CS_tot","C_tot"),"E.Coli colonized people without a virus epidemic")
 
@@ -114,7 +114,6 @@ for (i in seq(1,21,by=1)){
   new_row2=data.frame(vacc=results_df[i,1], LastIS)
   IS_final <- bind_rows(IS_final, new_row2)
   col<-paste("vaccination",results_df[i,1])
-  
 }
 
 
@@ -128,32 +127,32 @@ Cumulative_incidence<-graph_barplot(I_final)
 
 data0<-percentage_final(run0)
 
-run2$vaccination<-"vacc 0%"
-run3$vaccination<-"vacc 50%"
-run4$vaccination<-"vacc 80%"
-
-all_run<-bind_rows(run2, run3, run4)
-all_run <- melt(all_run, id.vars = c("time", "vaccination"))
-
-
-res_graphs<-all_graph(all_run,NULL)+
-  geom_hline(yintercept=tail(run0$CRa, n = 1), linetype="dashed",color="#DE6F00",alpha=0.5)+
-  geom_hline(yintercept=tail(run0$CSa, n = 1), linetype="dashed",color="#2072BA",alpha=0.5)+
-  geom_hline(yintercept=tail(run0$IRa, n = 1), linetype="dashed",color="#BD5E00",alpha=0.5)+
-  geom_hline(yintercept=tail(run0$ISa, n = 1), linetype="dashed",color="#163F9E",alpha=0.5)+
-  geom_hline(yintercept=tail(run0$CR, n = 1), linetype="dashed",color="#FC7E00",alpha=0.5)+
-  geom_hline(yintercept=tail(run0$CS, n = 1), linetype="dashed",color="#2B9CFF",alpha=0.5)
-
-
+# run2$vaccination<-"vacc 0%"
+# run3$vaccination<-"vacc 50%"
+# run4$vaccination<-"vacc 80%"
+# 
+# all_run<-bind_rows(run2, run3, run4)
+# all_run <- melt(all_run, id.vars = c("time", "vaccination"))
+# 
+# 
+# res_graphs<-all_graph(all_run,NULL)+
+#   geom_hline(yintercept=tail(run0$CRa, n = 1), linetype="dashed",color="#DE6F00",alpha=0.5)+
+#   geom_hline(yintercept=tail(run0$CSa, n = 1), linetype="dashed",color="#2072BA",alpha=0.5)+
+#   geom_hline(yintercept=tail(run0$IRa, n = 1), linetype="dashed",color="#BD5E00",alpha=0.5)+
+#   geom_hline(yintercept=tail(run0$ISa, n = 1), linetype="dashed",color="#163F9E",alpha=0.5)+
+#   geom_hline(yintercept=tail(run0$CR, n = 1), linetype="dashed",color="#FC7E00",alpha=0.5)+
+#   geom_hline(yintercept=tail(run0$CS, n = 1), linetype="dashed",color="#2B9CFF",alpha=0.5)
+# 
+# 
 diff<- data.frame(vacc = numeric(), diffIR=numeric(), diffIS = numeric())
 for (i in seq(1,21,by=1)){
-  
+
   diffIR=(IR_final$LastIR[i+1]-IR_final$LastIR[1])
   diffIS=(IS_final$LastIS[i+1]-IS_final$LastIS[1])
   new_row=data.frame(vacc=results_df[i,1], diffIR, diffIS)
   diff <- bind_rows(diff, new_row)
-  
-  
+
+
 }
 
 diff_graph(diff)

@@ -20,7 +20,7 @@ create_initial_cond<-function(Sa0=100000*0.02*0.8,CRa0=100000*0.02*0.04,CSa0=100
 run<-function(Init.cond,param,Tmax=365,dt=1){
   Time=seq(from=0,to=Tmax,by=dt)
   result = as.data.frame(lsoda(Init.cond, Time, Res_model, param,vec_virus=vec_virus))
-  tot <- sum(result[1, !(colnames(result) %in% c("time", "IRa", "ISa","N"))])
+  tot <- sum(result[1, !(colnames(result) %in% c("time", "IRa", "ISa","N","new_teta"))])
   proportion <- result
   proportion[ , -1] <- proportion[ , -1] / tot
   # proportion$CR_tot<-proportion$CRa+proportion$CR
