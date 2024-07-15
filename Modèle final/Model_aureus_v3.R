@@ -10,7 +10,7 @@ library(forcats)
 
 #Code modèle S.Aureus
 
-create_params<-function(beta=1.65*10^-2,ct=0.90,deltaRa=0,deltaSa=0,gamma=1.02*10^-2,rhoR=8.22*10^-6,rhoS=1.20*10^-4,rhoRa=8.22*10^-6,rhoSa=1.20*10^-4,teta=0.0014,omega=0.08, alpha=0.33, sigmaR=1,sigmaS=0, ATB=0.1)
+create_params<-function(beta=1.65*10^-2,ct=0.90,deltaRa=0,deltaSa=0,gamma=1.02*10^-2,rhoR=1.20*10^-4,rhoS=1.20*10^-4,rhoRa=1.20*10^-4,rhoSa=1.20*10^-4,teta=0.0014,omega=0.08, alpha=0.33, sigmaR=1,sigmaS=0, ATB=0.1)
 {
   list(beta=beta,ct=ct,deltaRa=deltaRa,deltaSa=deltaSa,gamma=gamma,rhoR=rhoR,rhoS=rhoS,rhoRa=rhoRa,rhoSa=rhoSa,teta=teta,omega=omega,alpha=alpha,sigmaR=sigmaR,sigmaS=sigmaS,ATB=ATB)
 }
@@ -159,11 +159,15 @@ h1<-heatmap(corr_vacc_ATB_ISIR,"vacc","ATB","LastISIR","vaccine coverage","Antib
 
 data0<-percentage_final(run0)
 
-run2$vaccination<-"vacc 0%"
-run3$vaccination<-"vacc 50%"
-run4$vaccination<-"vacc 80%"
+run2bis<-run2
+run3bis<-run3
+run4bis<-run4
 
-all_run<-bind_rows(run2, run3, run4)
+run2bis$vaccination<-"vacc 0%"
+run3bis$vaccination<-"vacc 50%"
+run4bis$vaccination<-"vacc 80%"
+
+all_run<-bind_rows(run2bis, run3bis, run4bis)
 all_run <- melt(all_run, id.vars = c("time", "vaccination"))
 
 
