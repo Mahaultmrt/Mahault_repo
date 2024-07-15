@@ -127,23 +127,26 @@ Cumulative_incidence<-graph_barplot(I_final)
 
 data0<-percentage_final(run0)
 
-# run2$vaccination<-"vacc 0%"
-# run3$vaccination<-"vacc 50%"
-# run4$vaccination<-"vacc 80%"
-# 
-# all_run<-bind_rows(run2, run3, run4)
-# all_run <- melt(all_run, id.vars = c("time", "vaccination"))
-# 
-# 
-# res_graphs<-all_graph(all_run,NULL)+
-#   geom_hline(yintercept=tail(run0$CRa, n = 1), linetype="dashed",color="#DE6F00",alpha=0.5)+
-#   geom_hline(yintercept=tail(run0$CSa, n = 1), linetype="dashed",color="#2072BA",alpha=0.5)+
-#   geom_hline(yintercept=tail(run0$IRa, n = 1), linetype="dashed",color="#BD5E00",alpha=0.5)+
-#   geom_hline(yintercept=tail(run0$ISa, n = 1), linetype="dashed",color="#163F9E",alpha=0.5)+
-#   geom_hline(yintercept=tail(run0$CR, n = 1), linetype="dashed",color="#FC7E00",alpha=0.5)+
-#   geom_hline(yintercept=tail(run0$CS, n = 1), linetype="dashed",color="#2B9CFF",alpha=0.5)
-# 
-# 
+run2bis<-run2
+run3bis<-run3
+run4bis<-run4
+
+run2bis$vaccination<-"vacc 0%"
+run3bis$vaccination<-"vacc 50%"
+run4bis$vaccination<-"vacc 80%"
+
+all_run<-bind_rows(run2bis, run3bis, run4bis)
+all_run <- melt(all_run, id.vars = c("time", "vaccination"))
+
+res_graphs<-all_graph(all_run,NULL)+
+  geom_hline(yintercept=tail(run0$CRa, n = 1), linetype="dashed",color="#DE6F00",alpha=0.5)+
+  geom_hline(yintercept=tail(run0$CSa, n = 1), linetype="dashed",color="#2072BA",alpha=0.5)+
+  geom_hline(yintercept=tail(run0$IRa, n = 1), linetype="dashed",color="#BD5E00",alpha=0.5)+
+  geom_hline(yintercept=tail(run0$ISa, n = 1), linetype="dashed",color="#163F9E",alpha=0.5)+
+  geom_hline(yintercept=tail(run0$CR, n = 1), linetype="dashed",color="#FC7E00",alpha=0.5)+
+  geom_hline(yintercept=tail(run0$CS, n = 1), linetype="dashed",color="#2B9CFF",alpha=0.5)
+
+
 diff<- data.frame(vacc = numeric(), diffIR=numeric(), diffIS = numeric())
 for (i in seq(1,21,by=1)){
 

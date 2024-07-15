@@ -30,7 +30,7 @@ SIR_model_vacc_2 <- function(t, pop, param) {
 }
 
 
-create_params<-function(beta=2.5,gamma=0.2,vf=0.643,Ps=0.75)
+create_params<-function(beta=1.5,gamma=0.14,vf=0.643,Ps=0.75)
 {
   list(beta=beta,gamma=gamma,vf=vf,Ps=Ps)
 }

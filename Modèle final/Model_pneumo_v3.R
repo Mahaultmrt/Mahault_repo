@@ -149,12 +149,15 @@ h1<-heatmap(corr_vacc_ATB_ISIR,"vacc","ATB","LastISIR","Vaccine coverage","Antib
 
 data0<-percentage_final(run0)
 
+run2bis<-run2
+run3bis<-run3
+run4bis<-run4
 
-run2$vaccination<-"vacc 0%"
-run3$vaccination<-"vacc 50%"
-run4$vaccination<-"vacc 80%"
+run2bis$vaccination<-"vacc 0%"
+run3bis$vaccination<-"vacc 50%"
+run4bis$vaccination<-"vacc 80%"
 
-all_run<-bind_rows(run2, run3, run4)
+all_run<-bind_rows(run2bis, run3bis, run4bis)
 all_run <- melt(all_run, id.vars = c("time", "vaccination"))
 
 
@@ -172,8 +175,8 @@ res_graphs<-all_graph(all_run,NULL)+
 diff<- data.frame(vacc = numeric(), diffIR=numeric(), diffIS = numeric())
 for (i in seq(1,21,by=1)){
 
-  diffIR=(IR_final$LastIR[i+1]-IR_final$LastIR[1])
-  diffIS=(IS_final$LastIS[i+1]-IS_final$LastIS[1])
+  diffIR=(IR_final$LastIR[i+1]-IR_final$LastIR[1])/(tail(run0$ISa,n=1)+tail(run0$IRa,n=1))
+  diffIS=(IS_final$LastIS[i+1]-IS_final$LastIS[1])/(tail(run0$ISa,n=1)+tail(run0$IRa,n=1))
   new_row=data.frame(vacc=results_df[i,1], diffIR, diffIS)
   diff <- bind_rows(diff, new_row)
 

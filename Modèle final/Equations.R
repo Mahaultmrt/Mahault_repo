@@ -26,7 +26,7 @@ Res_model <- function(t, pop, param,vec_virus) {
     res<-c(dSa,dCRa,dCSa,dIRa,dISa,dS,dCR,dCS)
     
     
-    list(res,new_teta=new_teta)
+    list(res)
     
   })
   
@@ -51,7 +51,7 @@ Res_model_Coli <- function(t, pop, param,vec_virus) {
     
     res<-c(dCSa,dCRa,dCS,dCR,dIRa,dISa)
     
-    list(res,new_teta=new_teta)
+    list(res)
     
   })
   
