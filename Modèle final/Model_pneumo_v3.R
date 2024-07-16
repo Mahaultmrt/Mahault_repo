@@ -172,17 +172,119 @@ res_graphs<-all_graph(all_run,NULL)+
   geom_hline(yintercept=tail(run0$CS, n = 1), linetype="dashed",color="#2B9CFF",alpha=0.5)
 
 
-diff<- data.frame(vacc = numeric(), diffIR=numeric(), diffIS = numeric())
+diff<- data.frame(vacc = numeric(), diffIR=numeric(), diffIS = numeric(),diffISIR=numeric())
 for (i in seq(1,21,by=1)){
 
-  diffIR=(IR_final$LastIR[i+1]-IR_final$LastIR[1])/(tail(run0$ISa,n=1)+tail(run0$IRa,n=1))
-  diffIS=(IS_final$LastIS[i+1]-IS_final$LastIS[1])/(tail(run0$ISa,n=1)+tail(run0$IRa,n=1))
-  new_row=data.frame(vacc=results_df[i,1], diffIR, diffIS)
+  diffIR=(IR_final$LastIR[i+1]-IR_final$LastIR[1])/tail(run0$IRa, n=1)
+  diffIS=(IS_final$LastIS[i+1]-IS_final$LastIS[1])/tail(run0$ISa, n=1)
+  diffISIR=((IR_final$LastIR[i+1]+IS_final$LastIS[i+1])-(IR_final$LastIR[1]+IS_final$LastIS[1]))/(tail(run0$IRa, n=1)+tail(run0$ISa, n=1))
+  new_row=data.frame(vacc=results_df[i,1], diffIR, diffIS,diffISIR)
   diff <- bind_rows(diff, new_row)
-
   
 }
 
 
 
 diff_graph(diff)
+
+
+psa<-data.frame(beta = numeric(), ct=numeric(), gamma = numeric(),alpha = numeric(), teta=numeric(), omega = numeric(),ATB = numeric(), incidenceR=numeric(),incidenceS=numeric())
+for (i in seq(1,1000,by=1)){
+  beta<-runif(1,0.9*0.065,1.1*0.065)
+  ct<-runif(1,0.9*0.96,1.1*0.96)
+  gamma<-runif(1,0.9*0.05,1.1*0.05)
+  alpha<-runif(1,0.9*0.33,1.1*0.33)
+  teta<-runif(1,0.9*0.0014,1.1*0.0014)
+  omega<-runif(1,0.9*0.08,1.1*0.08)
+  ATB<-runif(1,0.9*0.1,1.1*0.1)
+  new_row=data.frame(beta,ct,gamma,alpha,teta,omega,ATB)
+  psa <- bind_rows(psa, new_row)
+
+}
+
+for (i in seq(1,1000,by=1)){
+  beta<-psa$beta[i]
+  ct<-psa$ct[i]
+  gamma<-psa$gamma[i]
+  alpha<-psa$alpha[i]
+  teta<-psa$teta[i]
+  omega<-psa$omega[i]
+  ATB<-psa$ATB[i]
+  
+  vec_virus=I_vac_50
+  param<-create_params(beta=beta,ct=ct,gamma=gamma,alpha=alpha,teta=teta,omega=omega,ATB=ATB)
+  Init.cond<-create_initial_cond(Sa0=tail(run0$Sa, n = 1),CRa0=tail(run0$CRa, n = 1),CSa0=tail(run0$CSa, n = 1),
+                                 IRa0=tail(run0$IRa, n = 1),ISa0=tail(run0$ISa, n = 1),S0=tail(run0$S, n = 1),
+                                 CR0=tail(run0$CR, n = 1),CS0=tail(run0$CS, n = 1))
+  runi<-run(Init.cond,param)
+  psa$incidenceR[i]=runi[["IRa"]][nrow(runi) - 1]
+  psa$incidenceS[i]=runi[["ISa"]][nrow(runi) - 1]
+  
+}
+
+
+
+psa_graph<-density_graph(psa)+
+  geom_vline(xintercept=run3[["IRa"]][nrow(run3) - 1],linetype="dashed",color="#BD5E00")+
+  geom_vline(xintercept=run3[["ISa"]][nrow(run3) - 1],linetype="dashed",color="#163F9E")+
+  geom_vline(xintercept=run3[["IRa"]][nrow(run3) - 1]+run3[["ISa"]][nrow(run3) - 1],linetype="dashed",color="#4B0082")
+  
+
+for (i in seq(1,1000,by=1)){
+  beta<-psa$beta[i]
+  ct<-psa$ct[i]
+  gamma<-psa$gamma[i]
+  alpha<-psa$alpha[i]
+  teta<-psa$teta[i]
+  omega<-psa$omega[i]
+  ATB<-psa$ATB[i]
+  
+  vec_virus=I_vac_0
+  param<-create_params(beta=beta,ct=ct,gamma=gamma,alpha=alpha,teta=teta,omega=omega,ATB=ATB)
+  Init.cond<-create_initial_cond(Sa0=tail(run0$Sa, n = 1),CRa0=tail(run0$CRa, n = 1),CSa0=tail(run0$CSa, n = 1),
+                                 IRa0=tail(run0$IRa, n = 1),ISa0=tail(run0$ISa, n = 1),S0=tail(run0$S, n = 1),
+                                 CR0=tail(run0$CR, n = 1),CS0=tail(run0$CS, n = 1))
+  runi<-run(Init.cond,param)
+  psa$incidenceR[i]=runi[["IRa"]][nrow(runi) - 1]
+  psa$incidenceS[i]=runi[["ISa"]][nrow(runi) - 1]
+  
+}
+
+
+
+psa_graph<-density_graph(psa)+
+  geom_vline(xintercept=run2[["IRa"]][nrow(run2) - 1],linetype="dashed",color="#BD5E00")+
+  geom_vline(xintercept=run2[["ISa"]][nrow(run2) - 1],linetype="dashed",color="#163F9E")+
+  geom_vline(xintercept=run2[["IRa"]][nrow(run2) - 1]+run2[["ISa"]][nrow(run2) - 1],linetype="dashed",color="#4B0082")
+
+
+for (i in seq(1,1000,by=1)){
+  beta<-psa$beta[i]
+  ct<-psa$ct[i]
+  gamma<-psa$gamma[i]
+  alpha<-psa$alpha[i]
+  teta<-psa$teta[i]
+  omega<-psa$omega[i]
+  ATB<-psa$ATB[i]
+  
+  vec_virus=I_vac_80
+  param<-create_params(beta=beta,ct=ct,gamma=gamma,alpha=alpha,teta=teta,omega=omega,ATB=ATB)
+  Init.cond<-create_initial_cond(Sa0=tail(run0$Sa, n = 1),CRa0=tail(run0$CRa, n = 1),CSa0=tail(run0$CSa, n = 1),
+                                 IRa0=tail(run0$IRa, n = 1),ISa0=tail(run0$ISa, n = 1),S0=tail(run0$S, n = 1),
+                                 CR0=tail(run0$CR, n = 1),CS0=tail(run0$CS, n = 1))
+  runi<-run(Init.cond,param)
+  psa$incidenceR[i]=runi[["IRa"]][nrow(runi) - 1]
+  psa$incidenceS[i]=runi[["ISa"]][nrow(runi) - 1]
+  
+}
+
+
+
+psa_graph<-density_graph(psa)+
+  geom_vline(xintercept=run4[["IRa"]][nrow(run4) - 1],linetype="dashed",color="#BD5E00")+
+  geom_vline(xintercept=run4[["ISa"]][nrow(run4) - 1],linetype="dashed",color="#163F9E")+
+  geom_vline(xintercept=run4[["IRa"]][nrow(run4) - 1]+run4[["ISa"]][nrow(run4) - 1],linetype="dashed",color="#4B0082")
+
+
+
+
