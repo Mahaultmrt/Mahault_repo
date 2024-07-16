@@ -221,13 +221,34 @@ diff_graph<- function(data){
     geom_line(data=data, aes(x=vacc,y=diffIR,colour="difference in cumulative infection (resistant strain)"))+
     geom_point(data=data, aes(x=vacc,y=diffIS, colour="difference in cumulative infection (sensitive strain)"))+
     geom_line(data=data, aes(x=vacc,y=diffIS, colour="difference in cumulative infection (sensitive strain)"))+
+    geom_point(data=data, aes(x=vacc,y=diffISIR, colour="difference in cumulative infection (sensitive strain and resistant strain)"))+
+    geom_line(data=data, aes(x=vacc,y=diffISIR, colour="difference in cumulative infection (sensitive strain and resistant strain)"))+
     labs(title = "Difference in cumulative infection depending on vaccine coverage \ncompared with baseline value", y = "Value",
          x = "Vaccine coverage",size=6) +
-    scale_colour_manual(name = "Legend", values = c("difference in cumulative infection (resistant strain)" = "#BD5E00", "difference in cumulative infection (sensitive strain)" = "#163F9E")) +
+    scale_colour_manual(name = "Legend", values = c("difference in cumulative infection (resistant strain)" = "#BD5E00", "difference in cumulative infection (sensitive strain)" = "#163F9E",
+                                                    "difference in cumulative infection (sensitive strain and resistant strain)"="#4B0082")) +
     theme_bw()+
     theme(axis.text = element_text(size = 12),
           axis.title = element_text(size = 12, face = "bold"),
           legend.text = element_text(size = 10),
           plot.title = element_text(size = 12, face = "bold",hjust = 0.5))
+  
+}
+
+
+density_graph<- function(data){
+  ggplot() +   
+    geom_density(data=data, aes(x=incidenceR,colour="Incidence of infection (resistant strain)",fill="Incidence of infection (resistant strain)"),alpha=0.5)+
+    geom_density(data=data, aes(x=incidenceS, colour="Incidence of infection (sensitive strain)",fill="Incidence of infection (sensitive strain)"),alpha=0.5)+
+    geom_density(data=data, aes(x=incidenceS+incidenceR, colour="Incidence of infection",fill="Incidence of infection"),alpha=0.5)+
+    labs(title = "Density of incidence of infection", y = "Density",
+         x = "Incidence",size=6) +
+    scale_colour_manual(name = "Legend", values = c("Incidence of infection (resistant strain)" = "#BD5E00", "Incidence of infection (sensitive strain)" = "#163F9E","Incidence of infection"="#4B0082")) +
+    scale_fill_manual(name = "Legend", values = c("Incidence of infection (resistant strain)" = "#BD5E00", "Incidence of infection (sensitive strain)" = "#163F9E","Incidence of infection"="#4B0082"))+ 
+    theme_bw()+
+    theme(axis.text = element_text(size = 12),
+        axis.title = element_text(size = 12, face = "bold"),
+        legend.text = element_text(size = 10),
+        plot.title = element_text(size = 12, face = "bold",hjust = 0.5))
   
 }
