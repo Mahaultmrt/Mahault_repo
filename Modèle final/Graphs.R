@@ -215,7 +215,7 @@ percentage_final<-function(data){
 }
 
 
-diff_graph<- function(data){
+diff_graph<- function(data,data2){
   ggplot() +   
     geom_point(data=data, aes(x=vacc,y=diffIR,colour="difference in cumulative infection (resistant strain)"))+
     geom_line(data=data, aes(x=vacc,y=diffIR,colour="difference in cumulative infection (resistant strain)"))+
@@ -238,9 +238,9 @@ diff_graph<- function(data){
 
 density_graph<- function(data){
   ggplot() +   
-    geom_density(data=data, aes(x=incidenceR,colour="Incidence of infection (resistant strain)",fill="Incidence of infection (resistant strain)"),alpha=0.5)+
-    geom_density(data=data, aes(x=incidenceS, colour="Incidence of infection (sensitive strain)",fill="Incidence of infection (sensitive strain)"),alpha=0.5)+
-    geom_density(data=data, aes(x=incidenceS+incidenceR, colour="Incidence of infection",fill="Incidence of infection"),alpha=0.5)+
+    geom_density(data=data, aes(x=incidenceR,y = ..count../sum(..count..),colour="Incidence of infection (resistant strain)",fill="Incidence of infection (resistant strain)"),alpha=0.5)+
+    geom_density(data=data, aes(x=incidenceS,y = ..count../sum(..count..),colour="Incidence of infection (sensitive strain)",fill="Incidence of infection (sensitive strain)"),alpha=0.5)+
+    geom_density(data=data, aes(x=incidenceS+incidenceR, y = ..count../sum(..count..),colour="Incidence of infection",fill="Incidence of infection"),alpha=0.5)+
     labs(title = "Density of incidence of infection", y = "Density",
          x = "Incidence",size=6) +
     scale_colour_manual(name = "Legend", values = c("Incidence of infection (resistant strain)" = "#BD5E00", "Incidence of infection (sensitive strain)" = "#163F9E","Incidence of infection"="#4B0082")) +
@@ -252,3 +252,26 @@ density_graph<- function(data){
         plot.title = element_text(size = 12, face = "bold",hjust = 0.5))
   
 }
+
+#Corrélation partielle
+graph_pcor<-function(data){
+  ggplot(data) +
+    geom_hline(yintercept = 0, linetype = "dotted") +
+    geom_hline(yintercept = 1, linetype = "solid") +
+    geom_hline(yintercept = -1, linetype = "solid") +
+    geom_hline(yintercept = 0.5, linetype = "dashed") +
+    geom_hline(yintercept = -0.5, linetype = "dashed") +
+    geom_pointrange(aes(x = param, y = est, ymin = lower, ymax = upper), size = 0.8) +
+    theme_bw() +
+    theme(axis.text = element_text(size=12),
+          axis.title = element_text(size=12)) +
+    labs(colour = "", x = "Parameters", y = "Correlation coefficient with cumulative incidence") +
+    scale_x_discrete(labels = c(bquote(beta),
+                                bquote(ct),
+                                bquote(gamma),
+                                bquote(alpha),
+                                bquote(teta),
+                                bquote(omega),
+                                bquote(ATB)))
+}
+

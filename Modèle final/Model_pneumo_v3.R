@@ -179,9 +179,9 @@ res_graphs<-all_graph(all_run,NULL)+
 diff<- data.frame(vacc = numeric(), diffIR=numeric(), diffIS = numeric(),diffISIR=numeric())
 for (i in seq(1,21,by=1)){
 
-  diffIR=(IR_final$LastIR[i+1]-IR_final$LastIR[1])/tail(run0$IRa, n=1)
-  diffIS=(IS_final$LastIS[i+1]-IS_final$LastIS[1])/tail(run0$ISa, n=1)
-  diffISIR=((IR_final$LastIR[i+1]+IS_final$LastIS[i+1])-(IR_final$LastIR[1]+IS_final$LastIS[1]))/(tail(run0$IRa, n=1)+tail(run0$ISa, n=1))
+  diffIR=(IR_final$LastIR[i+1]-IR_final$LastIR[1])/IR_final$LastIR[1]
+  diffIS=(IS_final$LastIS[i+1]-IS_final$LastIS[1])/IS_final$LastIS[1]
+  diffISIR=((IR_final$LastIR[i+1]+IS_final$LastIS[i+1])-(IR_final$LastIR[1]+IS_final$LastIS[1]))/(IR_final$LastIR[1]+IS_final$LastIS[1])
   new_row=data.frame(vacc=results_df[i,1], diffIR, diffIS,diffISIR)
   diff <- bind_rows(diff, new_row)
   
@@ -194,16 +194,15 @@ diff_graph(diff)
 
 psa<-data.frame(beta = numeric(), ct=numeric(), gamma = numeric(),alpha = numeric(), teta=numeric(), omega = numeric(),ATB = numeric(), incidenceR=numeric(),incidenceS=numeric())
 
-psa=data.frame(beta=runif(1000,0.9*0.065,1.1*0.065),
-               ct=runif(1000,0.9*0.96,1.1*0.96),
-               gamma=runif(1000,0.9*0.05,1.1*0.05),
-               alpha=runif(1000,0.9*0.33,1.1*0.33),
-               teta=runif(1000,0.9*0.0014,1.1*0.0014),
-               omega=runif(1000,0.9*0.08,1.1*0.08),
-               ATB=runif(1000,0.9*0.1,1.1*0.1),
+psa=data.frame(beta=runif(1000,0.8*0.065,1.2*0.065),
+               ct=runif(1000,0.8*0.96,1.2*0.96),
+               gamma=runif(1000,0.8*0.05,1.2*0.05),
+               alpha=runif(1000,0.8*0.33,1.2*0.33),
+               teta=runif(1000,0.8*0.0014,1.2*0.0014),
+               omega=runif(1000,0.8*0.08,1.2*0.08),
+               ATB=runif(1000,0.8*0.1,1.2*0.1),
                incidenceR=0,
                incidenceS=0)
-
 
 for (i in seq(1,1000,by=1)){
   beta<-psa$beta[i]
@@ -233,31 +232,49 @@ psa_graph<-density_graph(psa)+
   geom_vline(xintercept=run3[["IRa"]][nrow(run3) - 1]+run3[["ISa"]][nrow(run3) - 1],linetype="dashed",color="#4B0082")
 
 
+IR_vacc<-data.frame(matrix(ncol=21),nrow=0)
+colnames(IR_vacc)<-seq(0, 1, by = 0.05)
+
+
+for (i in seq(1,21,by=1)){
+  for (j in seq(1,100,by=1)){
+    beta<-psa$beta[j]
+    ct<-psa$ct[j]
+    gamma<-psa$gamma[j]
+    alpha<-psa$alpha[j]
+    teta<-psa$teta[j]
+    omega<-psa$omega[j]
+    ATB<-psa$ATB[j]
+    
+    vec_virus=I_vac[[i]]
+    param<-create_params(beta=beta,ct=ct,gamma=gamma,alpha=alpha,teta=teta,omega=omega,ATB=ATB)
+    Init.cond<-create_initial_cond(Sa0=tail(run0$Sa, n = 1),CRa0=tail(run0$CRa, n = 1),CSa0=tail(run0$CSa, n = 1),
+                                   IRa0=tail(run0$IRa, n = 1),ISa0=tail(run0$ISa, n = 1),S0=tail(run0$S, n = 1),
+                                   CR0=tail(run0$CR, n = 1),CS0=tail(run0$CS, n = 1))
+    runi<-run(Init.cond,param)
+    IR_vacc[j,i]<-runi[["IRa"]][nrow(runi) - 1]
+  }
+  
+}
+
+
+for (i in seq(1,21,by=1)){
+  for (j in seq(1,100,by=1)){
+    
+    IR_vacc[j,i+1]<-(IR_vacc[j,i+1]-IR_vacc[j,1])/IR_vacc[j,1]
+  }
+  
+}
+
+
+
 psa_R<-psa[,-c(9)]
 psa_R = psa_R %>%
   dplyr::select(beta,ct,gamma,alpha,teta,omega,ATB,incidenceR) %>%
   epi.prcc() %>%
   rename(param = var)
 
-# and we plot the results
-ggplot(psa_R) +
-  geom_hline(yintercept = 0, linetype = "dotted") +
-  geom_hline(yintercept = 1, linetype = "solid") +
-  geom_hline(yintercept = -1, linetype = "solid") +
-  geom_hline(yintercept = 0.5, linetype = "dashed") +
-  geom_hline(yintercept = -0.5, linetype = "dashed") +
-  geom_pointrange(aes(x = param, y = est, ymin = lower, ymax = upper), size = 0.8) +
-  theme_bw() +
-  theme(axis.text = element_text(size=12),
-        axis.title = element_text(size=12)) +
-  labs(colour = "", x = "Parameters", y = "Correlation coefficient with cumulative incidence") +
-  scale_x_discrete(labels = c(bquote(beta),
-                              bquote(ct),
-                              bquote(gamma),
-                              bquote(alpha),
-                              bquote(teta),
-                              bquote(omega),
-                              bquote(ATB)))
+graph_pcor(psa_R)
 
 
 psa_S<-psa[,-c(8)]
@@ -266,25 +283,11 @@ psa_S = psa_S %>%
   epi.prcc() %>%
   rename(param = var)
 
-ggplot(psa_S) +
-  geom_hline(yintercept = 0, linetype = "dotted") +
-  geom_hline(yintercept = 1, linetype = "solid") +
-  geom_hline(yintercept = -1, linetype = "solid") +
-  geom_hline(yintercept = 0.5, linetype = "dashed") +
-  geom_hline(yintercept = -0.5, linetype = "dashed") +
-  geom_pointrange(aes(x = param, y = est, ymin = lower, ymax = upper), size = 0.8) +
-  theme_bw() +
-  theme(axis.text = element_text(size=12),
-        axis.title = element_text(size=12)) +
-  labs(colour = "", x = "Parameters", y = "Correlation coefficient with cumulative incidence") +
-  scale_x_discrete(labels = c(bquote(beta),
-                              bquote(ct),
-                              bquote(gamma),
-                              bquote(alpha),
-                              bquote(teta),
-                              bquote(omega),
-                              bquote(ATB)))
 
+graph_pcor(psa_S)
+
+
+## Autre
 p_cor<-pcor(psa)
 
 estimate_pcor<-p_cor$estimate

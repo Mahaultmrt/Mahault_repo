@@ -186,9 +186,9 @@ res_graphs<-all_graph(all_run,NULL)+
 diff<- data.frame(vacc = numeric(), diffIR=numeric(), diffIS = numeric(),diffISIR=numeric())
 for (i in seq(1,21,by=1)){
   
-  diffIR=(IR_final$LastIR[i+1]-IR_final$LastIR[1])/tail(run0$IRa, n=1)
-  diffIS=(IS_final$LastIS[i+1]-IS_final$LastIS[1])/tail(run0$ISa, n=1)
-  diffISIR=((IR_final$LastIR[i+1]+IS_final$LastIS[i+1])-(IR_final$LastIR[1]+IS_final$LastIS[1]))/(tail(run0$IRa, n=1)+tail(run0$ISa, n=1))
+  diffIR=(IR_final$LastIR[i+1]-IR_final$LastIR[1])/IR_final$LastIR[1]
+  diffIS=(IS_final$LastIS[i+1]-IS_final$LastIS[1])/IS_final$LastIS[1]
+  diffISIR=((IR_final$LastIR[i+1]+IS_final$LastIS[i+1])-(IR_final$LastIR[1]+IS_final$LastIS[1]))/(IR_final$LastIR[1]+IS_final$LastIS[1])
   new_row=data.frame(vacc=results_df[i,1], diffIR, diffIS,diffISIR)
   diff <- bind_rows(diff, new_row)
   
@@ -200,18 +200,17 @@ diff_graph(diff)
 
 
 psa<-data.frame(beta = numeric(), ct=numeric(), gamma = numeric(),alpha = numeric(), teta=numeric(), omega = numeric(),ATB = numeric(), incidenceR=numeric(),incidenceS=numeric())
-for (i in seq(1,1000,by=1)){
-  beta<-runif(1,0.9*0.065,1.1*0.065)
-  ct<-runif(1,0.9*0.96,1.1*0.96)
-  gamma<-runif(1,0.9*0.05,1.1*0.05)
-  alpha<-runif(1,0.9*0.33,1.1*0.33)
-  teta<-runif(1,0.9*0.0014,1.1*0.0014)
-  omega<-runif(1,0.9*0.08,1.1*0.08)
-  ATB<-runif(1,0.9*0.1,1.1*0.1)
-  new_row=data.frame(beta,ct,gamma,alpha,teta,omega,ATB)
-  psa <- bind_rows(psa, new_row)
-  
-}
+
+psa=data.frame(beta=runif(1000,0.8*0.065,1.2*0.065),
+               ct=runif(1000,0.8*0.96,1.2*0.96),
+               gamma=runif(1000,0.8*0.05,1.2*0.05),
+               alpha=runif(1000,0.8*0.33,1.2*0.33),
+               teta=runif(1000,0.8*0.0014,1.2*0.0014),
+               omega=runif(1000,0.8*0.08,1.2*0.08),
+               ATB=runif(1000,0.8*0.1,1.2*0.1),
+               incidenceR=0,
+               incidenceS=0)
+
 
 for (i in seq(1,1000,by=1)){
   beta<-psa$beta[i]
@@ -232,6 +231,7 @@ for (i in seq(1,1000,by=1)){
   psa$incidenceS[i]=runi[["ISa"]][nrow(runi) - 1]
   
 }
+
 
 psa_graph<-density_graph(psa)+
   geom_vline(xintercept=run3[["IRa"]][nrow(run3) - 1],linetype="dashed",color="#BD5E00")+
