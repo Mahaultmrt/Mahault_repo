@@ -177,7 +177,7 @@ res_graphs<-all_graph(all_run,NULL)+
 
 
 diff<- data.frame(vacc = numeric(), diffIR=numeric(), diffIS = numeric(),diffISIR=numeric())
-for (i in seq(1,21,by=1)){
+for (i in seq(1,20,by=1)){
 
   diffIR=(IR_final$LastIR[i+1]-IR_final$LastIR[1])/IR_final$LastIR[1]
   diffIS=(IS_final$LastIS[i+1]-IS_final$LastIS[1])/IS_final$LastIS[1]
@@ -189,7 +189,7 @@ for (i in seq(1,21,by=1)){
 
 
 
-diff_graph(diff)
+diff_graph(diff,NULL,NULL,NULL)
 
 
 psa<-data.frame(beta = numeric(), ct=numeric(), gamma = numeric(),alpha = numeric(), teta=numeric(), omega = numeric(),ATB = numeric(), incidenceR=numeric(),incidenceS=numeric())
@@ -232,8 +232,9 @@ psa_graph<-density_graph(psa)+
   geom_vline(xintercept=run3[["IRa"]][nrow(run3) - 1]+run3[["ISa"]][nrow(run3) - 1],linetype="dashed",color="#4B0082")
 
 
-IR_vacc<-data.frame(matrix(ncol=21),nrow=0)
+IR_vacc<-data.frame(matrix(ncol=20),nrow=0)
 colnames(IR_vacc)<-seq(0, 1, by = 0.05)
+IR_vacc_bis<-IR_vacc
 
 
 for (i in seq(1,21,by=1)){
@@ -258,14 +259,137 @@ for (i in seq(1,21,by=1)){
 }
 
 
-for (i in seq(1,21,by=1)){
-  for (j in seq(1,100,by=1)){
+for (j in seq(1,100,by=1)){
+  for (i in seq(0,20,by=1)){
     
-    IR_vacc[j,i+1]<-(IR_vacc[j,i+1]-IR_vacc[j,1])/IR_vacc[j,1]
+    IR_vacc_bis[j,i+1]<-(IR_vacc[j,i+1]-IR_vacc[j,1])/IR_vacc[j,1]
   }
   
 }
 
+IR_vacc_bis <- gather(IR_vacc_bis, key = "vacc", value = "incidence")
+IR_vacc_bis$vacc <- as.numeric(as.character(IR_vacc_bis$vacc))
+
+
+IS_vacc<-data.frame(matrix(ncol=20),nrow=0)
+colnames(IS_vacc)<-seq(0, 1, by = 0.05)
+IS_vacc_bis<-IS_vacc
+
+for (i in seq(1,21,by=1)){
+  for (j in seq(1,100,by=1)){
+    beta<-psa$beta[j]
+    ct<-psa$ct[j]
+    gamma<-psa$gamma[j]
+    alpha<-psa$alpha[j]
+    teta<-psa$teta[j]
+    omega<-psa$omega[j]
+    ATB<-psa$ATB[j]
+    
+    vec_virus=I_vac[[i]]
+    param<-create_params(beta=beta,ct=ct,gamma=gamma,alpha=alpha,teta=teta,omega=omega,ATB=ATB)
+    Init.cond<-create_initial_cond(Sa0=tail(run0$Sa, n = 1),CRa0=tail(run0$CRa, n = 1),CSa0=tail(run0$CSa, n = 1),
+                                   IRa0=tail(run0$IRa, n = 1),ISa0=tail(run0$ISa, n = 1),S0=tail(run0$S, n = 1),
+                                   CR0=tail(run0$CR, n = 1),CS0=tail(run0$CS, n = 1))
+    runi<-run(Init.cond,param)
+    IS_vacc[j,i]<-runi[["ISa"]][nrow(runi) - 1]
+  }
+  
+}
+
+
+for (j in seq(1,100,by=1)){
+  for (i in seq(0,20,by=1)){
+    
+    IS_vacc_bis[j,i+1]<-(IS_vacc[j,i+1]-IS_vacc[j,1])/IS_vacc[j,1]
+  }
+  
+}
+
+IS_vacc_bis <- gather(IS_vacc_bis, key = "vacc", value = "incidence")
+IS_vacc_bis$vacc <- as.numeric(as.character(IS_vacc_bis$vacc))
+
+
+ISR_vacc<-data.frame(matrix(ncol=20),nrow=0)
+colnames(ISR_vacc)<-seq(0, 1, by = 0.05)
+ISR_vacc_bis<-ISR_vacc
+
+for (i in seq(1,21,by=1)){
+  for (j in seq(1,100,by=1)){
+    beta<-psa$beta[j]
+    ct<-psa$ct[j]
+    gamma<-psa$gamma[j]
+    alpha<-psa$alpha[j]
+    teta<-psa$teta[j]
+    omega<-psa$omega[j]
+    ATB<-psa$ATB[j]
+    
+    vec_virus=I_vac[[i]]
+    param<-create_params(beta=beta,ct=ct,gamma=gamma,alpha=alpha,teta=teta,omega=omega,ATB=ATB)
+    Init.cond<-create_initial_cond(Sa0=tail(run0$Sa, n = 1),CRa0=tail(run0$CRa, n = 1),CSa0=tail(run0$CSa, n = 1),
+                                   IRa0=tail(run0$IRa, n = 1),ISa0=tail(run0$ISa, n = 1),S0=tail(run0$S, n = 1),
+                                   CR0=tail(run0$CR, n = 1),CS0=tail(run0$CS, n = 1))
+    runi<-run(Init.cond,param)
+    ISR_vacc[j,i]<-runi[["ISa"]][nrow(runi) - 1]+runi[["IRa"]][nrow(runi) - 1]
+  }
+  
+}
+
+
+for (j in seq(1,100,by=1)){
+  for (i in seq(0,20,by=1)){
+    
+    ISR_vacc_bis[j,i+1]<-(ISR_vacc[j,i+1]-ISR_vacc[j,1])/ISR_vacc[j,1]
+  }
+  
+}
+
+ISR_vacc_bis <- gather(ISR_vacc_bis, key = "vacc", value = "incidence")
+ISR_vacc_bis$vacc <- as.numeric(as.character(ISR_vacc_bis$vacc))
+
+diff_graph(diff,IR_vacc_bis,IS_vacc_bis,ISR_vacc_bis)
+
+diff_sim<-data.frame(vacc=seq(0,1,by=0.05))
+
+mean_values_IR <- IR_vacc_bis %>%
+  group_by(vacc) %>%
+  summarise(mean_incidence_IR = mean(incidence, na.rm = TRUE))
+
+diff_sim<-merge(diff_sim,mean_values_IR)
+
+mean_values_IS <- IS_vacc_bis %>%
+  group_by(vacc) %>%
+  summarise(mean_incidence_IS = mean(incidence, na.rm = TRUE))
+diff_sim<-merge(diff_sim,mean_values_IS)
+
+mean_values_ISR <- ISR_vacc_bis %>%
+  group_by(vacc) %>%
+  summarise(mean_incidence_ISR = mean(incidence, na.rm = TRUE))
+diff_sim<-merge(diff_sim,mean_values_ISR)
+
+sd_values_IR <- IR_vacc_bis %>%
+  group_by(vacc) %>%
+  summarise(sd_incidence_IR = sd(incidence, na.rm = TRUE))
+diff_sim<-merge(diff_sim,sd_values_IR)
+
+sd_values_IS <- IS_vacc_bis %>%
+  group_by(vacc) %>%
+  summarise(sd_incidence_IS = sd(incidence, na.rm = TRUE))
+diff_sim<-merge(diff_sim,sd_values_IS)
+
+sd_values_ISR <- ISR_vacc_bis %>%
+  group_by(vacc) %>%
+  summarise(sd_incidence_ISR = sd(incidence, na.rm = TRUE))
+diff_sim<-merge(diff_sim,sd_values_ISR)
+
+
+diff_sim$IR_ic_l=diff_sim$mean_incidence_IR-diff_sim$sd_incidence_IR
+diff_sim$IR_ic_u=diff_sim$mean_incidence_IR+diff_sim$sd_incidence_IR
+diff_sim$IS_ic_l=diff_sim$mean_incidence_IS-diff_sim$sd_incidence_IS
+diff_sim$IS_ic_u=diff_sim$mean_incidence_IS+diff_sim$sd_incidence_IS
+diff_sim$ISR_ic_l=diff_sim$mean_incidence_ISR-diff_sim$sd_incidence_ISR
+diff_sim$ISR_ic_u=diff_sim$mean_incidence_ISR+diff_sim$sd_incidence_ISR
+
+diff_graph_sim(diff_sim)
 
 
 psa_R<-psa[,-c(9)]
@@ -274,61 +398,5 @@ psa_R = psa_R %>%
   epi.prcc() %>%
   rename(param = var)
 
-graph_pcor(psa_R)
-
-
-psa_S<-psa[,-c(8)]
-psa_S = psa_S %>%
-  dplyr::select(beta,ct,gamma,alpha,teta,omega,ATB,incidenceS) %>%
-  epi.prcc() %>%
-  rename(param = var)
-
-
-graph_pcor(psa_S)
-
-
-## Autre
-p_cor<-pcor(psa)
-
-estimate_pcor<-p_cor$estimate
-names<- c("beta","ct","gamma","alpha","teta","omega","ATB","incidenceR","incidenceS")
-dimnames(estimate_pcor)<-list(names,names)
-
-estimate_pcor <- as.data.frame(estimate_pcor)
-
-cor_incidenceR <- data.frame(
-  Parameters =c("beta","ct","gamma","alpha","teta","omega","ATB","incidenceR","incidenceS") ,
-  Value = estimate_pcor$incidenceR,
-  Error = 0.1 
-)
-
-cor_incidenceR<-cor_incidenceR[-c(8,9),-c(8,9)]
-
-
-p_cor_graph<-function(data){
-  ggplot(data, aes(x=Parameters,y=Value))+
-    geom_point(size=3)+
-    geom_errorbar(aes(ymin=Value-Error,ymax=Value+Error),width=0.3)+
-    labs(title="Correlation between incidence of infection (resistant strain) and parameters", x="Parameters",y="Value")+
-    theme_minimal()+
-    theme_bw()
-
-}
-
-p_cor_graph(cor_incidenceR)
-
-
-
-cor_incidenceS <- data.frame(
-  Parameters =c("beta","ct","gamma","alpha","teta","omega","ATB","incidenceR","incidenceS") ,
-  Value = estimate_pcor$incidenceS,
-  Error = 0.1 
-)
-
-cor_incidenceS<-cor_incidenceS[-c(8,9),-c(8,9)]
-
-p_cor_graph(cor_incidenceS)
-
-
-
-
+str(diff_sim)
+str(mean_values_IR)
