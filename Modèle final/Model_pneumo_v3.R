@@ -258,11 +258,11 @@ graph_pcor(psa_SR)
 
 
 
-ggplot(psa_R, aes(x = gamma, y = incidenceR)) +
+ggplot(psa[,-c(9)], aes(x = gamma, y = incidenceR)) +
   geom_point()
-ggplot(psa_S, aes(x = gamma, y = incidenceS)) +
+ggplot(psa[,-c(8)], aes(x = gamma, y = incidenceS)) +
   geom_point()
-ggplot(psa_SR, aes(x = gamma, y = incidenceSR)) +
+ggplot(psa[,-c(8,9)], aes(x = gamma, y = incidenceSR)) +
   geom_point()
 
 IR_vacc<-data.frame(matrix(ncol=20),nrow=0)
