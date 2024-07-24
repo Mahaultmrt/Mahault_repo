@@ -44,6 +44,7 @@ param<-create_params()
 Init.cond<-create_initial_cond()
 run0<-run(Init.cond,param)
 run0_g<-graph(run0,c("CSa","CRa","CS","CR"),"E.Coli Colonization dynamics \nwithout virus epidemics")
+run0_E<-graph(run0,c("CSa","CRa","CS","CR"),NULL)
 CR_CS0<-graph2(run0,c("CR_tot","CS_tot","C_tot"),"E.Coli colonized people without a virus epidemic and without infection")
 
 
@@ -124,7 +125,7 @@ I_final<-merge(IR_final,IS_final,by="vacc")
 I_final <- pivot_longer(I_final, cols = c(LastIR,LastIS), names_to = "Strain", values_to = "Value")
 I_final$Strain <- factor(I_final$Strain, levels = c("LastIS","LastIR"))
 
-Cumulative_incidence<-graph_barplot(I_final)
+Cumulative_incidence_E<-graph_barplot(I_final)
 
 
 data0<-percentage_final(run0)
@@ -140,7 +141,7 @@ run4bis$vaccination<-"vacc 80%"
 all_run<-bind_rows(run2bis, run3bis, run4bis)
 all_run <- melt(all_run, id.vars = c("time", "vaccination"))
 
-res_graphs<-all_graph(all_run,NULL)+
+res_graphs_E<-all_graph(all_run,NULL)+
   geom_hline(yintercept=tail(run0$CRa, n = 1), linetype="dashed",color="#DE6F00",alpha=0.5)+
   geom_hline(yintercept=tail(run0$CSa, n = 1), linetype="dashed",color="#2072BA",alpha=0.5)+
   geom_hline(yintercept=tail(run0$IRa, n = 1), linetype="dashed",color="#BD5E00",alpha=0.5)+

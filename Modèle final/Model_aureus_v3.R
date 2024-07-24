@@ -43,6 +43,7 @@ param<-create_params()
 Init.cond<-create_initial_cond()
 run0<-run(Init.cond,param)
 run0_g<-graph(run0,c("Sa","CRa","CSa","S","CR","CS"),"S.Aureus Colonization dynamics \n(without virus epidemic)")
+run0_A<-graph(run0,c("Sa","CRa","CSa","S","CR","CS"),NULL)
 CR_CS0<-graph2(run0,c("CR_tot","CS_tot","C_tot"),"S.Aureus colonized people without a virus epidemic and without IPD")
 
 # pas d'épidémie
@@ -127,7 +128,7 @@ I_final <- pivot_longer(I_final, cols = c(LastIR,LastIS), names_to = "Strain", v
 I_final$Strain <- factor(I_final$Strain, levels = c("LastIS","LastIR"))
 
 
-Cumulative_incidence<-graph_barplot(I_final)
+Cumulative_incidence_A<-graph_barplot(I_final)
 
 
 corr_vacc_ATB_ISIR<- data.frame(vacc = numeric(), ATB=numeric(), LastISIR = numeric(), LastpropIR=numeric())
@@ -154,8 +155,8 @@ for (i in seq(1,21,by=1)){
 }
 
 
-h1<-heatmap(corr_vacc_ATB_ISIR,"vacc","ATB","LastISIR","vaccine coverage","Antibiotics",
-        "Cumulative incidence of infection (per 100,000)", "Cumulative incidence of infection \ndepending on the vaccine coverage and the proportion of ATB",values=TRUE,var_text="LastpropIR")
+h1_A<-heatmap(corr_vacc_ATB_ISIR,"vacc","ATB","LastISIR","vaccine coverage","Antibiotics",
+        "Cumulative incidence of infection (per 100,000)", NULL,values=TRUE,var_text="LastpropIR")
 
 
 
@@ -173,7 +174,7 @@ all_run<-bind_rows(run2bis, run3bis, run4bis)
 all_run <- melt(all_run, id.vars = c("time", "vaccination"))
 
 
-res_graphs<-all_graph(all_run,NULL)+
+res_graphs_A<-all_graph(all_run,NULL)+
   geom_hline(yintercept=tail(run0$Sa, n = 1), linetype="dashed",color="#499124",alpha=0.5)+
   geom_hline(yintercept=tail(run0$CRa, n = 1), linetype="dashed",color="#DE6F00",alpha=0.5)+
   geom_hline(yintercept=tail(run0$CSa, n = 1), linetype="dashed",color="#2072BA",alpha=0.5)+
