@@ -7,7 +7,7 @@ graph<- function(data,filter_values,title){
   color_values <- c("Sa" = "#499124", "CRa" = "#DE6F00", "CSa" = "#2072BA", "IRa" = "#BD5E00", "ISa" = "#163F9E", 
                     "S" = "#68CF33", "CR"="#FC7E00", "CS"="#2B9CFF")
   
-  
+
   
   if(!is.null(filter_values))
   {
@@ -19,10 +19,10 @@ graph<- function(data,filter_values,title){
       geom_line(aes(time, value, colour = variable), linewidth = 0.8) +
       theme_bw() +
       theme(axis.text = element_text(size = 12),
-            axis.title = element_text(size = 12, face = "bold"),
+            axis.title = element_text(size = 12),
             legend.text = element_text(size = 10),
-            plot.title = element_text(size = 12, face = "bold",hjust = 0.5)) +
-      labs(title=title,x = "Time (days)", y = "Proportion of Individuals", colour = "Population:")+
+            plot.title = element_text(size = 12,hjust = 0.5)) +
+      labs(x = "Time (days)", y = "Proportion of Individuals", colour = "Population:")+
       scale_color_manual(values = color_values)
     
   }
@@ -34,15 +34,18 @@ graph<- function(data,filter_values,title){
       geom_line(aes(time, value, colour = variable), linewidth = 0.8) +
       theme_bw() +
       theme(axis.text = element_text(size = 12),
-            axis.title = element_text(size = 12, face = "bold"),
+            axis.title = element_text(size = 12),
             legend.text = element_text(size = 10),
-            plot.title = element_text(size = 12, face = "bold",hjust = 0.5)) +
-      labs(title=title,x = "Time (days)", y = "Proportion of Individuals", colour = "Population:")+
+            plot.title = element_text(size = 12,hjust = 0.5)) +
+      labs(x = "Time (days)", y = "Proportion of Individuals", colour = "Population:")+
       scale_color_manual(values = color_values)
     
     
   }
-  
+  # p_low<-ggdraw()+
+  #   draw_plot(p, 0, 0.05, 1, 0.95)+
+  #   draw_label(title, fontface = 'bold', x = 0.5, y = 0.02, hjust = 0.5, vjust = 0.5, size = 12)
+
   return(p)
 }
 graph2<- function(data,filter_values,title){
@@ -58,9 +61,9 @@ graph2<- function(data,filter_values,title){
       geom_line(aes(time, value, colour = variable), linewidth = 0.8) +
       theme_bw() +
       theme(axis.text = element_text(size = 12),
-            axis.title = element_text(size = 12, face = "bold"),
+            axis.title = element_text(size = 12),
             legend.text = element_text(size = 10),
-            plot.title = element_text(size = 12, face = "bold",hjust = 0.5)) +
+            plot.title = element_text(size = 12,hjust = 0.5)) +
       labs(title=title,x = "Time (days)", y = "Proportion of Individuals", colour = "Population:")
   }
   else{
@@ -70,9 +73,9 @@ graph2<- function(data,filter_values,title){
       geom_line(aes(time, value, colour = variable), linewidth = 0.8) +
       theme_bw() +
       theme(axis.text = element_text(size = 12),
-            axis.title = element_text(size = 12, face = "bold"),
+            axis.title = element_text(size = 12),
             legend.text = element_text(size = 10),
-            plot.title = element_text(size = 12, face = "bold",hjust = 0.5)) +
+            plot.title = element_text(size = 12, hjust = 0.5)) +
       labs(title=title,x = "Time (days)", y = "Proportion of Individuals", colour = "Population:")
   }
   
@@ -164,9 +167,8 @@ graph_barplot<-function(data){
                                           "LastIR" = "Cumulative incidence of infection (resistant strain)"),
                       values = c("LastIS" = "#163F9E", 
                                  "LastIR" = "#BD5E00")) +
-    labs(title = "Cumulative incidence of infection depending on the vaccine coverage", x = "Vaccine coverage", y = "Cumulative incidence of infection (per 100,000)") +
+    labs(x = "Vaccine coverage", y = "Cumulative incidence of infection (per 100,000)") +
     theme(axis.text = element_text(size = 12),
-          axis.title = element_text(size = 12, face = "bold"),
           legend.text = element_text(size = 10),
           plot.title = element_text(size = 12, face = "bold",hjust = 0.5)) +
     theme_minimal()
