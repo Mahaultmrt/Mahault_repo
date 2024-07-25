@@ -44,7 +44,7 @@ Init.cond<-create_initial_cond()
 run0<-run(Init.cond,param)
 run0_g<-graph(run0,c("Sa","CRa","CSa","S","CR","CS"),"S.Aureus Colonization dynamics \n(without virus epidemic)")
 run0_A<-graph(run0,c("Sa","CRa","CSa","S","CR","CS"),NULL)
-CR_CS0<-graph2(run0,c("CR_tot","CS_tot","C_tot"),"S.Aureus colonized people without a virus epidemic and without IPD")
+CR_CS0<-graph2(run0,c("CR_tot","CS_tot","C_tot"),"S.Aureus colonized people without a virus epidemic and without infection")
 
 # pas d'épidémie
 vec_virus=vec_virus_0

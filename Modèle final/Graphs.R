@@ -168,10 +168,13 @@ graph_barplot<-function(data){
                       values = c("LastIS" = "#163F9E", 
                                  "LastIR" = "#BD5E00")) +
     labs(x = "Vaccine coverage", y = "Cumulative incidence of infection (per 100,000)") +
+    theme_minimal()+
     theme(axis.text = element_text(size = 12),
+          axis.title.x = element_text(size=10),
+          axis.title.y = element_text(size=10),
           legend.text = element_text(size = 10),
-          plot.title = element_text(size = 12, face = "bold",hjust = 0.5)) +
-    theme_minimal()
+          plot.title = element_text(size = 12, face = "bold",hjust = 0.5)) 
+    
 }
 
 # Graphique pour avoir les sorties de modèles en fonction des trois couvertures vaccinales
