@@ -12,9 +12,9 @@ library(epiR)
 
 #Code modèle E.Coli
 
-create_params<-function(beta=0.012,ct=0.96,deltaRa=0,deltaSa=0,gamma=0.01,rho=1.8*10^-6,rhoRa=1.8*10^-6,rhoSa=1.8*10^-6,teta=0.0014,omega=0.14, alpha=0.33, sigmaR=1, ATB=0.1,phi=9.83)
+create_params<-function(beta=0.012,ct=0.96,deltaRa=0,deltaSa=0,gamma=0.01,rho=1.8*10^-6,rhoRa=1.8*10^-6,rhoSa=1.8*10^-6,theta=0.0014,omega=0.14, alpha=0.33, sigmaR=1, ATB=0.1,phi=9.83)
 {
-  list(beta=beta,ct=ct,deltaRa=deltaRa,deltaSa=deltaSa,gamma=gamma,rho=rho,rhoRa=rhoRa,rhoSa=rhoSa,teta=teta,omega=omega,alpha=alpha,sigmaR=sigmaR,ATB=ATB,phi=phi)
+  list(beta=beta,ct=ct,deltaRa=deltaRa,deltaSa=deltaSa,gamma=gamma,rho=rho,rhoRa=rhoRa,rhoSa=rhoSa,theta=theta,omega=omega,alpha=alpha,sigmaR=sigmaR,ATB=ATB,phi=phi)
 }
 
 create_initial_cond<-function(CSa0=100000*0.01*0.8,CRa0=100000*0.01*0.2,CS0=100000*0.99*0.8,CR0=100000*0.99*0.2,IRa0=0,ISa0=0){
@@ -24,7 +24,7 @@ create_initial_cond<-function(CSa0=100000*0.01*0.8,CRa0=100000*0.01*0.2,CS0=1000
 run<-function(Init.cond,param,Tmax=365,dt=1){
   Time=seq(from=0,to=Tmax,by=dt)
   result = as.data.frame(lsoda(Init.cond, Time, Res_model_Coli, param,vec_virus=vec_virus))
-  tot <- sum(result[1, !(colnames(result) %in% c("time", "IRa", "ISa","N","new_teta"))])
+  tot <- sum(result[1, !(colnames(result) %in% c("time", "IRa", "ISa","N","new_theta"))])
   proportion <- result
   proportion[ , -1] <- proportion[ , -1] / tot
   # proportion$CR_tot<-proportion$CRa+proportion$CR
@@ -80,7 +80,7 @@ run3<-run(Init.cond,param)
 run3_g<-graph(run3,NULL,title="E.Coli Colonization dynamics \nwith rotavirus epidemic and vaccine coverage at 50%")
 propC3<-graph(run3,c("CRa","CSa","CR","CS"),"E.Coli colonized people with rotavirus epidemic and vaccine coverage at 50%")
 CR_CS3<-graph2(run3,c("CR_tot","CS_tot","C_tot"),"E.Coli colonized people with rotavirus epidemic and vaccine coverage at 50%")
-tetas<-graph3(run3,c("teta","new_teta"),"Parameters teta for E.Coli colonization with 50% of vaccination for rotavirus")
+thetas<-graph3(run3,c("theta","new_theta"),"Parameters theta for E.Coli colonization with 50% of vaccination for rotavirus")
 
 
 
@@ -163,15 +163,15 @@ for (i in seq(1,21,by=1)){
 
 
 
-diff_graph(diff,NULL,NULL)
+diff_E<-diff_graph(diff,NULL,NULL)
 
-psa<-data.frame(beta = numeric(), ct=numeric(), gamma = numeric(),alpha = numeric(), teta=numeric(), omega = numeric(),ATB = numeric(), incidenceR=numeric(),incidenceS=numeric())
+psa<-data.frame(beta = numeric(), ct=numeric(), gamma = numeric(),alpha = numeric(), theta=numeric(), omega = numeric(),ATB = numeric(), incidenceR=numeric(),incidenceS=numeric())
 
 psa=data.frame(beta=runif(1000,0.8*0.065,1.2*0.065),
                ct=runif(1000,0.8*0.96,1.2*0.96),
                gamma=runif(1000,0.8*0.05,1.2*0.05),
                alpha=runif(1000,0.8*0.33,1.2*0.33),
-               teta=runif(1000,0.8*0.0014,1.2*0.0014),
+               theta=runif(1000,0.8*0.0014,1.2*0.0014),
                omega=runif(1000,0.8*0.08,1.2*0.08),
                ATB=runif(1000,0.8*0.1,1.2*0.1),
                incidenceR=0,
@@ -182,12 +182,12 @@ for (i in seq(1,1000,by=1)){
   ct<-psa$ct[i]
   gamma<-psa$gamma[i]
   alpha<-psa$alpha[i]
-  teta<-psa$teta[i]
+  theta<-psa$theta[i]
   omega<-psa$omega[i]
   ATB<-psa$ATB[i]
   
   vec_virus=I_vac_50
-  param<-create_params(beta=beta,ct=ct,gamma=gamma,alpha=alpha,teta=teta,omega=omega,ATB=ATB)
+  param<-create_params(beta=beta,ct=ct,gamma=gamma,alpha=alpha,theta=theta,omega=omega,ATB=ATB)
   Init.cond<-create_initial_cond(CRa0=tail(run0$CRa, n = 1),CSa0=tail(run0$CSa, n = 1),
                                  IRa0=tail(run0$IRa, n = 1),ISa0=tail(run0$ISa, n = 1),
                                  CR0=tail(run0$CR, n = 1),CS0=tail(run0$CS, n = 1))
@@ -207,7 +207,7 @@ psa_graph<-density_graph(psa)+
 
 psa_R<-psa[,-c(9)]
 psa_R = psa_R %>%
-  dplyr::select(beta,ct,gamma,alpha,teta,omega,ATB,incidenceR) %>%
+  dplyr::select(beta,ct,gamma,alpha,theta,omega,ATB,incidenceR) %>%
   epi.prcc() %>%
   rename(param = var)
 
@@ -215,7 +215,7 @@ graph_pcor(psa_R)
 
 psa_S<-psa[,-c(8)]
 psa_S = psa_S %>%
-  dplyr::select(beta,ct,gamma,alpha,teta,omega,ATB,incidenceS) %>%
+  dplyr::select(beta,ct,gamma,alpha,theta,omega,ATB,incidenceS) %>%
   epi.prcc() %>%
   rename(param = var)
 
@@ -225,7 +225,7 @@ graph_pcor(psa_S)
 psa$incidenceSR<-psa$incidenceR+psa$incidenceS
 psa_SR<-psa[,-c(8,9)]
 psa_SR = psa_SR %>%
-  dplyr::select(beta,ct,gamma,alpha,teta,omega,ATB,incidenceSR) %>%
+  dplyr::select(beta,ct,gamma,alpha,theta,omega,ATB,incidenceSR) %>%
   epi.prcc() %>%
   rename(param = var)
 graph_pcor(psa_SR)
@@ -250,12 +250,12 @@ for (i in seq(1,21,by=1)){
     ct<-psa$ct[j]
     gamma<-psa$gamma[j]
     alpha<-psa$alpha[j]
-    teta<-psa$teta[j]
+    theta<-psa$theta[j]
     omega<-psa$omega[j]
     ATB<-psa$ATB[j]
     
     vec_virus=I_vac[[i]]
-    param<-create_params(beta=beta,ct=ct,gamma=gamma,alpha=alpha,teta=teta,omega=omega,ATB=ATB)
+    param<-create_params(beta=beta,ct=ct,gamma=gamma,alpha=alpha,theta=theta,omega=omega,ATB=ATB)
     Init.cond<-create_initial_cond(CRa0=tail(run0$CRa, n = 1),CSa0=tail(run0$CSa, n = 1),
                                    IRa0=tail(run0$IRa, n = 1),ISa0=tail(run0$ISa, n = 1),
                                    CR0=tail(run0$CR, n = 1),CS0=tail(run0$CS, n = 1))
@@ -288,12 +288,12 @@ for (i in seq(1,21,by=1)){
     ct<-psa$ct[j]
     gamma<-psa$gamma[j]
     alpha<-psa$alpha[j]
-    teta<-psa$teta[j]
+    theta<-psa$theta[j]
     omega<-psa$omega[j]
     ATB<-psa$ATB[j]
     
     vec_virus=I_vac[[i]]
-    param<-create_params(beta=beta,ct=ct,gamma=gamma,alpha=alpha,teta=teta,omega=omega,ATB=ATB)
+    param<-create_params(beta=beta,ct=ct,gamma=gamma,alpha=alpha,theta=theta,omega=omega,ATB=ATB)
     Init.cond<-create_initial_cond(CRa0=tail(run0$CRa, n = 1),CSa0=tail(run0$CSa, n = 1),
                                    IRa0=tail(run0$IRa, n = 1),ISa0=tail(run0$ISa, n = 1),
                                    CR0=tail(run0$CR, n = 1),CS0=tail(run0$CS, n = 1))
@@ -326,12 +326,12 @@ for (i in seq(1,21,by=1)){
     ct<-psa$ct[j]
     gamma<-psa$gamma[j]
     alpha<-psa$alpha[j]
-    teta<-psa$teta[j]
+    theta<-psa$theta[j]
     omega<-psa$omega[j]
     ATB<-psa$ATB[j]
     
     vec_virus=I_vac[[i]]
-    param<-create_params(beta=beta,ct=ct,gamma=gamma,alpha=alpha,teta=teta,omega=omega,ATB=ATB)
+    param<-create_params(beta=beta,ct=ct,gamma=gamma,alpha=alpha,theta=theta,omega=omega,ATB=ATB)
     Init.cond<-create_initial_cond(CRa0=tail(run0$CRa, n = 1),CSa0=tail(run0$CSa, n = 1),
                                    IRa0=tail(run0$IRa, n = 1),ISa0=tail(run0$ISa, n = 1),
                                    CR0=tail(run0$CR, n = 1),CS0=tail(run0$CS, n = 1))
@@ -397,14 +397,14 @@ diff_sim$IS_ic_u=diff_sim$mean_incidence_IS+diff_sim$sd_incidence_IS
 diff_sim$ISR_ic_l=diff_sim$mean_incidence_ISR-diff_sim$sd_incidence_ISR
 diff_sim$ISR_ic_u=diff_sim$mean_incidence_ISR+diff_sim$sd_incidence_ISR
 
-diff_graph_sim(diff_sim)
+diff_sim_E<-diff_graph_sim(diff_sim)
 
 
 
 
-test_omega_teta<-data.frame(beta = numeric(), ct=numeric(), gamma = numeric(),alpha = numeric(),ATB = numeric(), incidenceR=numeric(),incidenceS=numeric())
+test_omega_theta<-data.frame(beta = numeric(), ct=numeric(), gamma = numeric(),alpha = numeric(),ATB = numeric(), incidenceR=numeric(),incidenceS=numeric())
 
-test_omega_teta=data.frame(beta=runif(1000,0.8*0.065,1.2*0.065),
+test_omega_theta=data.frame(beta=runif(1000,0.8*0.065,1.2*0.065),
                            ct=runif(1000,0.8*0.96,1.2*0.96),
                            gamma=runif(1000,0.8*0.05,1.2*0.05),
                            alpha=runif(1000,0.8*0.33,1.2*0.33),
@@ -413,12 +413,12 @@ test_omega_teta=data.frame(beta=runif(1000,0.8*0.065,1.2*0.065),
                            incidenceS=0)
 
 for (i in seq(1,1000,by=1)){
-  beta<-test_omega_teta$beta[i]
-  ct<-test_omega_teta$ct[i]
-  gamma<-test_omega_teta$gamma[i]
-  alpha<-test_omega_teta$alpha[i]
+  beta<-test_omega_theta$beta[i]
+  ct<-test_omega_theta$ct[i]
+  gamma<-test_omega_theta$gamma[i]
+  alpha<-test_omega_theta$alpha[i]
   
-  ATB<-test_omega_teta$ATB[i]
+  ATB<-test_omega_theta$ATB[i]
   
   vec_virus=I_vac_50
   param<-create_params(beta=beta,ct=ct,gamma=gamma,alpha=alpha,ATB=ATB)
@@ -426,19 +426,19 @@ for (i in seq(1,1000,by=1)){
                                  IRa0=tail(run0$IRa, n = 1),ISa0=tail(run0$ISa, n = 1),
                                  CR0=tail(run0$CR, n = 1),CS0=tail(run0$CS, n = 1))
   runi<-run(Init.cond,param)
-  test_omega_teta$incidenceR[i]=runi[["IRa"]][nrow(runi) - 1]
-  test_omega_teta$incidenceS[i]=runi[["ISa"]][nrow(runi) - 1]
+  test_omega_theta$incidenceR[i]=runi[["IRa"]][nrow(runi) - 1]
+  test_omega_theta$incidenceS[i]=runi[["ISa"]][nrow(runi) - 1]
   
 }
 
 
-test_omega_teta_R<-test_omega_teta[,-c(9)]
-test_omega_teta_R = test_omega_teta_R %>%
+test_omega_theta_R<-test_omega_theta[,-c(9)]
+test_omega_theta_R = test_omega_theta_R %>%
   dplyr::select(beta,ct,gamma,alpha,ATB,incidenceR) %>%
   epi.prcc() %>%
   rename(param = var)
 
-graph_pcor(test_omega_teta_R)
+graph_pcor(test_omega_theta_R)
 
 
 vec_virus=I_vac_70

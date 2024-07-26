@@ -58,15 +58,46 @@ Cumulative_incidence_E2<-ggdraw() +
 
 plot_grid(Cumulative_incidence_P2,Cumulative_incidence_A2,Cumulative_incidence_E2,legend4,ncol=2,rel_widths = c(1, 1, 0.3))
 
-legend5<- get_legend(h1_P)
+legend5<- get_legend(h1_A)
 h1_P <- h1_P + theme(legend.position = "none")
 h1_P2<-ggdraw() +
-  draw_plot(h1_P, 0, 0.05, 1, 0.95) +  
-  draw_label("Figure 5.A: S. Pneumonia cumulative incidence of infection depending on vaccine coverage and antibiotics", fontface = 'italic', x = 0.5, y = 0.02, hjust = 0.5, size = 10)
+  draw_plot(h1_P) +  
+  draw_plot_label("A")
 h1_A<- h1_A + theme(legend.position = "none")
 h1_A2<-ggdraw() +
-  draw_plot(h1_A, 0, 0.05, 1, 0.95) +  
-  draw_label("Figure 5.B: S.Aureus cumulative incidence of infection depending on vaccine coverage and antibiotics", fontface = 'italic', x = 0.5, y = 0.02, hjust = 0.5, size = 10)
+  draw_plot(h1_A) +  
+  draw_plot_label("B")
 
 plot_grid(h1_P2,h1_A2,legend5,ncol=3,rel_widths = c(1, 1, 0.5))
 
+legend6 <- get_legend(diff_P)
+diff_P <- diff_P + theme(legend.position = "none")
+diff_P2<-ggdraw() +
+  draw_plot(diff_P) +  
+  draw_plot_label("A")
+diff_A<- diff_A + theme(legend.position = "none")
+diff_A2<-ggdraw() +
+  draw_plot(diff_A) +  
+  draw_plot_label("B")
+diff_E<- diff_E+ theme(legend.position = "none")
+diff_E2<-ggdraw() +
+  draw_plot(diff_E) +  
+  draw_plot_label("C")
+
+plot_grid(diff_P2,diff_A2,diff_E2,legend6,ncol=2,rel_widths = c(1, 1, 0.3))
+
+legend7 <- get_legend(diff_sim_P)
+diff_sim_P <- diff_sim_P + theme(legend.position = "none")
+diff_sim_P2<-ggdraw() +
+  draw_plot(diff_sim_P) +  
+  draw_plot_label("A")
+diff_sim_A<- diff_sim_A + theme(legend.position = "none")
+diff_sim_A2<-ggdraw() +
+  draw_plot(diff_sim_A) +  
+  draw_plot_label("B")
+diff_sim_E<- diff_sim_E+ theme(legend.position = "none")
+diff_sim_E2<-ggdraw() +
+  draw_plot(diff_sim_E) +  
+  draw_plot_label("C")
+
+plot_grid(diff_sim_P2,diff_sim_A2,diff_sim_E2,legend7,ncol=2,rel_widths = c(1, 1, 0.3))
