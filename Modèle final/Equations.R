@@ -1,6 +1,5 @@
 #Code avec les équations des modèles
 #Res_model est le modèle pour S.Pneumoniae et S.Aureus
-
 Res_model <- function(t, pop, param,vec_virus) {
   
   with(as.list(c(pop, param)), {
@@ -22,8 +21,12 @@ Res_model <- function(t, pop, param,vec_virus) {
     dCR <- S*(beta*ct*(CRa+CR)/N)-gamma*CR+omega*CRa-new_theta*CR
     dCS <- S*(beta*(CSa+CS)/N)-gamma*CS+omega*CSa-new_theta*CS
     
+    dInc<-new_theta*S+new_theta*CR+new_theta*CS
     
-    res<-c(dSa,dCRa,dCSa,dIRa,dISa,dS,dCR,dCS)
+
+    res<-c(dSa,dCRa,dCSa,dIRa,dISa,dS,dCR,dCS,dInc)
+    
+
     
     
     list(res)
@@ -49,7 +52,9 @@ Res_model_Coli <- function(t, pop, param,vec_virus) {
     dIRa<- rhoRa*CRa+rho*CR
     dISa<-rhoSa*CSa+rho*CS
     
-    res<-c(dCSa,dCRa,dCS,dCR,dIRa,dISa)
+    dInc<-new_theta*CR+new_theta*CS
+    
+    res<-c(dCSa,dCRa,dCS,dCR,dIRa,dISa,dInc)
     
     list(res)
     

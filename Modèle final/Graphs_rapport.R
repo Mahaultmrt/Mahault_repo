@@ -58,17 +58,15 @@ Cumulative_incidence_E2<-ggdraw() +
 
 plot_grid(Cumulative_incidence_P2,Cumulative_incidence_A2,Cumulative_incidence_E2,legend4,ncol=2,rel_widths = c(1, 1, 0.3))
 
-legend5<- get_legend(h1_A)
-h1_P <- h1_P + theme(legend.position = "none")
+
 h1_P2<-ggdraw() +
   draw_plot(h1_P) +  
   draw_plot_label("A")
-h1_A<- h1_A + theme(legend.position = "none")
 h1_A2<-ggdraw() +
   draw_plot(h1_A) +  
   draw_plot_label("B")
 
-plot_grid(h1_P2,h1_A2,legend5,ncol=3,rel_widths = c(1, 1, 0.5))
+plot_grid(h1_P2,h1_A2,ncol=1,rel_widths = c(1, 1, 0.5))
 
 legend6 <- get_legend(diff_P)
 diff_P <- diff_P + theme(legend.position = "none")
