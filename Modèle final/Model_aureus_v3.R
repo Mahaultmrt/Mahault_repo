@@ -18,8 +18,8 @@ create_params<-function(beta=1.65*10^-2,ct=0.90,deltaRa=0,deltaSa=0,gamma=1.02*1
   list(beta=beta,ct=ct,deltaRa=deltaRa,deltaSa=deltaSa,gamma=gamma,rhoR=rhoR,rhoS=rhoS,rhoRa=rhoRa,rhoSa=rhoSa,theta=theta,omega=omega,alpha=alpha,sigmaR=sigmaR,sigmaS=sigmaS,ATB=ATB)
 }
 
-create_initial_cond<-function(Sa0=100000*0.02*0.7,CRa0=100000*0.02*0.03,CSa0=100000*0.02*0.27,IRa0=0,ISa0=0,S0=100000*0.98*0.7,CR0=100000*0.98*0.03,CS0=100000*0.98*0.27){
-  c(Sa=Sa0,CRa=CRa0,CSa=CSa0,IRa=IRa0,ISa=ISa0,S=S0,CR=CR0,CS=CS0)
+create_initial_cond<-function(Sa0=100000*0.02*0.7,CRa0=100000*0.02*0.03,CSa0=100000*0.02*0.27,IRa0=0,ISa0=0,S0=100000*0.98*0.7,CR0=100000*0.98*0.03,CS0=100000*0.98*0.27,Inc0=0){
+  c(Sa=Sa0,CRa=CRa0,CSa=CSa0,IRa=IRa0,ISa=ISa0,S=S0,CR=CR0,CS=CS0,Inc=Inc0)
 }
 
 run<-function(Init.cond,param,Tmax=365,dt=1){
@@ -156,7 +156,7 @@ for (i in seq(1,21,by=1)){
 }
 
 
-h1_A<-heatmap(corr_vacc_ATB_ISIR,"vacc","ATB","LastISIR","vaccine coverage","Antibiotics",
+h1_A<-heatmap(corr_vacc_ATB_ISIR,"vacc","ATB","LastISIR","Vaccine coverage","Antibiotics",
         "Cumulative incidence of infection \n(per 100,000)", NULL,values=TRUE,var_text="LastpropIR")
 
 
@@ -174,7 +174,7 @@ run4bis$vaccination<-"vacc 80%"
 all_run<-bind_rows(run2bis, run3bis, run4bis)
 all_run <- melt(all_run, id.vars = c("time", "vaccination"))
 
-
+all_run=all_run%>% filter(variable!="Inc")
 res_graphs_A<-all_graph(all_run,NULL)+
   geom_hline(yintercept=tail(run0$Sa, n = 1), linetype="dashed",color="#499124",alpha=0.5)+
   geom_hline(yintercept=tail(run0$CRa, n = 1), linetype="dashed",color="#DE6F00",alpha=0.5)+
@@ -188,12 +188,12 @@ res_graphs_A<-all_graph(all_run,NULL)+
 
 
 diff<- data.frame(vacc = numeric(), diffIR=numeric(), diffIS = numeric(),diffISIR=numeric())
-for (i in seq(1,21,by=1)){
+for (i in seq(0,20,by=1)){
   
   diffIR=(IR_final$LastIR[i+1]-IR_final$LastIR[1])/IR_final$LastIR[1]
   diffIS=(IS_final$LastIS[i+1]-IS_final$LastIS[1])/IS_final$LastIS[1]
   diffISIR=((IR_final$LastIR[i+1]+IS_final$LastIS[i+1])-(IR_final$LastIR[1]+IS_final$LastIS[1]))/(IR_final$LastIR[1]+IS_final$LastIS[1])
-  new_row=data.frame(vacc=results_df[i,1], diffIR, diffIS,diffISIR)
+  new_row=data.frame(vacc=results_df[i+1,1], diffIR, diffIS,diffISIR)
   diff <- bind_rows(diff, new_row)
   
 }
@@ -202,6 +202,33 @@ for (i in seq(1,21,by=1)){
 
 diff_A<-diff_graph(diff,NULL,NULL,NULL)
 
+exp_final<- data.frame(vacc = numeric(), exp = numeric())
+for (i in seq(1,21,by=1)){
+  
+  vec_virus=I_vac[[i]]
+  param<-create_params()
+  Init.cond<-create_initial_cond(Sa0=tail(run0$Sa, n = 1),CRa0=tail(run0$CRa, n = 1),CSa0=tail(run0$CSa, n = 1),
+                                 IRa0=tail(run0$IRa, n = 1),ISa0=tail(run0$ISa, n = 1),S0=tail(run0$S, n = 1),
+                                 CR0=tail(run0$CR, n = 1),CS0=tail(run0$CS, n = 1))
+  runt<-run(Init.cond,param)
+  exp=runt[["Inc"]][nrow(runt) - 1]
+  new_row=data.frame(vacc=results_df[i,1], exp)
+  exp_final <- bind_rows(exp_final, new_row)
+  col<-paste("vaccination",results_df[i,1])
+  
+}
+
+diff_exp<- data.frame(vacc = numeric(), diffexp=numeric())
+for (i in seq(0,20,by=1)){
+  
+  diffexp=(exp_final$exp[i+1]-exp_final$exp[1])/exp_final$exp[1]
+  new_row=data.frame(vacc=results_df[i+1,1], diffexp)
+  diff_exp <- bind_rows(diff_exp, new_row)
+  
+  
+}
+
+graph_diff_expA<-graph_exp(diff_exp,diff)
 
 psa<-data.frame(beta = numeric(), ct=numeric(), gamma = numeric(),alpha = numeric(), theta=numeric(), omega = numeric(),ATB = numeric(), incidenceR=numeric(),incidenceS=numeric())
 
@@ -237,7 +264,7 @@ for (i in seq(1,1000,by=1)){
 
 
 
-psa_graph<-density_graph(psa)+
+psa_graph_A<-density_graph(psa)+
   geom_vline(xintercept=run3[["IRa"]][nrow(run3) - 1],linetype="dashed",color="#BD5E00")+
   geom_vline(xintercept=run3[["ISa"]][nrow(run3) - 1],linetype="dashed",color="#163F9E")+
   geom_vline(xintercept=run3[["IRa"]][nrow(run3) - 1]+run3[["ISa"]][nrow(run3) - 1],linetype="dashed",color="#4B0082")
@@ -249,7 +276,7 @@ psa_R = psa_R %>%
   epi.prcc() %>%
   rename(param = var)
 
-graph_pcor(psa_R)
+pcorR_A<-graph_pcor(psa_R)
 
 psa_S<-psa[,-c(8)]
 psa_S = psa_S %>%
@@ -257,7 +284,7 @@ psa_S = psa_S %>%
   epi.prcc() %>%
   rename(param = var)
 
-graph_pcor(psa_S)
+pcorS_A<-graph_pcor(psa_S)
 
 
 psa$incidenceSR<-psa$incidenceR+psa$incidenceS
@@ -266,7 +293,7 @@ psa_SR = psa_SR %>%
   dplyr::select(beta,ct,gamma,alpha,theta,omega,ATB,incidenceSR) %>%
   epi.prcc() %>%
   rename(param = var)
-graph_pcor(psa_SR)
+pcorSR_A<-graph_pcor(psa_SR)
 
 
 
