@@ -11,8 +11,8 @@ library(epiR)
 library(cowplot)
 
 #Code modèle S.Pneumoniae
-create_params<-function(beta=0.065,ct=0.96,deltaRa=0,deltaSa=0,gamma=0.05,rhoR=3*10^-6,rhoS=3*10^-6,rhoRa=3.0*10^-6,rhoSa=3*10^-6,theta=0.0014,omega=0.08, alpha=0.33, sigmaR=1,sigmaS=0,ATB=0.1){
-  list(beta=beta,ct=ct,deltaRa=deltaRa,deltaSa=deltaSa,gamma=gamma,rhoR=rhoR,rhoS=rhoS,rhoRa=rhoRa,rhoSa=rhoSa,theta=theta,omega=omega,alpha=alpha,sigmaR=sigmaR,sigmaS=sigmaS,ATB=ATB)
+create_params<-function(beta=0.065,fcost=0.96,deltaRa=0,deltaSa=0,gamma=0.05,rhoR=3*10^-6,rhoS=3*10^-6,rhoRa=3.0*10^-6,rhoSa=3*10^-6,theta=0.0014,omega=0.08, alpha=0.33, sigmaR=1,sigmaS=0,ATB=0.1){
+  list(beta=beta,fcost=fcost,deltaRa=deltaRa,deltaSa=deltaSa,gamma=gamma,rhoR=rhoR,rhoS=rhoS,rhoRa=rhoRa,rhoSa=rhoSa,theta=theta,omega=omega,alpha=alpha,sigmaR=sigmaR,sigmaS=sigmaS,ATB=ATB)
 }
 
 create_initial_cond<-function(Sa0=100000*0.02*0.8,CRa0=100000*0.02*0.04,CSa0=100000*0.02*0.16,IRa0=0,ISa0=0,S0=100000*0.98*0.8,CR0=100000*0.98*0.04,CS0=100000*0.98*0.16,Inc0=0){
@@ -94,7 +94,7 @@ CR_CS4<-graph2(run4,c("CR_tot","CS_tot","C_tot"),"S.Pneumoniae colonized people 
 
 grid.arrange(run0_g,run2_g,run3_g,run4_g,ncol=2)
 
-IR_final <- data.frame(vacc = numeric(), LastIR = numeric())
+IR_final <- data.frame(vacc = numeric(), LastIR = numeric(), ratioIR=numeric())
 IS_final<- data.frame(vacc = numeric(), LastIS = numeric())
 for (i in seq(1,21,by=1)){
   
@@ -105,12 +105,14 @@ for (i in seq(1,21,by=1)){
                                  CR0=tail(run0$CR, n = 1),CS0=tail(run0$CS, n = 1))
   runt<-run(Init.cond,param)
   LastIR=runt[["IRa"]][nrow(runt) - 1]
-  new_row=data.frame(vacc=results_df[i,1], LastIR)
-  IR_final <- bind_rows(IR_final, new_row)
   LastIS=runt[["ISa"]][nrow(runt) - 1]
   new_row2=data.frame(vacc=results_df[i,1], LastIS)
   IS_final <- bind_rows(IS_final, new_row2)
   col<-paste("vaccination",results_df[i,1])
+  ratioIR=LastIR/(LastIR+LastIS)
+  new_row=data.frame(vacc=results_df[i,1], LastIR,ratioIR)
+  IR_final <- bind_rows(IR_final, new_row)
+  
   
 }
 
@@ -175,13 +177,14 @@ res_graphs_P<-all_graph(all_run,NULL)+
   geom_hline(yintercept=tail(run0$CS, n = 1), linetype="dashed",color="#2B9CFF",alpha=0.5)
 
 
-diff<- data.frame(vacc = numeric(), diffIR=numeric(), diffIS = numeric(),diffISIR=numeric())
+diff<- data.frame(vacc = numeric(), diffIR=numeric(), diffIS = numeric(),diffISIR=numeric(),diffratio=numeric())
 for (i in seq(0,20,by=1)){
 
   diffIR=(IR_final$LastIR[i+1]-IR_final$LastIR[1])/IR_final$LastIR[1]
   diffIS=(IS_final$LastIS[i+1]-IS_final$LastIS[1])/IS_final$LastIS[1]
   diffISIR=((IR_final$LastIR[i+1]+IS_final$LastIS[i+1])-(IR_final$LastIR[1]+IS_final$LastIS[1]))/(IR_final$LastIR[1]+IS_final$LastIS[1])
-  new_row=data.frame(vacc=results_df[i+1,1], diffIR, diffIS,diffISIR)
+  diffratio=(IR_final$ratioIR[i+1]-IR_final$ratioIR[1])/IR_final$ratioIR[1]
+  new_row=data.frame(vacc=results_df[i+1,1], diffIR, diffIS,diffISIR,diffratio)
   diff <- bind_rows(diff, new_row)
 
  
@@ -222,12 +225,12 @@ graph_diff_expP<-graph_exp(diff_exp,diff)
 
 ratio=data.frame(vacc=seq(0,1,by=0.05),ratio_exp_R=NA,ratioR_RS_exp=NA)
 ratio$ratio_exp_R=diff$diffIR/diff_exp$diffexp
-ratio$ratioR_RS_exp=(IR_final$LastIR/(IR_final$LastIR+IS_final$LastIS))/exp_final$exp
+ratio$ratioR_RS_exp=(diff$diffratio)/diff_exp$diffexp
 
-psa<-data.frame(beta = numeric(), ct=numeric(), gamma = numeric(),alpha = numeric(), theta=numeric(), omega = numeric(),ATB = numeric(), incidenceR=numeric(),incidenceS=numeric())
+psa<-data.frame(beta = numeric(), fcost=numeric(), gamma = numeric(),alpha = numeric(), theta=numeric(), omega = numeric(),ATB = numeric(), incidenceR=numeric(),incidenceS=numeric())
 
 psa=data.frame(beta=runif(1000,0.8*0.065,1.2*0.065),
-               ct=runif(1000,0.8*0.96,1.2*0.96),
+               fcost=runif(1000,0.8*0.96,1.2*0.96),
                gamma=runif(1000,0.8*0.05,1.2*0.05),
                alpha=runif(1000,0.8*0.33,1.2*0.33),
                theta=runif(1000,0.8*0.0014,1.2*0.0014),
@@ -238,7 +241,7 @@ psa=data.frame(beta=runif(1000,0.8*0.065,1.2*0.065),
 
 for (i in seq(1,1000,by=1)){
   beta<-psa$beta[i]
-  ct<-psa$ct[i]
+  fcost<-psa$fcost[i]
   gamma<-psa$gamma[i]
   alpha<-psa$alpha[i]
   theta<-psa$theta[i]
@@ -246,7 +249,7 @@ for (i in seq(1,1000,by=1)){
   ATB<-psa$ATB[i]
   
   vec_virus=I_vac_50
-  param<-create_params(beta=beta,ct=ct,gamma=gamma,alpha=alpha,theta=theta,omega=omega,ATB=ATB)
+  param<-create_params(beta=beta,fcost=fcost,gamma=gamma,alpha=alpha,theta=theta,omega=omega,ATB=ATB)
   Init.cond<-create_initial_cond(Sa0=tail(run0$Sa, n = 1),CRa0=tail(run0$CRa, n = 1),CSa0=tail(run0$CSa, n = 1),
                                  IRa0=tail(run0$IRa, n = 1),ISa0=tail(run0$ISa, n = 1),S0=tail(run0$S, n = 1),
                                  CR0=tail(run0$CR, n = 1),CS0=tail(run0$CS, n = 1))
@@ -266,7 +269,7 @@ psa_graph_P<-density_graph(psa)+
 
 psa_R<-psa[,-c(9)]
 psa_R = psa_R %>%
-  dplyr::select(beta,ct,gamma,alpha,theta,omega,ATB,incidenceR) %>%
+  dplyr::select(beta,fcost,gamma,alpha,theta,omega,ATB,incidenceR) %>%
   epi.prcc() %>%
   rename(param = var)
 
@@ -274,7 +277,7 @@ pcorR_P<-graph_pcor(psa_R)
 
 psa_S<-psa[,-c(8)]
 psa_S = psa_S %>%
-  dplyr::select(beta,ct,gamma,alpha,theta,omega,ATB,incidenceS) %>%
+  dplyr::select(beta,fcost,gamma,alpha,theta,omega,ATB,incidenceS) %>%
   epi.prcc() %>%
   rename(param = var)
 
@@ -284,7 +287,7 @@ pcorS_P<-graph_pcor(psa_S)
 psa$incidenceSR<-psa$incidenceR+psa$incidenceS
 psa_SR<-psa[,-c(8,9)]
 psa_SR = psa_SR %>%
-  dplyr::select(beta,ct,gamma,alpha,theta,omega,ATB,incidenceSR) %>%
+  dplyr::select(beta,fcost,gamma,alpha,theta,omega,ATB,incidenceSR) %>%
   epi.prcc() %>%
   rename(param = var)
 pcorSR_P<-graph_pcor(psa_SR)
@@ -306,7 +309,7 @@ IR_vacc_bis<-IR_vacc
 for (i in seq(1,21,by=1)){
   for (j in seq(1,100,by=1)){
     beta<-psa$beta[j]
-    ct<-psa$ct[j]
+    fcost<-psa$fcost[j]
     gamma<-psa$gamma[j]
     alpha<-psa$alpha[j]
     theta<-psa$theta[j]
@@ -314,7 +317,7 @@ for (i in seq(1,21,by=1)){
     ATB<-psa$ATB[j]
     
     vec_virus=I_vac[[i]]
-    param<-create_params(beta=beta,ct=ct,gamma=gamma,alpha=alpha,theta=theta,omega=omega,ATB=ATB)
+    param<-create_params(beta=beta,fcost=fcost,gamma=gamma,alpha=alpha,theta=theta,omega=omega,ATB=ATB)
     Init.cond<-create_initial_cond(Sa0=tail(run0$Sa, n = 1),CRa0=tail(run0$CRa, n = 1),CSa0=tail(run0$CSa, n = 1),
                                    IRa0=tail(run0$IRa, n = 1),ISa0=tail(run0$ISa, n = 1),S0=tail(run0$S, n = 1),
                                    CR0=tail(run0$CR, n = 1),CS0=tail(run0$CS, n = 1))
@@ -344,7 +347,7 @@ IS_vacc_bis<-IS_vacc
 for (i in seq(1,21,by=1)){
   for (j in seq(1,100,by=1)){
     beta<-psa$beta[j]
-    ct<-psa$ct[j]
+    fcost<-psa$fcost[j]
     gamma<-psa$gamma[j]
     alpha<-psa$alpha[j]
     theta<-psa$theta[j]
@@ -352,7 +355,7 @@ for (i in seq(1,21,by=1)){
     ATB<-psa$ATB[j]
     
     vec_virus=I_vac[[i]]
-    param<-create_params(beta=beta,ct=ct,gamma=gamma,alpha=alpha,theta=theta,omega=omega,ATB=ATB)
+    param<-create_params(beta=beta,fcost=fcost,gamma=gamma,alpha=alpha,theta=theta,omega=omega,ATB=ATB)
     Init.cond<-create_initial_cond(Sa0=tail(run0$Sa, n = 1),CRa0=tail(run0$CRa, n = 1),CSa0=tail(run0$CSa, n = 1),
                                    IRa0=tail(run0$IRa, n = 1),ISa0=tail(run0$ISa, n = 1),S0=tail(run0$S, n = 1),
                                    CR0=tail(run0$CR, n = 1),CS0=tail(run0$CS, n = 1))
@@ -382,7 +385,7 @@ ISR_vacc_bis<-ISR_vacc
 for (i in seq(1,21,by=1)){
   for (j in seq(1,100,by=1)){
     beta<-psa$beta[j]
-    ct<-psa$ct[j]
+    fcost<-psa$fcost[j]
     gamma<-psa$gamma[j]
     alpha<-psa$alpha[j]
     theta<-psa$theta[j]
@@ -390,7 +393,7 @@ for (i in seq(1,21,by=1)){
     ATB<-psa$ATB[j]
     
     vec_virus=I_vac[[i]]
-    param<-create_params(beta=beta,ct=ct,gamma=gamma,alpha=alpha,theta=theta,omega=omega,ATB=ATB)
+    param<-create_params(beta=beta,fcost=fcost,gamma=gamma,alpha=alpha,theta=theta,omega=omega,ATB=ATB)
     Init.cond<-create_initial_cond(Sa0=tail(run0$Sa, n = 1),CRa0=tail(run0$CRa, n = 1),CSa0=tail(run0$CSa, n = 1),
                                    IRa0=tail(run0$IRa, n = 1),ISa0=tail(run0$ISa, n = 1),S0=tail(run0$S, n = 1),
                                    CR0=tail(run0$CR, n = 1),CS0=tail(run0$CS, n = 1))
@@ -461,10 +464,10 @@ diff_sim_P<-diff_graph_sim(diff_sim)
 
 
 
-test_omega_theta<-data.frame(beta = numeric(), ct=numeric(), gamma = numeric(),alpha = numeric(),ATB = numeric(), incidenceR=numeric(),incidenceS=numeric())
+test_omega_theta<-data.frame(beta = numeric(), fcost=numeric(), gamma = numeric(),alpha = numeric(),ATB = numeric(), incidenceR=numeric(),incidenceS=numeric())
 
 test_omega_theta=data.frame(beta=runif(1000,0.8*0.065,1.2*0.065),
-               ct=runif(1000,0.8*0.96,1.2*0.96),
+               fcost=runif(1000,0.8*0.96,1.2*0.96),
                gamma=runif(1000,0.8*0.05,1.2*0.05),
                alpha=runif(1000,0.8*0.33,1.2*0.33),
                ATB=runif(1000,0.8*0.1,1.2*0.1),
@@ -473,14 +476,14 @@ test_omega_theta=data.frame(beta=runif(1000,0.8*0.065,1.2*0.065),
 
 for (i in seq(1,1000,by=1)){
   beta<-test_omega_theta$beta[i]
-  ct<-test_omega_theta$ct[i]
+  fcost<-test_omega_theta$fcost[i]
   gamma<-test_omega_theta$gamma[i]
   alpha<-test_omega_theta$alpha[i]
   
   ATB<-test_omega_theta$ATB[i]
   
   vec_virus=I_vac_50
-  param<-create_params(beta=beta,ct=ct,gamma=gamma,alpha=alpha,ATB=ATB)
+  param<-create_params(beta=beta,fcost=fcost,gamma=gamma,alpha=alpha,ATB=ATB)
   Init.cond<-create_initial_cond(Sa0=tail(run0$Sa, n = 1),CRa0=tail(run0$CRa, n = 1),CSa0=tail(run0$CSa, n = 1),
                                  IRa0=tail(run0$IRa, n = 1),ISa0=tail(run0$ISa, n = 1),S0=tail(run0$S, n = 1),
                                  CR0=tail(run0$CR, n = 1),CS0=tail(run0$CS, n = 1))
@@ -493,7 +496,7 @@ for (i in seq(1,1000,by=1)){
 
 test_omega_theta_R<-test_omega_theta[,-c(9)]
 test_omega_theta_R = test_omega_theta_R %>%
-  dplyr::select(beta,ct,gamma,alpha,ATB,incidenceR) %>%
+  dplyr::select(beta,fcost,gamma,alpha,ATB,incidenceR) %>%
   epi.prcc() %>%
   rename(param = var)
 

@@ -346,12 +346,12 @@ graph_pcor<-function(data){
     geom_pointrange(aes(x = param, y = est, ymin = lower, ymax = upper), size = 0.8) +
     theme_bw() +
     theme(axis.text = element_text(size=12),
-          axis.title = element_text(size=12)) +
+          axis.title = element_text(size=8)) +
     labs(colour = "", x = "Parameters", y = "Correlation coefficient with cumulative incidence")+
     scale_x_discrete(labels = c(bquote(alpha),
                                 bquote(ATB),
                                 bquote(beta),
-                                bquote(ct),
+                                bquote(fcost),
                                 bquote(gamma),
                                 bquote(omega),
                                 bquote(theta)))
