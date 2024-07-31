@@ -99,3 +99,54 @@ diff_sim_E2<-ggdraw() +
   draw_plot_label("C")
 
 plot_grid(diff_sim_P2,diff_sim_A2,diff_sim_E2,legend7,ncol=2,rel_widths = c(1, 1, 0.3))
+
+legend8 <- get_legend(pcorR_P)
+pcorR_P <- pcorR_P + theme(legend.position = "none")
+pcorR_P2<-ggdraw() +
+  draw_plot(pcorR_P) +  
+  draw_plot_label("A")
+pcorR_A<- pcorR_A + theme(legend.position = "none")
+pcorR_A2<-ggdraw() +
+  draw_plot(pcorR_A) +  
+  draw_plot_label("B")
+pcorR_E<- pcorR_E+ theme(legend.position = "none")
+pcorR_E2<-ggdraw() +
+  draw_plot(pcorR_E) +  
+  draw_plot_label("C")
+
+plot_grid(pcorR_P2,pcorR_A2,pcorR_E2,legend8,ncol=2,rel_widths = c(1, 1, 0.3))
+
+legend9 <- get_legend(pcorS_P)
+pcorS_P <- pcorS_P + theme(legend.position = "none")
+pcorS_P2<-ggdraw() +
+  draw_plot(pcorS_P) +  
+  draw_plot_label("A")
+pcorS_A<- pcorS_A + theme(legend.position = "none")
+pcorS_A2<-ggdraw() +
+  draw_plot(pcorS_A) +  
+  draw_plot_label("B")
+pcorS_E<- pcorS_E+ theme(legend.position = "none")
+pcorS_E2<-ggdraw() +
+  draw_plot(pcorS_E) +  
+  draw_plot_label("C")
+
+plot_grid(pcorS_P2,pcorS_A2,pcorS_E2,legend9,ncol=2,rel_widths = c(1, 1, 0.3))
+
+
+legend10 <- get_legend(pcorSR_P)
+pcorSR_P <- pcorSR_P + theme(legend.position = "none")
+pcorSR_P2<-ggdraw() +
+  draw_plot(pcorSR_P) +  
+  draw_plot_label("A")
+pcorSR_A<- pcorSR_A + theme(legend.position = "none")
+pcorSR_A2<-ggdraw() +
+  draw_plot(pcorSR_A) +  
+  draw_plot_label("B")
+pcorSR_E<- pcorSR_E+ theme(legend.position = "none")
+pcorSR_E2<-ggdraw() +
+  draw_plot(pcorSR_E) +  
+  draw_plot_label("C")
+
+plot_grid(pcorSR_P2,pcorSR_A2,pcorSR_E2,legend10,ncol=2,rel_widths = c(1, 1, 0.3))
+
+
