@@ -150,3 +150,35 @@ pcorSR_E2<-ggdraw() +
 plot_grid(pcorSR_P2,pcorSR_A2,pcorSR_E2,legend10,ncol=2,rel_widths = c(1, 1, 0.3))
 
 
+legend11 <- get_legend(psa_graph_P)
+psa_graph_P <- psa_graph_P + theme(legend.position = "none")
+psa_graph_P2<-ggdraw() +
+  draw_plot(psa_graph_P) +  
+  draw_plot_label("A")
+psa_graph_A<- psa_graph_A + theme(legend.position = "none")
+psa_graph_A2<-ggdraw() +
+  draw_plot(psa_graph_A) +  
+  draw_plot_label("B")
+psa_graph_E<- psa_graph_E+ theme(legend.position = "none")
+psa_graph_E2<-ggdraw() +
+  draw_plot(psa_graph_E) +  
+  draw_plot_label("C")
+
+plot_grid(psa_graph_P2,psa_graph_A2,psa_graph_E2,legend11,ncol=2,rel_widths = c(1, 1, 0.3))
+
+
+legend12 <- get_legend(psa_graph_P)
+graph_diff_expP <- graph_diff_expP + theme(legend.position = "none")
+graph_diff_expP2<-ggdraw() +
+  draw_plot(graph_diff_expP) +  
+  draw_plot_label("A")
+graph_diff_expA<- graph_diff_expA + theme(legend.position = "none")
+graph_diff_expA2<-ggdraw() +
+  draw_plot(graph_diff_expA) +  
+  draw_plot_label("B")
+graph_diff_expE<- graph_diff_expE+ theme(legend.position = "none")
+graph_diff_expE2<-ggdraw() +
+  draw_plot(graph_diff_expE) +  
+  draw_plot_label("C")
+
+plot_grid(graph_diff_expP2,graph_diff_expA2,graph_diff_expE2,legend12,ncol=2,rel_widths = c(1, 1, 0.3))
