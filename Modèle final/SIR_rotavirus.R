@@ -121,6 +121,34 @@ I_vac_80<-approxfun(r3$time,r3%>%
                       pull)
 
 
+# vaccination 70% efficacité vaccinale 30%
+param<-create_params(vf=0.3)
+Init.cond<-create_initial_cond(Sv0=99500*0.7,Snv0=99500*0.3)
+r70<-run(Init.cond,param)
+I_vac_70<-approxfun(r70$time,r70%>%
+                      mutate(propInc=Incidence)%>%
+                      select(propInc)%>%
+                      pull)
+
+# vaccination 30% efficacité vaccinale 70%
+param<-create_params(vf=0.7)
+Init.cond<-create_initial_cond(Sv0=99500*0.3,Snv0=99500*0.7)
+r30<-run(Init.cond,param)
+I_vac_30<-approxfun(r30$time,r30%>%
+                      mutate(propInc=Incidence)%>%
+                      select(propInc)%>%
+                      pull)
+
+
+# vaccination 46% efficacité vaccinale 46%
+param<-create_params(vf=0.46)
+Init.cond<-create_initial_cond(Sv0=99500*0.46,Snv0=99500*0.54)
+r46<-run(Init.cond,param)
+I_vac_46<-approxfun(r46$time,r46%>%
+                      mutate(propInc=Incidence)%>%
+                      select(propInc)%>%
+                      pull)
+
 
 
 vec_virus_0<-function(time){
