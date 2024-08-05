@@ -99,9 +99,7 @@ run4_g<-graph(run4,NULL,title="S.Aureus Colonization dynamics \nwith influenza e
 propC4<-graph(run4,c("CRa","CSa","CR","CS"),"S.Aureus colonized people with influenza epidemic and vaccine coverage at 80%")
 CR_CS4<-graph2(run4,c("CR_tot","CS_tot"),"S.Aureus colonized people with influenza epidemic and vaccine coverage at 80%")
 
-grid.arrange(run0_g,run2_g,run3_g,run4_g,ncol=2)
-
-
+# Tableau avec les différentes incidences cumulées des infections en fonction de la couverture vaccinale
 
 IR_final <- data.frame(vacc = numeric(), LastIR = numeric(), ratioIR=numeric())
 IS_final<- data.frame(vacc = numeric(), LastIS = numeric())
@@ -125,15 +123,15 @@ for (i in seq(1,21,by=1)){
   
 }
 
-
+# Fusion des deux tableaux pour avoir les deux souches dans un même tableau
 I_final<-merge(IR_final,IS_final,by="vacc")
 I_final <- pivot_longer(I_final, cols = c(LastIR,LastIS), names_to = "Strain", values_to = "Value")
 I_final$Strain <- factor(I_final$Strain, levels = c("LastIS","LastIR"))
 
-
+# Barplot des différentes incidences cumulées des infections en fonction de la vaccination
 Cumulative_incidence_A<-graph_barplot(I_final)
 
-
+# Tableau des incidences cumulées des infections (S+R) en fonction de la vaccinaion et ATB
 corr_vacc_ATB_ISIR<- data.frame(vacc = numeric(), ATB=numeric(), LastISIR = numeric(), LastpropIR=numeric())
 for (i in seq(1,21,by=1)){
   for(j in seq(0,0.5,by=0.1)){
@@ -157,12 +155,12 @@ for (i in seq(1,21,by=1)){
   
 }
 
-
+#heatmap des incidences cumulées des infections (S+R) en fonction de la vaccinaion et ATB
 h1_A<-heatmap(corr_vacc_ATB_ISIR,"vacc","ATB","LastISIR","Vaccine coverage","Antibiotics",
         "Cumulative incidence of infection \n(per 100,000)", NULL,values=TRUE,var_text="LastpropIR")
 
 
-
+# Tableau des pourcentages d'individus susceptibles, colonisés, exposés et non exposés aux antibiotiques
 data0<-percentage_final(run0)
 
 run2bis<-run2
@@ -177,6 +175,8 @@ all_run<-bind_rows(run2bis, run3bis, run4bis)
 all_run <- melt(all_run, id.vars = c("time", "vaccination"))
 
 all_run=all_run%>% filter(variable!="Inc")
+
+# Graphique avec les trois sorties du modèle en fonction des vaccination
 res_graphs_A<-all_graph(all_run,NULL)+
   geom_hline(yintercept=tail(run0$Sa, n = 1), linetype="dashed",color="#499124",alpha=0.5)+
   geom_hline(yintercept=tail(run0$CRa, n = 1), linetype="dashed",color="#DE6F00",alpha=0.5)+
@@ -188,7 +188,7 @@ res_graphs_A<-all_graph(all_run,NULL)+
   geom_hline(yintercept=tail(run0$CS, n = 1), linetype="dashed",color="#2B9CFF",alpha=0.5)
 
 
-
+# Tableau des différence relative selon la vaccination (S et R)
 diff<- data.frame(vacc = numeric(), diffIR=numeric(), diffIS = numeric(),diffISIR=numeric(),diffratio=numeric())
 for (i in seq(0,20,by=1)){
   
@@ -202,9 +202,10 @@ for (i in seq(0,20,by=1)){
   
 }
 
-
+# Courbes des différences relatives selon la vaccination
 diff_A<-diff_graph(diff,NULL,NULL,NULL)
 
+# Calcule de l'exposition finale aux antibiotiques selon la vaccination
 exp_final<- data.frame(vacc = numeric(), exp = numeric())
 for (i in seq(1,21,by=1)){
   
@@ -221,6 +222,7 @@ for (i in seq(1,21,by=1)){
   
 }
 
+# Différences relatives des expostions finales aux antibiotiques
 diff_exp<- data.frame(vacc = numeric(), diffexp=numeric())
 for (i in seq(0,20,by=1)){
   
@@ -231,11 +233,15 @@ for (i in seq(0,20,by=1)){
   
 }
 
+# Courbes des différences relatives d'expositions aux antibiotiques en fonction de la vaccination
 graph_diff_expA<-graph_exp(diff_exp,diff)
+
+# Calcules des ratio infection/exposition aux antibiotiques
 ratio=data.frame(vacc=seq(0,1,by=0.05),ratio_exp_R=NA,ratioR_RS_exp=NA)
 ratio$ratio_exp_R=diff$diffIR/diff_exp$diffexp
 ratio$ratioR_RS_exp=(diff$diffratio)/diff_exp$diffexp
 
+# Analyse de sensibilité probabiliste
 psa<-data.frame(beta = numeric(), fcost=numeric(), gamma = numeric(),alpha = numeric(), theta=numeric(), omega = numeric(),ATB = numeric(), incidenceR=numeric(),incidenceS=numeric())
 
 psa=data.frame(beta=runif(1000,0.8*0.065,1.2*0.065),
@@ -275,7 +281,7 @@ psa_graph_A<-density_graph(psa)+
   geom_vline(xintercept=run3[["ISa"]][nrow(run3) - 1],linetype="dashed",color="#163F9E")+
   geom_vline(xintercept=run3[["IRa"]][nrow(run3) - 1]+run3[["ISa"]][nrow(run3) - 1],linetype="dashed",color="#4B0082")
 
-
+# Analyse de correlation partielle
 psa_R<-psa[,-c(9)]
 psa_R = psa_R %>%
   dplyr::select(beta,fcost,gamma,alpha,theta,omega,ATB,incidenceR) %>%
@@ -302,14 +308,9 @@ psa_SR = psa_SR %>%
 pcorSR_A<-graph_pcor(psa_SR)
 
 
+# Tableau pour créer les courbes de différences relatives avec plusieurs simulations
 
-ggplot(psa[,-c(9)], aes(x = gamma, y = incidenceR)) +
-  geom_point()
-ggplot(psa[,-c(8)], aes(x = gamma, y = incidenceS)) +
-  geom_point()
-ggplot(psa[,-c(8,9)], aes(x = gamma, y = incidenceSR)) +
-  geom_point()
-
+# Souche résistante
 IR_vacc<-data.frame(matrix(ncol=20),nrow=0)
 colnames(IR_vacc)<-seq(0, 1, by = 0.05)
 IR_vacc_bis<-IR_vacc
@@ -348,6 +349,7 @@ for (j in seq(1,100,by=1)){
 IR_vacc_bis <- gather(IR_vacc_bis, key = "vacc", value = "incidence")
 IR_vacc_bis$vacc <- as.numeric(as.character(IR_vacc_bis$vacc))
 
+# Souche sensible
 
 IS_vacc<-data.frame(matrix(ncol=20),nrow=0)
 colnames(IS_vacc)<-seq(0, 1, by = 0.05)
@@ -386,6 +388,7 @@ for (j in seq(1,100,by=1)){
 IS_vacc_bis <- gather(IS_vacc_bis, key = "vacc", value = "incidence")
 IS_vacc_bis$vacc <- as.numeric(as.character(IS_vacc_bis$vacc))
 
+# Souche résistante + sensible
 
 ISR_vacc<-data.frame(matrix(ncol=20),nrow=0)
 colnames(ISR_vacc)<-seq(0, 1, by = 0.05)
@@ -428,6 +431,7 @@ diff_graph(diff,IR_vacc_bis,IS_vacc_bis,ISR_vacc_bis)
 
 diff_sim<-data.frame(vacc=seq(0,1,by=0.05))
 
+# Calculs des valeurs moyennes
 mean_values_IR <- IR_vacc_bis %>%
   group_by(vacc) %>%
   summarise(mean_incidence_IR = mean(incidence, na.rm = TRUE))
@@ -460,7 +464,7 @@ sd_values_ISR <- ISR_vacc_bis %>%
   summarise(sd_incidence_ISR = sd(incidence, na.rm = TRUE))
 diff_sim$sd_incidence_ISR<-sd_values_ISR$sd_incidence_ISR
 
-
+# Calculs des intervals de confiance
 diff_sim$IR_ic_l=diff_sim$mean_incidence_IR-diff_sim$sd_incidence_IR
 diff_sim$IR_ic_u=diff_sim$mean_incidence_IR+diff_sim$sd_incidence_IR
 diff_sim$IS_ic_l=diff_sim$mean_incidence_IS-diff_sim$sd_incidence_IS
@@ -468,50 +472,13 @@ diff_sim$IS_ic_u=diff_sim$mean_incidence_IS+diff_sim$sd_incidence_IS
 diff_sim$ISR_ic_l=diff_sim$mean_incidence_ISR-diff_sim$sd_incidence_ISR
 diff_sim$ISR_ic_u=diff_sim$mean_incidence_ISR+diff_sim$sd_incidence_ISR
 
+# Courbes des différences relatives avec les valeurs moyennes et intervalles de confiance
 diff_sim_A<-diff_graph_sim(diff_sim)
 
 
+# Tests couverture vaccinale et efficacité vaccinale
 
-
-test_omega_theta<-data.frame(beta = numeric(), fcost=numeric(), gamma = numeric(),alpha = numeric(),ATB = numeric(), incidenceR=numeric(),incidenceS=numeric())
-
-test_omega_theta=data.frame(beta=runif(1000,0.8*0.065,1.2*0.065),
-                           fcost=runif(1000,0.8*0.96,1.2*0.96),
-                           gamma=runif(1000,0.8*0.05,1.2*0.05),
-                           alpha=runif(1000,0.8*0.33,1.2*0.33),
-                           ATB=runif(1000,0.8*0.1,1.2*0.1),
-                           incidenceR=0,
-                           incidenceS=0)
-
-for (i in seq(1,1000,by=1)){
-  beta<-test_omega_theta$beta[i]
-  fcost<-test_omega_theta$fcost[i]
-  gamma<-test_omega_theta$gamma[i]
-  alpha<-test_omega_theta$alpha[i]
-  
-  ATB<-test_omega_theta$ATB[i]
-  
-  vec_virus=I_vac_50
-  param<-create_params(beta=beta,fcost=fcost,gamma=gamma,alpha=alpha,ATB=ATB)
-  Init.cond<-create_initial_cond(Sa0=tail(run0$Sa, n = 1),CRa0=tail(run0$CRa, n = 1),CSa0=tail(run0$CSa, n = 1),
-                                 IRa0=tail(run0$IRa, n = 1),ISa0=tail(run0$ISa, n = 1),S0=tail(run0$S, n = 1),
-                                 CR0=tail(run0$CR, n = 1),CS0=tail(run0$CS, n = 1))
-  runi<-run(Init.cond,param)
-  test_omega_theta$incidenceR[i]=runi[["IRa"]][nrow(runi) - 1]
-  test_omega_theta$incidenceS[i]=runi[["ISa"]][nrow(runi) - 1]
-  
-}
-
-
-test_omega_theta_R<-test_omega_theta[,-c(9)]
-test_omega_theta_R = test_omega_theta_R %>%
-  dplyr::select(beta,fcost,gamma,alpha,ATB,incidenceR) %>%
-  epi.prcc() %>%
-  rename(param = var)
-
-graph_pcor(test_omega_theta_R)
-
-
+# Couverture vaccinale 70% effecicité 30%
 vec_virus=I_vac_70
 param<-create_params()
 Init.cond<-create_initial_cond(Sa0=tail(run0$Sa, n = 1),CRa0=tail(run0$CRa, n = 1),CSa0=tail(run0$CSa, n = 1),
@@ -522,6 +489,7 @@ IR70<-run70[["IRa"]][nrow(run70) - 1]
 IS70<-run70[["ISa"]][nrow(run70) - 1]
 ISR70<-run70[["ISa"]][nrow(run70) - 1]+run70[["IRa"]][nrow(run70) - 1]
 
+# Couverture vaccinale 30% effecicité 70%
 vec_virus=I_vac_30
 param<-create_params()
 Init.cond<-create_initial_cond(Sa0=tail(run0$Sa, n = 1),CRa0=tail(run0$CRa, n = 1),CSa0=tail(run0$CSa, n = 1),
@@ -532,6 +500,7 @@ IR30<-run30[["IRa"]][nrow(run30) - 1]
 IS30<-run30[["ISa"]][nrow(run30) - 1]
 ISR30<-run30[["ISa"]][nrow(run30) - 1]+run30[["IRa"]][nrow(run30) - 1]
 
+# Couverture vaccinale 46% effeicité 46%
 vec_virus=I_vac_46
 param<-create_params()
 Init.cond<-create_initial_cond(Sa0=tail(run0$Sa, n = 1),CRa0=tail(run0$CRa, n = 1),CSa0=tail(run0$CSa, n = 1),
@@ -548,15 +517,3 @@ test_vacc<-data.frame(vacc=c(0.70,0.30,0.46),incidenceR=c(IR70,IR30,IR46),incide
 test_vacc <- pivot_longer(test_vacc, cols = c(incidenceR,incidenceS), names_to = "Strain", values_to = "Value")
 
 
-ggplot(test_vacc, aes(fill=Strain, y=Value, x=vacc)) + 
-  geom_bar(position="stack", stat="identity")+
-  scale_fill_manual(name=" ",labels = c("incidenceS" = "Cumulative incidence of infection (senstive strain)", 
-                                        "incidenceR" = "Cumulative incidence of infection (resistant strain)"),
-                    values = c("incidenceS" = "#163F9E", 
-                               "incidenceR" = "#BD5E00")) +
-  labs(title = "", x = "Vaccine coverage", y = "Cumulative incidence of infection (per 100,000)") +
-  theme(axis.text = element_text(size = 12),
-        axis.title = element_text(size = 12, face = "bold"),
-        legend.text = element_text(size = 10),
-        plot.title = element_text(size = 12, face = "bold",hjust = 0.5)) +
-  theme_minimal()

@@ -317,7 +317,7 @@ graph_exp<-function(data,data2){
             plot.title = element_text(size = 12, face = "bold",hjust = 0.5))
   }
   
-}s
+}
 density_graph<- function(data){
   ggplot() +   
     geom_density(data=data, aes(x=incidenceR,y = ..count../sum(..count..),colour="Incidence of infection (resistant strain)",fill="Incidence of infection (resistant strain)"),alpha=0.5)+

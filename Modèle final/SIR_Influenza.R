@@ -140,8 +140,8 @@ I_vac_30<-approxfun(r30$time,r30%>%
                       pull)
 
 
-# vaccination 46%
-param<-create_params()
+# vaccination 46% efficacité vaccinale 46%
+param<-create_params(vf=0.46)
 Init.cond<-create_initial_cond(Sv0=99500*0.46,Snv0=99500*0.54)
 r46<-run(Init.cond,param)
 I_vac_46<-approxfun(r46$time,r46%>%
