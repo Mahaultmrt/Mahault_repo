@@ -190,6 +190,6 @@ I_R<-graph_I_R(results_df)
   
 
 combined_Incidence<-data.frame(time=seq(from=0,to=365,by=1),no_vaccination=r1$Incidence,vaccination_50=r2$Incidence,vaccination_80=r3$Incidence)
-I_flu<-graph2(combined_Incidence,NULL,NULL)
+I_flu<-graph4(combined_Incidence,NULL,NULL)
 
 
