@@ -20,6 +20,7 @@ SIR_model_vacc_2 <- function(t, pop, param) {
     dRnv<-gamma*Inv*(1-Ps)
     
     Incidence<-Sv*beta*(1-vf)*((Iv+Inv)/N)+Snv*beta*((Iv+Inv)/N)
+
     
     res <-c(dSv,dSnv,dIv,dInv,dRv,dRnv)
     list(res,Incidence=Incidence)
@@ -198,7 +199,7 @@ I_R<-graph_I_R(results_df)
 grid.arrange(propI1_g,propI2_g,propI3_g,I_R,ncol=2)
 
 combined_Incidence<-data.frame(time=seq(from=0,to=365,by=1),no_vaccination=r1$Incidence,vaccination_50=r2$Incidence,vaccination_80=r3$Incidence)
-I_rota<-graph2(combined_Incidence,NULL,NULL)
+I_rota<-graph4(combined_Incidence,NULL,NULL)
 
 
 

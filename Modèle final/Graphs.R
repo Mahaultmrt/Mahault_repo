@@ -3,7 +3,6 @@ library(scales)
 # Code avec les fonctions pour afficher les graphiques de sortie des modèles + heatmap
 
 graph<- function(data,filter_values,title){
-  #data_name<-as.character(substitute(data))
   color_values <- c("Sa" = "#499124", "CRa" = "#DE6F00", "CSa" = "#2072BA", "IRa" = "#BD5E00", "ISa" = "#163F9E", 
                     "S" = "#68CF33", "CR"="#FC7E00", "CS"="#2B9CFF")
   
@@ -46,8 +45,7 @@ graph<- function(data,filter_values,title){
   return(p)
 }
 graph2<- function(data,filter_values,title){
-  #data_name<-as.character(substitute(data))
-  
+
   
   if(!is.null(filter_values))
   {
@@ -81,8 +79,7 @@ graph2<- function(data,filter_values,title){
 
 
 graph3<- function(data,filter_values,title){
-  #data_name<-as.character(substitute(data))
-  
+
   
   if(!is.null(filter_values))
   {
@@ -113,6 +110,40 @@ graph3<- function(data,filter_values,title){
       labs(title=title,x = "Time (days)", y = "Proportion of Individuals", colour = "Population:")+
       scale_y_continuous(breaks = function(x) pretty(x, n = 10))    
     
+  }
+  
+  return(p)
+}
+
+graph4<- function(data,filter_values,title){
+  
+  if(!is.null(filter_values))
+  {
+    p<-data %>%
+      melt(id = "time") %>%
+      filter(variable %in% filter_values) %>%
+      ggplot() +
+      geom_line(aes(time, value, colour = variable), linewidth = 0.8) +
+      theme_bw() +
+      theme(axis.text = element_text(size = 12),
+            axis.title = element_text(size = 12),
+            legend.text = element_text(size = 10),
+            plot.title = element_text(size = 12,hjust = 0.5)) +
+      labs(title=title,x = "Time (days)", y = "Proportion of newly infected individuals", colour = "Vaccination coverage:")+
+      scale_color_discrete(labels = c("no_vaccination" = "0%", "vaccination_50" = "50%", "vaccination_80" = "80%"))
+  }
+  else{
+    p<-data %>%
+      melt(id = "time") %>%
+      ggplot() +
+      geom_line(aes(time, value, colour = variable), linewidth = 0.8) +
+      theme_bw() +
+      theme(axis.text = element_text(size = 12),
+            axis.title = element_text(size = 12),
+            legend.text = element_text(size = 10),
+            plot.title = element_text(size = 12, hjust = 0.5)) +
+      labs(title=title,x = "Time (days)", y = "Proportion of newly infected individuals", colour = "Vaccination coverage:")+
+      scale_color_discrete(labels = c("no_vaccination" = "0%", "vaccination_50" = "50%", "vaccination_80" = "80%"))
   }
   
   return(p)
@@ -222,16 +253,16 @@ diff_graph<- function(data,data2,data3,data4){
   
   if(is.null(data2) || is.null(data3) || is.null(data4)){
     ggplot() +   
-      geom_point(data=data, aes(x=vacc,y=diffIR,colour="difference in cumulative infection (resistant strain)"))+
-      geom_line(data=data, aes(x=vacc,y=diffIR,colour="difference in cumulative infection (resistant strain)"))+
-      geom_point(data=data, aes(x=vacc,y=diffIS, colour="difference in cumulative infection (sensitive strain)"))+
-      geom_line(data=data, aes(x=vacc,y=diffIS, colour="difference in cumulative infection (sensitive strain)"))+
-      geom_point(data=data, aes(x=vacc,y=diffISIR, colour="difference in cumulative infection (sensitive strain and resistant strain)"))+
-      geom_line(data=data, aes(x=vacc,y=diffISIR, colour="difference in cumulative infection (sensitive strain and resistant strain)"))+
+      geom_point(data=data, aes(x=vacc,y=diffIR,colour="resistant strain"))+
+      geom_line(data=data, aes(x=vacc,y=diffIR,colour="resistant strain"))+
+      geom_point(data=data, aes(x=vacc,y=diffIS, colour="sensitive strain"))+
+      geom_line(data=data, aes(x=vacc,y=diffIS, colour="sensitive strain"))+
+      geom_point(data=data, aes(x=vacc,y=diffISIR, colour="sensitive strain + resistant strain"))+
+      geom_line(data=data, aes(x=vacc,y=diffISIR, colour="sensitive strain + resistant strain"))+
       labs(y = "Relative difference in cumulative infection",
            x = "Vaccine coverage",size=6) +
-      scale_colour_manual(name = "Legend", values = c("difference in cumulative infection (resistant strain)" = "#BD5E00", "difference in cumulative infection (sensitive strain)" = "#163F9E",
-                                                      "difference in cumulative infection (sensitive strain and resistant strain)"="#4B0082")) +
+      scale_colour_manual(name = "Difference in cumulative infection for:", values = c("resistant strain" = "#BD5E00", "sensitive strain" = "#163F9E",
+                                                      "sensitive strain + resistant strain"="#4B0082")) +
       theme_bw()+
       theme(axis.text = element_text(size = 12),
             axis.title = element_text(size = 10),
@@ -240,19 +271,19 @@ diff_graph<- function(data,data2,data3,data4){
   }
   else{
     ggplot() +   
-      geom_point(data=data, aes(x=vacc,y=diffIR,colour="difference in cumulative infection (resistant strain)"))+
-      geom_line(data=data, aes(x=vacc,y=diffIR,colour="difference in cumulative infection (resistant strain)"))+
-      geom_point(data=data, aes(x=vacc,y=diffIS, colour="difference in cumulative infection (sensitive strain)"))+
-      geom_line(data=data, aes(x=vacc,y=diffIS, colour="difference in cumulative infection (sensitive strain)"))+
-      geom_point(data=data, aes(x=vacc,y=diffISIR, colour="difference in cumulative infection (sensitive strain and resistant strain)"))+
-      geom_line(data=data, aes(x=vacc,y=diffISIR, colour="difference in cumulative infection (sensitive strain and resistant strain)"))+
-      geom_point(data=data2, aes(x=vacc,y=incidence, colour="difference in cumulative infection (resistant strain)"), size=0.3)+
-      geom_point(data=data3, aes(x=vacc,y=incidence, colour="difference in cumulative infection (sensitive strain)"), size=0.3)+
-      geom_point(data=data4, aes(x=vacc,y=incidence, colour="difference in cumulative infection (sensitive strain and resistant strain)"), size=0.3)+
+      geom_point(data=data, aes(x=vacc,y=diffIR,colour="resistant strain"))+
+      geom_line(data=data, aes(x=vacc,y=diffIR,colour="resistant strain"))+
+      geom_point(data=data, aes(x=vacc,y=diffIS, colour="sensitive strain"))+
+      geom_line(data=data, aes(x=vacc,y=diffIS, colour="sensitive strain"))+
+      geom_point(data=data, aes(x=vacc,y=diffISIR, colour="sensitive strain + resistant strain"))+
+      geom_line(data=data, aes(x=vacc,y=diffISIR, colour="sensitive strain + resistant strain"))+
+      geom_point(data=data2, aes(x=vacc,y=incidence, colour="resistant strain"), size=0.3)+
+      geom_point(data=data3, aes(x=vacc,y=incidence, colour="sensitive strain"), size=0.3)+
+      geom_point(data=data4, aes(x=vacc,y=incidence, colour="sensitive strain + resistant strain"), size=0.3)+
       labs(y = "Relative difference in cumulative infection",
            x = "Vaccine coverage",size=6) +
-      scale_colour_manual(name = "Legend", values = c("difference in cumulative infection (resistant strain)" = "#BD5E00", "difference in cumulative infection (sensitive strain)" = "#163F9E",
-                                                      "difference in cumulative infection (sensitive strain and resistant strain)"="#4B0082")) +
+      scale_colour_manual(name = "Difference in cumulative infection for:", values = c("resistant strain" = "#BD5E00", "sensitive strain" = "#163F9E",
+                                                      "sensitive strain + resistant strain"="#4B0082")) +
       theme_bw()+
       theme(axis.text = element_text(size = 12),
             axis.title = element_text(size = 10),
@@ -264,20 +295,20 @@ diff_graph<- function(data,data2,data3,data4){
 
 diff_graph_sim<- function(data){
   ggplot() +   
-    geom_point(data=data, aes(x=vacc,y=mean_incidence_IR,colour="Relative difference in cumulative infection (resistant strain)"))+
-    geom_line(data=data, aes(x=vacc,y=mean_incidence_IR,colour="Relative difference in cumulative infection (resistant strain)"))+
-    geom_errorbar(data=data, aes(x=vacc,ymin=IR_ic_l,ymax=IR_ic_u,colour="Relative difference in cumulative infection (resistant strain)"),width=0.05)+
-    geom_point(data=data, aes(x=vacc,y=mean_incidence_IS, colour="Relative difference in cumulative infection (sensitive strain)"))+
-    geom_line(data=data, aes(x=vacc,y=mean_incidence_IS, colour="Relative difference in cumulative infection (sensitive strain)"))+
-    geom_errorbar(data=data, aes(x=vacc,ymin=IS_ic_l,ymax=IS_ic_u,colour="Relative difference in cumulative infection (sensitive strain)"),width=0.05)+
-    geom_point(data=data, aes(x=vacc,y=mean_incidence_ISR, colour="Relative difference in cumulative infection (sensitive strain and resistant strain)"))+
-    geom_line(data=data, aes(x=vacc,y=mean_incidence_ISR, colour="Relative difference in cumulative infection (sensitive strain and resistant strain)"))+
-    geom_errorbar(data=data, aes(x=vacc,ymin=ISR_ic_l,ymax=ISR_ic_u,colour="Relative difference in cumulative infection (sensitive strain and resistant strain)"),width=0.05)+
+    geom_point(data=data, aes(x=vacc,y=mean_incidence_IR,colour="resistant strain"))+
+    geom_line(data=data, aes(x=vacc,y=mean_incidence_IR,colour="resistant strain"))+
+    geom_errorbar(data=data, aes(x=vacc,ymin=IR_ic_l,ymax=IR_ic_u,colour="resistant strain"),width=0.05)+
+    geom_point(data=data, aes(x=vacc,y=mean_incidence_IS, colour="sensitive strain"))+
+    geom_line(data=data, aes(x=vacc,y=mean_incidence_IS, colour="sensitive strain"))+
+    geom_errorbar(data=data, aes(x=vacc,ymin=IS_ic_l,ymax=IS_ic_u,colour="sensitive strain"),width=0.05)+
+    geom_point(data=data, aes(x=vacc,y=mean_incidence_ISR, colour="sensitive strain + resistant strain"))+
+    geom_line(data=data, aes(x=vacc,y=mean_incidence_ISR, colour="sensitive strain + resistant strain"))+
+    geom_errorbar(data=data, aes(x=vacc,ymin=ISR_ic_l,ymax=ISR_ic_u,colour="sensitive strain + resistant strain"),width=0.05)+
     geom_hline(yintercept=0,linetype="dashed",alpha=0.5)+
     labs(y = "Relative difference in cumulative infection",
          x = "Vaccine coverage",size=6) +
-    scale_colour_manual(name = "Legend", values = c("Relative difference in cumulative infection (resistant strain)" = "#BD5E00", "Relative difference in cumulative infection (sensitive strain)" = "#163F9E",
-                                                    "Relative difference in cumulative infection (sensitive strain and resistant strain)"="#4B0082")) +
+    scale_colour_manual(name = "Difference in cumulative infection for:", values = c("resistant strain" = "#BD5E00", "sensitive strain" = "#163F9E",
+                                                    "sensitive strain + resistant strain"="#4B0082")) +
     theme_bw()+
     theme(axis.text = element_text(size = 12),
           axis.title = element_text(size = 10),
