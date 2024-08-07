@@ -237,9 +237,9 @@ for (i in seq(0,20,by=1)){
 graph_diff_expA<-graph_exp(diff_exp,diff)
 
 # Calcules des ratio infection/exposition aux antibiotiques
-ratio=data.frame(vacc=seq(0,1,by=0.05),ratio_exp_R=NA,ratioR_RS_exp=NA)
-ratio$ratio_exp_R=diff$diffIR/diff_exp$diffexp
-ratio$ratioR_RS_exp=(diff$diffratio)/diff_exp$diffexp
+ratio_A=data.frame(vacc=seq(0,1,by=0.05),ratio_exp_R=NA,ratioR_RS_exp=NA)
+ratio_A$ratio_exp_R=diff$diffIR/diff_exp$diffexp
+ratio_A$ratioR_RS_exp=(diff$diffratio)/diff_exp$diffexp
 
 # Analyse de sensibilité probabiliste
 psa<-data.frame(beta = numeric(), fcost=numeric(), gamma = numeric(),alpha = numeric(), theta=numeric(), omega = numeric(),ATB = numeric(), incidenceR=numeric(),incidenceS=numeric())
