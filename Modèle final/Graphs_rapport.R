@@ -1,4 +1,4 @@
-legend <- get_legend(run0_A)
+legend <- get_legend(run0_P)
 run0_P <- run0_P + theme(legend.position = "none")
 run0_P2<-ggdraw() +
   draw_plot(run0_P) +  
@@ -167,7 +167,7 @@ psa_graph_E2<-ggdraw() +
 plot_grid(psa_graph_P2,psa_graph_A2,psa_graph_E2,legend11,ncol=2,rel_widths = c(1, 1, 0.3))
 
 
-legend12 <- get_legend(psa_graph_P)
+legend12 <- get_legend(graph_diff_expP)
 graph_diff_expP <- graph_diff_expP + theme(legend.position = "none")
 graph_diff_expP2<-ggdraw() +
   draw_plot(graph_diff_expP) +  
