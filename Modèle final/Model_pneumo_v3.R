@@ -233,6 +233,8 @@ graph_diff_expP<-graph_exp(diff_exp,diff)
 ratio_P=data.frame(vacc=seq(0,1,by=0.05),ratio_exp_R=NA,ratioR_RS_exp=NA)
 ratio_P$ratio_exp_R=diff$diffIR/diff_exp$diffexp
 ratio_P$ratioR_RS_exp=(diff$diffratio)/diff_exp$diffexp
+# ratio_P$ratio_exp_R=diff_exp$diffexp/diff$diffIR
+
 
 
 # Analyse de sensibilité probabiliste

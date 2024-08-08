@@ -320,13 +320,13 @@ diff_graph_sim<- function(data){
 graph_exp<-function(data,data2){
   if(!is.null(data2)){
     ggplot() +   
-      geom_point(data=data, aes(x=vacc,y=diffexp,colour="difference in cumulative incidence of exposure"))+
-      geom_line(data=data, aes(x=vacc,y=diffexp,colour="difference in cumulative incidence of exposure"))+
-      geom_point(data=data2, aes(x=vacc,y=diffIR,colour="difference in cumulative infection (resistant strain)"))+
-      geom_line(data=data2, aes(x=vacc,y=diffIR,colour="difference in cumulative infection (resistant strain)"))+
+      geom_point(data=data, aes(x=vacc,y=diffexp,colour="exposure to antibiotics"))+
+      geom_line(data=data, aes(x=vacc,y=diffexp,colour="exposure to antibiotics"))+
+      geom_point(data=data2, aes(x=vacc,y=diffIR,colour="infection of resistant strain"))+
+      geom_line(data=data2, aes(x=vacc,y=diffIR,colour="infection of resistant strain"))+
       labs(y = "Relative difference in cumulative incidence",
            x = "Vaccine coverage",size=6) +
-      scale_colour_manual(name = "Legend", values = c("difference in cumulative incidence of exposure" = "#FFDB58","difference in cumulative infection (resistant strain)"= "#BD5E00")) +
+      scale_colour_manual(name = "Difference in cumulative incidence of:", values = c("exposure to antibiotics" = "#FFDB58","infection of resistant strain"= "#BD5E00")) +
       theme_bw()+
       theme(axis.text = element_text(size = 12),
             axis.title = element_text(size = 10),
@@ -336,11 +336,11 @@ graph_exp<-function(data,data2){
   }
   else{
     ggplot() +   
-      geom_point(data=data, aes(x=vacc,y=diffexp,colour="difference in cumulative incidence of exposure"))+
-      geom_line(data=data, aes(x=vacc,y=diffexp,colour="difference in cumulative incidence of exposure"))+
-      labs(y = "Relative difference in cumulative incidence of exposure",
+      geom_point(data=data, aes(x=vacc,y=diffexp,colour="exposure to antibiotics"))+
+      geom_line(data=data, aes(x=vacc,y=diffexp,colour="exposure to antibiotics"))+
+      labs(y = "Relative difference in cumulative incidence of exposure to antibiotics",
            x = "Vaccine coverage",size=6) +
-      scale_colour_manual(name = "Legend", values = c("difference in cumulative incidence of exposure" = "#FFDB58")) +
+      scale_colour_manual(name = "Difference in cumulative infection for:", values = c("exposure to antibiotics" = "#FFDB58")) +
       theme_bw()+
       theme(axis.text = element_text(size = 12),
             axis.title = element_text(size = 10),
