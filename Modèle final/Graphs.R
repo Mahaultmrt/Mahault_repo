@@ -259,6 +259,7 @@ diff_graph<- function(data,data2,data3,data4){
       geom_line(data=data, aes(x=vacc,y=diffIS, colour="sensitive strain"))+
       geom_point(data=data, aes(x=vacc,y=diffISIR, colour="sensitive strain + resistant strain"))+
       geom_line(data=data, aes(x=vacc,y=diffISIR, colour="sensitive strain + resistant strain"))+
+      geom_hline(yintercept=0,linetype="dashed",alpha=0.5)+
       labs(y = "Relative difference in cumulative infection",
            x = "Vaccine coverage",size=6) +
       scale_colour_manual(name = "Difference in cumulative infection for:", values = c("resistant strain" = "#BD5E00", "sensitive strain" = "#163F9E",
@@ -280,6 +281,7 @@ diff_graph<- function(data,data2,data3,data4){
       geom_point(data=data2, aes(x=vacc,y=incidence, colour="resistant strain"), size=0.3)+
       geom_point(data=data3, aes(x=vacc,y=incidence, colour="sensitive strain"), size=0.3)+
       geom_point(data=data4, aes(x=vacc,y=incidence, colour="sensitive strain + resistant strain"), size=0.3)+
+      geom_hline(yintercept=0,linetype="dashed",alpha=0.5)+
       labs(y = "Relative difference in cumulative infection",
            x = "Vaccine coverage",size=6) +
       scale_colour_manual(name = "Difference in cumulative infection for:", values = c("resistant strain" = "#BD5E00", "sensitive strain" = "#163F9E",

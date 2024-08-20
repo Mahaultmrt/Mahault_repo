@@ -156,7 +156,7 @@ for (i in seq(1,21,by=1)){
 }
 
 #heatmap des incidences cumulées des infections (S+R) en fonction de la vaccinaion et ATB
-h1_A<-heatmap(corr_vacc_ATB_ISIR,"vacc","ATB","LastISIR","Vaccine coverage","Antibiotics",
+h1_A<-heatmap(corr_vacc_ATB_ISIR,"vacc","ATB","LastISIR","Vaccine coverage","Prop. exposed to Antibiotics",
         "Cumulative incidence of infection \n(per 100,000)", NULL,values=TRUE,var_text="LastpropIR")
 
 
