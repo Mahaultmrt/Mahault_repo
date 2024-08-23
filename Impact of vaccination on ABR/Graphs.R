@@ -22,7 +22,8 @@ graph<- function(data,filter_values,title){
             legend.text = element_text(size = 10),
             plot.title = element_text(size = 12,hjust = 0.5)) +
       labs(x = "Time (days)", y = "Proportion of Individuals", colour = "Population:")+
-      scale_color_manual(values = color_values)
+      scale_color_manual(values = color_values)+
+      ylim(0,0.8)
     
   }
   
@@ -37,7 +38,8 @@ graph<- function(data,filter_values,title){
             legend.text = element_text(size = 10),
             plot.title = element_text(size = 12,hjust = 0.5)) +
       labs(x = "Time (days)", y = "Proportion of Individuals", colour = "Population:")+
-      scale_color_manual(values = color_values)
+      scale_color_manual(values = color_values)+
+      ylim(0,0.8)
     
     
   }
