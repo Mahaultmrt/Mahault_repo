@@ -383,12 +383,12 @@ graph_pcor<-function(data){
     theme(axis.text = element_text(size=12),
           axis.title = element_text(size=8)) +
     labs(colour = "", x = "Parameters", y = "Correlation coefficient with cumulative incidence")+
-    scale_x_discrete(labels = c(bquote(alpha),
-                                bquote(ATB),
-                                bquote(beta),
-                                bquote(fcost),
-                                bquote(gamma),
-                                bquote(omega),
-                                bquote(theta)))
+    scale_x_discrete(labels = c("alpha"=bquote(alpha),
+                                "ATB"=bquote(ATB),
+                                "beta"=bquote(beta),
+                                "fitness"=bquote(fitness),
+                                "gamma"=bquote(gamma),
+                                "omega"=bquote(omega),
+                                "theta"=bquote(theta[0])))
 }
 
