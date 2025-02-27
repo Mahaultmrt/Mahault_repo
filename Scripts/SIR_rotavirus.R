@@ -11,88 +11,91 @@ SIR_model_vacc_2 <- function(t, pop, param) {
     
     N=Sv+Snv+Iv+Inv+Rv+Rnv
     
-   
-    dSv<- -Sv*beta*(1-vf)*((Iv+Inv)/N)
-    dSnv<- -Snv*beta*((Iv+Inv)/N)
-    dIv<- Sv*beta*(1-vf)*((Iv+Inv)/N) -gamma*Iv
-    dInv<-Snv*beta*((Iv+Inv)/N)-gamma*Inv
-    dRv<-gamma*Iv
-    dRnv<-gamma*Inv
+    
+    dSv<- -Sv*beta*(1-vf)*((Iv+Inv)/N)+gamma*Ps*Iv*(1-vf)
+    dSnv<- -Snv*beta*((Iv+Inv)/N)+gamma*Ps*Inv
+    dIv<- Sv*beta*(1-vf)*((Iv+Inv)/N) -gamma*(1-Ps*(1-vf))*Iv-gamma*Ps*Iv*(1-vf)
+    dInv<-Snv*beta*((Iv+Inv)/N)-gamma*(1-Ps)*Inv-gamma*Ps*Inv
+    dRv<-gamma*Iv*(1-(Ps*(1-vf)))
+    dRnv<-gamma*Inv*(1-Ps)
     
     Incidence<-Sv*beta*(1-vf)*((Iv+Inv)/N)+Snv*beta*((Iv+Inv)/N)
+
     
     res <-c(dSv,dSnv,dIv,dInv,dRv,dRnv)
     list(res,Incidence=Incidence)
-
+    
     
   })
   
 }
 
-create_params<-function(beta=0.28,gamma=0.14,vf=0.6)
+
+create_params<-function(beta=0.8,gamma=0.14,vf=0.643,Ps=0.75)
 {
-  list(beta=beta,gamma=gamma,vf=vf)
+  list(beta=beta,gamma=gamma,vf=vf,Ps=Ps)
 }
 
 create_initial_cond<-function(Sv0=0,Snv0=99500,Iv0=0,Inv0=500,Rv0=0,Rnv0=0){
   c(Sv=Sv0,Snv=Snv0,Iv=Iv0,Inv=Inv0,Rv=Rv0,Rnv=Rnv0)
 }
 
-run<-function(Init.cond,param,Tmax=365,dt=1){
+run<-function(Init.cond,param,Tmax=366,dt=1){
   Time=seq(from=0,to=Tmax,by=dt)
   result = as.data.frame(lsoda(Init.cond, Time, SIR_model_vacc_2, param))
-  tot <- sum(result[1, !(colnames(result) %in% c("time", "Incidence"))])
+  tot <- sum(result[1, !(colnames(result) %in% c("time", "Incidence","N"))])
   result$Incidence<-result$Incidence/tot
+
   return(result)
   
 }
 
 
-#pas de vaccination
+
+#no vaccincation
 param<-create_params()
 Init.cond<-create_initial_cond()
 r1<-run(Init.cond,param)
 r1$Iv_Inv<-r1$Iv+r1$Inv
-r1_g<- graph2(r1,NULL,title="Epidemic Dynamics of Influenza per 100,000 Population without vaccination")
+r1_g<- graph2(r1,NULL,title="Epidemic Dynamics of Rotavirus per 100,000 Population without vaccination")
 I_g1<-graph2(r1,"Iv_Inv", title="Infected Individuals without vaccination")
-Iv_Inv_g1<-graph2(r1,c("Iv","Inv"),title="Infected Individuals per 100,000 without vaccination")
+Iv_Inv_g1<-graph2(r1,c("Iv","Inv"),title="Infected Individuals without vaccination")
 prop_I1=r1%>%
   mutate(propI=Iv_Inv/(Sv+Iv+Rv+Snv+Inv+Rnv))%>%
   select(propI)%>%
   pull
 r1$propI<-prop_I1
-propI1_g<-graph2(r1,"propI","Porpotion of Infected Individuals \nwithout Vaccination for Influenza")
+propI1_g<-graph2(r1,"propI","Proportion od people infected by Rotavirus \nwithout Vaccination for Rotavirus")
 Incidence1<-graph2(r1,"Incidence","Incidence of infected people without vaccination")
 grid.arrange(I_g1,Iv_Inv_g1,ncol=1)
 
-
 I_vac_0<-approxfun(r1$time,r1%>%
-                        mutate(propInc=Incidence)%>%
-                        select(propInc)%>%
-                        pull)
+                     mutate(propInc=Incidence)%>%
+                     select(propInc)%>%
+                     pull)
 
 # vaccination 50%
 param<-create_params()
 Init.cond<-create_initial_cond(Sv0=99500*0.5,Snv0=99500*0.5)
 r2<-run(Init.cond,param)
 r2$Iv_Inv<-r2$Iv+r2$Inv
-r2_g<- graph2(r2,NULL,title="Epidemic Dynamics of Influenza per 100,000 Population with 50% vaccine coverage")
+r2_g<- graph2(r2,NULL,title="Epidemic Dynamics of Rotavirus per 100,000 Population with 50% vaccine coverage")
 I_g2<-graph2(r2,"Iv_Inv", title="Infected Individuals with 50% vaccine covergage")
-Iv_Inv_g2<-graph2(r2,c("Iv","Inv"),title="Infected Individuals with 50% vaccine coverage")
+Iv_Inv_g2<-graph2(r2,c("Iv","Inv"),title="Infected Individuals \nwith 50% vaccine coverage")
 prop_I2=r2%>%
   mutate(propI=Iv_Inv/(Sv+Iv+Rv+Snv+Inv+Rnv))%>%
   select(propI)%>%
   pull
 r2$propI<-prop_I2
-propI2_g<-graph2(r2,"propI","Proportion of People infected by Influenza with 50% vaccine Coverage")
+propI2_g<-graph2(r2,"propI","Proportion od people infected by Rotavirus \nwith 50% Vaccination Coverage for Rotavirus")
 Incidence2<-graph2(r2,"Incidence","Incidence of infected people \nwith 50% vaccine coverage")
 grid.arrange(I_g2,Iv_Inv_g2,ncol=1)
 
 
 I_vac_50<-approxfun(r2$time,r2%>%
-                     mutate(propInc=Incidence)%>%
-                     select(propInc)%>%
-                     pull)
+                      mutate(propInc=Incidence)%>%
+                      select(propInc)%>%
+                      pull)
 
 
 
@@ -101,7 +104,7 @@ param<-create_params()
 Init.cond<-create_initial_cond(Sv0=99500*0.8,Snv0=99500*0.2)
 r3<-run(Init.cond,param)
 r3$Iv_Inv<-r3$Iv+r3$Inv
-r3_g<- graph2(r3,NULL,title="Epidemic Dynamics of Influenza per 100,000 Population with 80% vaccine coverage for Influenza")
+r3_g<- graph2(r3,NULL,title="Epidemic Dynamics of Rotavirus per 100,000 Population with 80% vaccine coverage")
 I_g3<-graph2(r3,"Iv_Inv", title="Infected Individuals with 80% vaccine covergage")
 Iv_Inv_g3<-graph2(r3,c("Iv","Inv"),title="Infected Individuals with 80% vaccine coverage")
 prop_I3=r3%>%
@@ -109,7 +112,7 @@ prop_I3=r3%>%
   select(propI)%>%
   pull
 r3$propI<-prop_I3
-propI3_g<-graph2(r3,"propI","Porpotion of Infected Individuals \nwith 80% vaccine Coverage for Influenza")
+propI3_g<-graph2(r3,"propI","Proportion od people infected by Rotavirus \nwith 80% Vaccination Coverage for Rotavirus")
 Incidence3<-graph2(r3,"Incidence","Incidence of infected people \nwith 80% vaccine coverage")
 grid.arrange(I_g3,Iv_Inv_g3,ncol=1)
 
@@ -117,8 +120,6 @@ I_vac_80<-approxfun(r3$time,r3%>%
                       mutate(propInc=Incidence)%>%
                       select(propInc)%>%
                       pull)
-
-grid.arrange(I_g3,Iv_Inv_g3,ncol=1)
 
 
 # vaccination 70% efficacité vaccinale 30%
@@ -150,12 +151,17 @@ I_vac_46<-approxfun(r46$time,r46%>%
                       pull)
 
 
+
 vec_virus_0<-function(time){
   return(0)
 }
 
+grid.arrange(r1_g,r2_g,r3_g,ncol=2)
+grid.arrange(I_g1,I_g2,I_g3,ncol=2)
 
-results_df <- data.frame(vacc = numeric(), max_propI = numeric(), last_propR=numeric())
+
+
+results_df <- data.frame(vacc = numeric(), Max_I = numeric())
 I_vac<-list()
 for (i in seq(0,1,by=0.05)){
   param<-create_params()
@@ -181,15 +187,19 @@ for (i in seq(0,1,by=0.05)){
   results_df <- bind_rows(results_df, new_row)
   virus<-approxfun(r$time,prop_Inc)
   I_vac<-append(I_vac,virus)
- 
-
+  
+  
 }
 
 
 I_R<-graph_I_R(results_df)
-  
 
-combined_Incidence<-data.frame(time=seq(from=0,to=365,by=1),no_vaccination=r1$Incidence,vaccination_50=r2$Incidence,vaccination_80=r3$Incidence)
-I_flu<-graph4(combined_Incidence,NULL,NULL)
+
+
+grid.arrange(propI1_g,propI2_g,propI3_g,I_R,ncol=2)
+
+combined_Incidence_rota<-data.frame(time=seq(from=0,to=366,by=1),no_vaccination=r1$Incidence,vaccination_50=r2$Incidence,vaccination_80=r3$Incidence)
+I_rota<-graph4(combined_Incidence_rota,NULL,NULL)
+
 
 
