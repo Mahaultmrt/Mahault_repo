@@ -9,22 +9,22 @@ library(gt)
 library(tidyr)
 library(epiR)
 
-source(here::here("Impact of vaccination on ABR", "Equations.R"))
-source(here::here("Impact of vaccination on ABR", "Graphs.R"))
-source(here::here("Impact of vaccination on ABR", "SIR_rotavirus.R"))
+source(here::here("Scripts", "Equations.R"))
+source(here::here("Scripts", "Graphs.R"))
+source(here::here("Scripts", "SIR_rotavirus.R"))
 
 #Code modèle E.Coli
 
-create_params<-function(beta=0.012,fitness=0.96,deltaRa=0,deltaSa=0,gamma=0.01,rho=1.8*10^-6,rhoRa=1.8*10^-6,rhoSa=1.8*10^-6,theta=0.0014,omega=0.14, alpha=0.33, sigmaR=1, ATB=0.1,phi=9.83)
+create_params<-function(beta=0.012,fitness=0.95,gamma=0.01,rho=1.8*10^-6,rhoRa=1.8*10^-6,rhoSa=1.8*10^-6,theta=0.0015,omega=0.14, ATB=0.1, phi=9.83)
 {
-  list(beta=beta,fitness=fitness,deltaRa=deltaRa,deltaSa=deltaSa,gamma=gamma,rho=rho,rhoRa=rhoRa,rhoSa=rhoSa,theta=theta,omega=omega,alpha=alpha,sigmaR=sigmaR,ATB=ATB,phi=phi)
+  list(beta=beta,fitness=fitness,gamma=gamma,rho=rho,rhoRa=rhoRa,rhoSa=rhoSa,theta=theta,omega=omega,ATB=ATB,phi=phi)
 }
 
 create_initial_cond<-function(CSa0=100000*0.01*0.8,CRa0=100000*0.01*0.2,CS0=100000*0.99*0.8,CR0=100000*0.99*0.2,IRa0=0,ISa0=0,Inc0=0){
   c(CSa=CSa0,CRa=CRa0,CS=CS0,CR=CR0,IRa=IRa0,ISa=ISa0,Inc=Inc0)
 }
 
-run<-function(Init.cond,param,Tmax=365,dt=1,vec_virus=vec_virus){
+run<-function(Init.cond,param,Tmax=140,dt=1,vec_virus=vec_virus){
   Time=seq(from=0,to=Tmax,by=dt)
   result = as.data.frame(lsoda(Init.cond, Time, Res_model_Coli, param,vec_virus=vec_virus))
   tot <- sum(result[1, !(colnames(result) %in% c("time", "IRa", "ISa","N","new_theta"))])
@@ -38,16 +38,35 @@ run<-function(Init.cond,param,Tmax=365,dt=1,vec_virus=vec_virus){
 
 
 #Pas d'épidémie pas de vaccination et pas d'infection
+# calibrate fitness to have an equilibrium
+is_it_stable = function(f_to_test){
+  param<-create_params(fitness=f_to_test)
+  Init.cond<-create_initial_cond()
+  run_to_test<-run(Init.cond,param, vec_virus = vec_virus_0, Tmax = 1000)
+
+  return(abs(diff(c(run_to_test$CR[999], run_to_test$CR[1000]))))
+}
+
+f_to_use = optim(0.95, is_it_stable, method="L-BFGS-B", lower=0.9, upper=0.999)
+
+create_params<-function(beta=0.012,fitness=f_to_use$par,gamma=0.01,rho=1.8*10^-6,rhoRa=1.8*10^-6,rhoSa=1.8*10^-6,theta=0.0015,omega=0.14, ATB=0.1, phi=9.83)
+{
+  list(beta=beta,fitness=fitness,gamma=gamma,rho=rho,rhoRa=rhoRa,rhoSa=rhoSa,theta=theta,omega=omega,ATB=ATB,phi=phi)
+}
+
 param<-create_params()
 Init.cond<-create_initial_cond()
-run0e<-run(Init.cond,param,vec_virus=vec_virus_0)
+run0e<-run(Init.cond,param,vec_virus=vec_virus_0, Tmax=10000)
+Init.cond<-create_initial_cond(CSa0=tail(run0e$CSa, n = 1),CRa0=tail(run0e$CRa, n = 1),CS0=tail(run0e$CS, n = 1),
+                               CR0=tail(run0e$CR, n = 1),IRa0=0,ISa0=0)
+run0e<-run(Init.cond,param,vec_virus=vec_virus_0, Tmax=140)
 run0_g<-graph(run0e,c("CSa","CRa","CS","CR"),"E.Coli Colonization dynamics \nwithout virus epidemics")
-
+run0_g
 
 #Pas d'épidémie 
 param<-create_params()
 Init.cond<-create_initial_cond(CSa0=tail(run0e$CSa, n = 1),CRa0=tail(run0e$CRa, n = 1),CS0=tail(run0e$CS, n = 1),
-                               CR0=tail(run0e$CR, n = 1),IRa0=tail(run0e$IRa, n = 1),ISa0=tail(run0e$ISa, n = 1))
+                               CR0=tail(run0e$CR, n = 1),IRa0=0,ISa0=0)
 run1e<-run(Init.cond,param,vec_virus=vec_virus_0)
 run1_g<-graph(run1e,NULL,title="E.Coli Colonization dynamics \nwithout virus epidemics")
 
@@ -55,26 +74,26 @@ run1_g<-graph(run1e,NULL,title="E.Coli Colonization dynamics \nwithout virus epi
 # Epidémie de rotavirus mais pas de vaccination
 param<-create_params()
 Init.cond<-create_initial_cond(CSa0=tail(run0e$CSa, n = 1),CRa0=tail(run0e$CRa, n = 1),CS0=tail(run0e$CS, n = 1),
-                               CR0=tail(run0e$CR, n = 1),IRa0=tail(run0e$IRa, n = 1),ISa0=tail(run0e$ISa, n = 1))
-run2e<-run(Init.cond,param,vec_virus=I_vac_0)
+                               CR0=tail(run0e$CR, n = 1),IRa0=0,ISa0=0)
+run2e<-run(Init.cond,param,vec_virus=I_vac_0_rota)
 run2_g<-graph(run2e,NULL,title="E.Coli Colonization dynamics \nwith virus epidemic, no vaccination")
 
+
+
+# Epidémie de rotavirus vaccination 25%
+param<-create_params()
+Init.cond<-create_initial_cond(CSa0=tail(run0e$CSa, n = 1),CRa0=tail(run0e$CRa, n = 1),CS0=tail(run0e$CS, n = 1),
+                               CR0=tail(run0e$CR, n = 1),IRa0=0,ISa0=0)
+run3e<-run(Init.cond,param,vec_virus=I_vac_25_rota)
+run3_g<-graph(run3e,NULL,title="E.Coli Colonization dynamics \nwith rotavirus epidemic and vaccine coverage at 25%")
 
 
 # Epidémie de rotavirus vaccination 50%
 param<-create_params()
 Init.cond<-create_initial_cond(CSa0=tail(run0e$CSa, n = 1),CRa0=tail(run0e$CRa, n = 1),CS0=tail(run0e$CS, n = 1),
-                               CR0=tail(run0e$CR, n = 1),IRa0=tail(run0e$IRa, n = 1),ISa0=tail(run0e$ISa, n = 1))
-run3e<-run(Init.cond,param,vec_virus=I_vac_50)
-run3_g<-graph(run3e,NULL,title="E.Coli Colonization dynamics \nwith rotavirus epidemic and vaccine coverage at 50%")
-
-
-# Epidémie de rotavirus vaccination 80%
-param<-create_params()
-Init.cond<-create_initial_cond(CSa0=tail(run0e$CSa, n = 1),CRa0=tail(run0e$CRa, n = 1),CS0=tail(run0e$CS, n = 1),
-                               CR0=tail(run0e$CR, n = 1),IRa0=tail(run0e$IRa, n = 1),ISa0=tail(run0e$ISa, n = 1))
-run4e<-run(Init.cond,param,vec_virus=I_vac_80)
-run4_g<-graph(run4e,NULL,title="E.Coli Colonization dynamics\nwith rotavirus epidemic and vaccine coverage at 80%")
+                               CR0=tail(run0e$CR, n = 1),IRa0=0,ISa0=0)
+run4e<-run(Init.cond,param,vec_virus=I_vac_50_rota)
+run4_g<-graph(run4e,NULL,title="E.Coli Colonization dynamics\nwith rotavirus epidemic and vaccine coverage at 50%")
 
 
 
@@ -86,7 +105,7 @@ for (i in seq(1,21,by=1)){
   vec_virus=I_vac[[i]]
   param<-create_params()
   Init.cond<-create_initial_cond(CRa0=tail(run0e$CRa, n = 1),CSa0=tail(run0e$CSa, n = 1),
-                                 IRa0=tail(run0e$IRa, n = 1),ISa0=tail(run0e$ISa, n = 1),
+                                 IRa0=0,ISa0=0,
                                  CR0=tail(run0e$CR, n = 1),CS0=tail(run0e$CS, n = 1))
   runt<-run(Init.cond,param,vec_virus=vec_virus)
   LastIR=runt[["IRa"]][nrow(runt) - 1]
@@ -116,8 +135,8 @@ run3bis<-run3e
 run4bis<-run4e
 
 run2bis$vaccination<-"vacc 0%"
-run3bis$vaccination<-"vacc 50%"
-run4bis$vaccination<-"vacc 80%"
+run3bis$vaccination<-"vacc 25%"
+run4bis$vaccination<-"vacc 50%"
 
 all_run<-bind_rows(run2bis, run3bis, run4bis)
 all_run <- melt(all_run, id.vars = c("time", "vaccination"))
@@ -154,7 +173,7 @@ for (i in seq(1,21,by=1)){
   vec_virus=I_vac[[i]]
   param<-create_params()
   Init.cond<-create_initial_cond(CRa0=tail(run0e$CRa, n = 1),CSa0=tail(run0e$CSa, n = 1),
-                                 IRa0=tail(run0e$IRa, n = 1),ISa0=tail(run0e$ISa, n = 1),
+                                 IRa0=0,ISa0=0,
                                  CR0=tail(run0e$CR, n = 1),CS0=tail(run0e$CS, n = 1))
   runt<-run(Init.cond,param,vec_virus=vec_virus)
   exp=runt[["Inc"]][nrow(runt) - 1]
@@ -186,70 +205,67 @@ ratio_E$ratio_exp_R=diff$diffIR/diff_expe$diffexp
 ratio_E$ratioR_RS_exp=(diff$diffratio)/diff_expe$diffexp
 
 # Analyse de sensibilité probabiliste
-psa=data.frame(beta=runif(500,0.8*0.065,1.2*0.065),
-               fitness=runif(500,0.8*0.96,1.2*0.96),
-               gamma=runif(500,0.8*0.05,1.2*0.05),
+psa_vacc_50e=data.frame(beta=runif(500,0.8*0.012,1.2*0.012),
+               fitness=runif(500,0.8*f_to_use$par,min(1,1.2*f_to_use$par)),
+               gamma=runif(500,0.8*0.01,1.2*0.01),
                rho=runif(500,0.8*1.8*10^-6,1.2*1.8*10^-6),
                phi=runif(500,0.8*9.83,1.2*9.83),
-               alpha=runif(500,0.8*0.33,1.2*0.33),
-               theta=runif(500,0.8*0.0014,1.2*0.0014),
-               omega=runif(500,0.8*0.08,1.2*0.08),
+               theta=runif(500,0.8*0.0015,1.2*0.0015),
+               omega=runif(500,0.8*0.14,1.2*0.14),
                ATB=runif(500,0.8*0.1,1.2*0.1),
                incidenceR=0,
                incidenceS=0,
                incidenceT=0)
 
 for (i in seq(1,500,by=1)){
-  beta<-psa$beta[i]
-  fitness<-psa$fitness[i]
-  gamma<-psa$gamma[i]
-  rho<-psa$rho[i]
-  phi<-psa$phi[i]
-  alpha<-psa$alpha[i]
-  theta<-psa$theta[i]
-  omega<-psa$omega[i]
-  ATB<-psa$ATB[i]
+  beta<-psa_vacc_50e$beta[i]
+  fitness<-psa_vacc_50e$fitness[i]
+  gamma<-psa_vacc_50e$gamma[i]
+  rho<-psa_vacc_50e$rho[i]
+  phi<-psa_vacc_50e$phi[i]
+  theta<-psa_vacc_50e$theta[i]
+  omega<-psa_vacc_50e$omega[i]
+  ATB<-psa_vacc_50e$ATB[i]
   
-  param<-create_params(beta=beta,fitness=fitness,gamma=gamma,alpha=alpha,theta=theta,omega=omega,ATB=ATB,rho=rho,rhoRa=rho,rhoSa=rho,phi=phi)
+  param<-create_params(beta=beta,fitness=fitness,gamma=gamma,theta=theta,omega=omega,ATB=ATB,rho=rho,rhoRa=rho,rhoSa=rho,phi=phi)
   Init.cond<-create_initial_cond(CRa0=tail(run0e$CRa, n = 1),CSa0=tail(run0e$CSa, n = 1),
-                                 IRa0=tail(run0e$IRa, n = 1),ISa0=tail(run0e$ISa, n = 1),
+                                 IRa0=0,ISa0=0,
                                  CR0=tail(run0e$CR, n = 1),CS0=tail(run0e$CS, n = 1))
-  runi0<-run(Init.cond,param, vec_virus = I_vac_0)
-  runi<-run(Init.cond,param, vec_virus = I_vac_50)
-  psa$incidenceR[i]=(runi[["IRa"]][nrow(runi) - 1] - runi0[["IRa"]][nrow(runi0) - 1]) / runi0[["IRa"]][nrow(runi0) - 1]
-  psa$incidenceS[i]=(runi[["ISa"]][nrow(runi) - 1] - runi0[["ISa"]][nrow(runi0) - 1]) / runi0[["ISa"]][nrow(runi0) - 1]
-  psa$incidenceT[i]=( (runi[["IRa"]][nrow(runi) - 1]+runi[["ISa"]][nrow(runi) - 1]) - (runi0[["IRa"]][nrow(runi0) - 1]+runi0[["ISa"]][nrow(runi0) - 1]) ) / (runi0[["IRa"]][nrow(runi0) - 1]+runi0[["ISa"]][nrow(runi0) - 1])
+  runi0<-run(Init.cond,param, vec_virus = I_vac_0_rota)
+  runi<-run(Init.cond,param, vec_virus = I_vac_50_rota)
+  psa_vacc_50e$incidenceR[i]=(runi[["IRa"]][nrow(runi) - 1] - runi0[["IRa"]][nrow(runi0) - 1]) / runi0[["IRa"]][nrow(runi0) - 1]
+  psa_vacc_50e$incidenceS[i]=(runi[["ISa"]][nrow(runi) - 1] - runi0[["ISa"]][nrow(runi0) - 1]) / runi0[["ISa"]][nrow(runi0) - 1]
+  psa_vacc_50e$incidenceT[i]=( (runi[["IRa"]][nrow(runi) - 1]+runi[["ISa"]][nrow(runi) - 1]) - (runi0[["IRa"]][nrow(runi0) - 1]+runi0[["ISa"]][nrow(runi0) - 1]) ) / (runi0[["IRa"]][nrow(runi0) - 1]+runi0[["ISa"]][nrow(runi0) - 1])
   
 }
 
+univar_vacc_50e = expand.grid(phi = seq(8.3, 11.3, 0.5),
+                              # attr_exp = seq(0.27, 0.45, 0.03),
+                              ATB = seq(0.07, 0.13, 0.01),
+                              # ATB = 0,
+                              incidenceR=0,
+                              incidenceS=0,
+                              incidenceT=0)
 
-# Analyse de correlation partielle
-psa_Re<-psa[,-c(11:12)]
-psa_Re = psa_Re %>%
-  dplyr::select(beta,fitness,gamma,rho,phi,alpha,theta,omega,ATB,incidenceR) %>%
-  mutate(incidenceR=abs(incidenceR)) %>%
-  epi.prcc() %>%
-  rename(param = var)
+# find_ATB_for_exp = function(x, target_exp = 0.35){
+#   
+#   (target_exp - mean(-log(1-I_vac_0_rota(0:140)*x)/(-log(1-I_vac_0_rota(0:140)*x)+0.0015)))^2
+#   
+# }
+# 
+# univar_vacc_50e$ATB = sapply(univar_vacc_50e$attr_exp, function(x) optim(0.1, find_ATB_for_exp, method="BFGS", target_exp=x)$par)
 
-pcorR_E<-graph_pcor(psa_Re)
-
-psa_Se<-psa[,-c(10,12)]
-psa_Se = psa_Se %>%
-  dplyr::select(beta,fitness,gamma,rho,phi,alpha,theta,omega,ATB,incidenceS) %>%
-  mutate(incidenceS=abs(incidenceS)) %>%
-  epi.prcc() %>%
-  rename(param = var)
-
-pcorS_E<-graph_pcor(psa_Se)
-
-
-psa_SRe<-psa[,-c(10,11)]
-psa_SRe = psa_SRe %>%
-  dplyr::select(beta,fitness,gamma,rho,phi,alpha,theta,omega,ATB,incidenceT) %>%
-  mutate(incidenceT=abs(incidenceT)) %>%
-  epi.prcc() %>%
-  rename(param = var)
-pcorSR_E<-graph_pcor(psa_SRe)
+for(i in c(1:nrow(univar_vacc_50e))){
+  param<-create_params(phi=univar_vacc_50e$phi[i],ATB=univar_vacc_50e$ATB[i])
+  Init.cond<-create_initial_cond(CRa0=tail(run0a$CRa, n = 1),CSa0=tail(run0a$CSa, n = 1),
+                                 IRa0=0,ISa0=0,
+                                 CR0=tail(run0a$CR, n = 1),CS0=tail(run0a$CS, n = 1))
+  runi0<-run(Init.cond,param, vec_virus = I_vac_0_rota)
+  runi<-run(Init.cond,param, vec_virus = I_vac_50_rota)
+  univar_vacc_50e$incidenceR[i]=(runi[["IRa"]][nrow(runi) - 1] - runi0[["IRa"]][nrow(runi0) - 1]) / runi0[["IRa"]][nrow(runi0) - 1]
+  univar_vacc_50e$incidenceS[i]=(runi[["ISa"]][nrow(runi) - 1] - runi0[["ISa"]][nrow(runi0) - 1]) / runi0[["ISa"]][nrow(runi0) - 1]
+  univar_vacc_50e$incidenceT[i]=( (runi[["IRa"]][nrow(runi) - 1]+runi[["ISa"]][nrow(runi) - 1]) - (runi0[["IRa"]][nrow(runi0) - 1]+runi0[["ISa"]][nrow(runi0) - 1]) ) / (runi0[["IRa"]][nrow(runi0) - 1]+runi0[["ISa"]][nrow(runi0) - 1])
+}
 
 
 
@@ -273,20 +289,19 @@ colnames(abx_vacce)<-seq(0, 1, by = 0.05)
 
 for (i in seq(1,21,by=1)){
   for (j in seq(1,500,by=1)){
-    beta<-psa$beta[j]
-    fitness<-psa$fitness[j]
-    gamma<-psa$gamma[j]
-    rho<-psa$rho[j]
-    phi<-psa$phi[j]
-    alpha<-psa$alpha[j]
-    theta<-psa$theta[j]
-    omega<-psa$omega[j]
-    ATB<-psa$ATB[j]
+    beta<-psa_vacc_50e$beta[j]
+    fitness<-psa_vacc_50e$fitness[j]
+    gamma<-psa_vacc_50e$gamma[j]
+    rho<-psa_vacc_50e$rho[j]
+    phi<-psa_vacc_50e$phi[j]
+    theta<-psa_vacc_50e$theta[j]
+    omega<-psa_vacc_50e$omega[j]
+    ATB<-psa_vacc_50e$ATB[j]
     
     vec_virus=I_vac[[i]]
-    param<-create_params(beta=beta,fitness=fitness,gamma=gamma,alpha=alpha,theta=theta,omega=omega,ATB=ATB,rho=rho,rhoRa=rho,rhoSa=rho,phi=phi)
+    param<-create_params(beta=beta,fitness=fitness,gamma=gamma,theta=theta,omega=omega,ATB=ATB,rho=rho,rhoRa=rho,rhoSa=rho,phi=phi)
     Init.cond<-create_initial_cond(CRa0=tail(run0e$CRa, n = 1),CSa0=tail(run0e$CSa, n = 1),
-                                   IRa0=tail(run0e$IRa, n = 1),ISa0=tail(run0e$ISa, n = 1),
+                                   IRa0=0,ISa0=0,
                                    CR0=tail(run0e$CR, n = 1),CS0=tail(run0e$CS, n = 1))
     runi<-run(Init.cond,param,vec_virus = vec_virus)
     IR_vacce[j,i]<-runi[["IRa"]][nrow(runi) - 1]
@@ -369,9 +384,9 @@ diff_sim_E<-diff_graph_sim(diff_sime)
 # Couverture vaccinale 70% efficacité 30%
 param<-create_params()
 Init.cond<-create_initial_cond(CRa0=tail(run0e$CRa, n = 1),CSa0=tail(run0e$CSa, n = 1),
-                               IRa0=tail(run0e$IRa, n = 1),ISa0=tail(run0e$ISa, n = 1),
+                               IRa0=0,ISa0=0,
                                CR0=tail(run0e$CR, n = 1),CS0=tail(run0e$CS, n = 1))
-run70<-run(Init.cond,param,vec_virus=I_vac_70)
+run70<-run(Init.cond,param,vec_virus=I_vac_70_rota)
 IR70<-run70[["IRa"]][nrow(run70) - 1]
 IS70<-run70[["ISa"]][nrow(run70) - 1]
 ISR70<-run70[["ISa"]][nrow(run70) - 1]+run70[["IRa"]][nrow(run70) - 1]
@@ -379,9 +394,9 @@ ISR70<-run70[["ISa"]][nrow(run70) - 1]+run70[["IRa"]][nrow(run70) - 1]
 # Couverture vaccinale 30% efficacité 70%
 param<-create_params()
 Init.cond<-create_initial_cond(CRa0=tail(run0e$CRa, n = 1),CSa0=tail(run0e$CSa, n = 1),
-                               IRa0=tail(run0e$IRa, n = 1),ISa0=tail(run0e$ISa, n = 1),
+                               IRa0=0,ISa0=0,
                                CR0=tail(run0e$CR, n = 1),CS0=tail(run0e$CS, n = 1))
-run30<-run(Init.cond,param,vec_virus=I_vac_30)
+run30<-run(Init.cond,param,vec_virus=I_vac_30_rota)
 IR30<-run30[["IRa"]][nrow(run30) - 1]
 IS30<-run30[["ISa"]][nrow(run30) - 1]
 ISR30<-run30[["ISa"]][nrow(run30) - 1]+run30[["IRa"]][nrow(run30) - 1]
@@ -389,9 +404,9 @@ ISR30<-run30[["ISa"]][nrow(run30) - 1]+run30[["IRa"]][nrow(run30) - 1]
 # Couverture vaccinale 46% efficacité 46%
 param<-create_params()
 Init.cond<-create_initial_cond(CRa0=tail(run0e$CRa, n = 1),CSa0=tail(run0e$CSa, n = 1),
-                               IRa0=tail(run0e$IRa, n = 1),ISa0=tail(run0e$ISa, n = 1),
+                               IRa0=0,ISa0=0,
                                CR0=tail(run0e$CR, n = 1),CS0=tail(run0e$CS, n = 1))
-run46<-run(Init.cond,param,vec_virus=I_vac_46)
+run46<-run(Init.cond,param,vec_virus=I_vac_46_rota)
 IR46<-run46[["IRa"]][nrow(run46) - 1]
 IS46<-run46[["ISa"]][nrow(run46) - 1]
 ISR46<-run46[["ISa"]][nrow(run46) - 1]+run46[["IRa"]][nrow(run46) - 1]

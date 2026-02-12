@@ -31,7 +31,7 @@ SIR_model_vacc_2 <- function(t, pop, param) {
 }
 
 
-create_params<-function(beta=0.8,gamma=0.14,vf=0.643,Ps=0.75)
+create_params<-function(beta=0.2,gamma=0.14,vf=0.643,Ps=0.75)
 {
   list(beta=beta,gamma=gamma,vf=vf,Ps=Ps)
 }
@@ -69,54 +69,54 @@ propI1_g<-graph2(r1,"propI","Proportion od people infected by Rotavirus \nwithou
 Incidence1<-graph2(r1,"Incidence","Incidence of infected people without vaccination")
 grid.arrange(I_g1,Iv_Inv_g1,ncol=1)
 
-I_vac_0<-approxfun(r1$time,r1%>%
+I_vac_0_rota<-approxfun(r1$time,r1%>%
                      mutate(propInc=Incidence)%>%
                      select(propInc)%>%
                      pull)
 
-# vaccination 50%
+# vaccination 25%
 param<-create_params()
-Init.cond<-create_initial_cond(Sv0=99500*0.5,Snv0=99500*0.5)
+Init.cond<-create_initial_cond(Sv0=99500*0.25,Snv0=99500*0.75)
 r2<-run(Init.cond,param)
 r2$Iv_Inv<-r2$Iv+r2$Inv
-r2_g<- graph2(r2,NULL,title="Epidemic Dynamics of Rotavirus per 100,000 Population with 50% vaccine coverage")
-I_g2<-graph2(r2,"Iv_Inv", title="Infected Individuals with 50% vaccine covergage")
-Iv_Inv_g2<-graph2(r2,c("Iv","Inv"),title="Infected Individuals \nwith 50% vaccine coverage")
+r2_g<- graph2(r2,NULL,title="Epidemic Dynamics of Rotavirus per 100,000 Population with 25% vaccine coverage")
+I_g2<-graph2(r2,"Iv_Inv", title="Infected Individuals with 25% vaccine covergage")
+Iv_Inv_g2<-graph2(r2,c("Iv","Inv"),title="Infected Individuals \nwith 25% vaccine coverage")
 prop_I2=r2%>%
   mutate(propI=Iv_Inv/(Sv+Iv+Rv+Snv+Inv+Rnv))%>%
   select(propI)%>%
   pull
 r2$propI<-prop_I2
-propI2_g<-graph2(r2,"propI","Proportion od people infected by Rotavirus \nwith 50% Vaccination Coverage for Rotavirus")
-Incidence2<-graph2(r2,"Incidence","Incidence of infected people \nwith 50% vaccine coverage")
+propI2_g<-graph2(r2,"propI","Proportion od people infected by Rotavirus \nwith 25% Vaccination Coverage for Rotavirus")
+Incidence2<-graph2(r2,"Incidence","Incidence of infected people \nwith 25% vaccine coverage")
 grid.arrange(I_g2,Iv_Inv_g2,ncol=1)
 
 
-I_vac_50<-approxfun(r2$time,r2%>%
+I_vac_25_rota<-approxfun(r2$time,r2%>%
                       mutate(propInc=Incidence)%>%
                       select(propInc)%>%
                       pull)
 
 
 
-# vaccination 80%
+# vaccination 50%
 param<-create_params()
-Init.cond<-create_initial_cond(Sv0=99500*0.8,Snv0=99500*0.2)
+Init.cond<-create_initial_cond(Sv0=99500*0.5,Snv0=99500*0.5)
 r3<-run(Init.cond,param)
 r3$Iv_Inv<-r3$Iv+r3$Inv
-r3_g<- graph2(r3,NULL,title="Epidemic Dynamics of Rotavirus per 100,000 Population with 80% vaccine coverage")
-I_g3<-graph2(r3,"Iv_Inv", title="Infected Individuals with 80% vaccine covergage")
-Iv_Inv_g3<-graph2(r3,c("Iv","Inv"),title="Infected Individuals with 80% vaccine coverage")
+r3_g<- graph2(r3,NULL,title="Epidemic Dynamics of Rotavirus per 100,000 Population with 50% vaccine coverage")
+I_g3<-graph2(r3,"Iv_Inv", title="Infected Individuals with 50% vaccine covergage")
+Iv_Inv_g3<-graph2(r3,c("Iv","Inv"),title="Infected Individuals with 50% vaccine coverage")
 prop_I3=r3%>%
   mutate(propI=Iv_Inv/(Sv+Iv+Rv+Snv+Inv+Rnv))%>%
   select(propI)%>%
   pull
 r3$propI<-prop_I3
-propI3_g<-graph2(r3,"propI","Proportion od people infected by Rotavirus \nwith 80% Vaccination Coverage for Rotavirus")
-Incidence3<-graph2(r3,"Incidence","Incidence of infected people \nwith 80% vaccine coverage")
+propI3_g<-graph2(r3,"propI","Proportion od people infected by Rotavirus \nwith 50% Vaccination Coverage for Rotavirus")
+Incidence3<-graph2(r3,"Incidence","Incidence of infected people \nwith 50% vaccine coverage")
 grid.arrange(I_g3,Iv_Inv_g3,ncol=1)
 
-I_vac_80<-approxfun(r3$time,r3%>%
+I_vac_50_rota<-approxfun(r3$time,r3%>%
                       mutate(propInc=Incidence)%>%
                       select(propInc)%>%
                       pull)
@@ -126,7 +126,7 @@ I_vac_80<-approxfun(r3$time,r3%>%
 param<-create_params(vf=0.3)
 Init.cond<-create_initial_cond(Sv0=99500*0.7,Snv0=99500*0.3)
 r70<-run(Init.cond,param)
-I_vac_70<-approxfun(r70$time,r70%>%
+I_vac_70_rota<-approxfun(r70$time,r70%>%
                       mutate(propInc=Incidence)%>%
                       select(propInc)%>%
                       pull)
@@ -135,7 +135,7 @@ I_vac_70<-approxfun(r70$time,r70%>%
 param<-create_params(vf=0.7)
 Init.cond<-create_initial_cond(Sv0=99500*0.3,Snv0=99500*0.7)
 r30<-run(Init.cond,param)
-I_vac_30<-approxfun(r30$time,r30%>%
+I_vac_30_rota<-approxfun(r30$time,r30%>%
                       mutate(propInc=Incidence)%>%
                       select(propInc)%>%
                       pull)
@@ -145,7 +145,7 @@ I_vac_30<-approxfun(r30$time,r30%>%
 param<-create_params(vf=0.46)
 Init.cond<-create_initial_cond(Sv0=99500*0.46,Snv0=99500*0.54)
 r46<-run(Init.cond,param)
-I_vac_46<-approxfun(r46$time,r46%>%
+I_vac_46_rota<-approxfun(r46$time,r46%>%
                       mutate(propInc=Incidence)%>%
                       select(propInc)%>%
                       pull)

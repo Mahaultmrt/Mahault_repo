@@ -84,8 +84,8 @@ Res_model_Coli <- function(t, pop, param,vec_virus) {
     
     new_theta<-theta-log(1-vec_virus(t)*ATB)
     
-    dCSa<- - CSa*(beta*fitness*phi*(CRa+CR)/N)+(gamma+alpha*(1-sigmaR))*CRa-CSa*omega+new_theta*CS
-    dCRa<- CSa*(beta*fitness*phi*(CRa+CR)/N)-(gamma+alpha*(1-sigmaR))*CRa-CRa*omega+new_theta*CR
+    dCSa<- - CSa*(beta*(fitness+phi)*(CRa+CR)/N)+gamma*CRa-CSa*omega+new_theta*CS
+    dCRa<- CSa*(beta*(fitness+phi)*(CRa+CR)/N)-gamma*CRa-CRa*omega+new_theta*CR
     dCS<- -CS*(beta*fitness*(CRa+CR)/N)+gamma*CR+CSa*omega-new_theta*CS
     dCR<- CS*(beta*fitness*(CRa+CR)/N)-gamma*CR+CRa*omega-new_theta*CR
     dIRa<- rhoRa*CRa+rho*CR
